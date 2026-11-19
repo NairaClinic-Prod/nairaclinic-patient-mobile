@@ -1,4 +1,5 @@
 import { AuthLayout } from '@/components/auth/auth-layout';
+import { CodeActions } from '@/components/auth/code-actions';
 import { Field } from '@/components/auth/field';
 import { PhoneField } from '@/components/auth/phone-field';
 import { PinField } from '@/components/auth/pin-field';
@@ -74,7 +75,7 @@ export default function SignUpScreen() {
   const formik = useFormik({
     initialValues: INITIAL,
     validationSchema: signUpSchemas[step],
-    onSubmit: (_values, helpers) => {
+    onSubmit: async (_values, helpers) => {
       if (step === 'phone') setStep('code');
       else if (step === 'code') setStep('details');
       helpers.setTouched({}, false);
@@ -103,21 +104,18 @@ export default function SignUpScreen() {
           : COPY[step].subtitle
       }
       actions={
-        step === 'code' ? (
-          <View className="h-9 flex-row items-center justify-center gap-4">
-            <Button variant="link" size="sm" onPress={() => set('code')('')}>
-              <Text className="text-[14px] font-bold">Resend code</Text>
-            </Button>
-            <Button variant="link" size="sm" onPress={changeNumber}>
-              <Text className="text-[14px] font-bold">Use a different number</Text>
-            </Button>
-          </View>
-        ) : null
-      }
-      extra={
-        <Button size="lg" onPress={() => formik.handleSubmit()}>
+        <Button size="lg" loading={formik.isSubmitting} onPress={() => formik.handleSubmit()}>
           <Text className="text-base">{COPY[step].action}</Text>
         </Button>
+      }
+      extra={
+        step === 'code' ? (
+          <CodeActions
+            disabled={values.code.length === 6}
+            onResend={() => set('code')('')}
+            onChangeNumber={changeNumber}
+          />
+        ) : null
       }
       footerText="Already have an account?"
       footerAction="Log In"

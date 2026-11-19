@@ -38,3 +38,12 @@ export const signUpSchemas = {
     terms: Yup.boolean().oneOf([true], 'Accept the terms to continue.'),
   }),
 };
+
+export const forgotPinSchemas = {
+  phone: signUpSchemas.phone,
+  code: signUpSchemas.code,
+  pin: Yup.object({
+    pin: pin(false),
+    confirmPin: Yup.string().oneOf([Yup.ref('pin')], "PINs don't match."),
+  }),
+};

@@ -212,8 +212,8 @@ export function AuthLayout({
           { paddingHorizontal: SCREEN_PADDING_X, paddingBottom: 8 + insets.bottom },
           barStyle,
         ]}>
-        {actions}
         {extra}
+        {actions}
         <Animated.View style={[{ height: FOOTER_HEIGHT }, footerStyle]}>
           <View className="flex-row items-center justify-center">
             <Text className="text-muted-foreground text-[15px]">{footerText}</Text>

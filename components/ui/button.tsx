@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Button as NativeButton, Host, RNHostView, Row, Spacer } from '@expo/ui';
 import { FilledTonalIconButton } from '@expo/ui/jetpack-compose';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Platform, Pressable, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, View } from 'react-native';
 
 const buttonVariants = cva(
   cn(
@@ -95,6 +95,7 @@ const buttonTextVariants = cva(
 
 type ButtonProps = Omit<React.ComponentProps<typeof Pressable>, 'children'> & {
   children?: React.ReactNode;
+  loading?: boolean;
 } & VariantProps<typeof buttonVariants>;
 
 const GLASS_HEIGHT = { default: 48, sm: 40, lg: 56, icon: 48 };
@@ -166,21 +167,43 @@ function GlassButton({ size, onPress, disabled, children, accessibilityLabel }: 
   );
 }
 
-function Button({ className, variant = 'glass', size, ...props }: ButtonProps) {
+// With `loading` the label is replaced by a spinner and the button ignores presses.
+function Button({
+  className,
+  variant = 'glass',
+  size,
+  loading,
+  children,
+  disabled,
+  ...props
+}: ButtonProps) {
+  const color = useColor();
+  const filled = variant === 'glass' || variant === 'default' || variant === 'destructive';
+  const content = loading ? (
+    <ActivityIndicator color={filled ? color.primaryForeground : color.primary} />
+  ) : (
+    children
+  );
+  const inactive = disabled || loading;
+
   if (variant === 'glass' && Platform.OS !== 'web') {
     return (
       <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
-        <GlassButton size={size} {...props} />
+        <GlassButton size={size} disabled={inactive} {...props}>
+          {content}
+        </GlassButton>
       </TextClassContext.Provider>
     );
   }
   return (
     <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
       <Pressable
-        className={cn(props.disabled && 'opacity-50', buttonVariants({ variant, size }), className)}
+        className={cn(inactive && 'opacity-50', buttonVariants({ variant, size }), className)}
         role="button"
-        {...props}
-      />
+        disabled={inactive}
+        {...props}>
+        {content}
+      </Pressable>
     </TextClassContext.Provider>
   );
 }

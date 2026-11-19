@@ -27,7 +27,7 @@ export default function LoginScreen() {
   const formik = useFormik({
     initialValues: INITIAL,
     validationSchema: loginSchema,
-    onSubmit: () => undefined,
+    onSubmit: async () => undefined,
   });
   const error = (name: 'phone' | 'pin') => (formik.touched[name] ? formik.errors[name] : undefined);
 
@@ -36,7 +36,7 @@ export default function LoginScreen() {
       title="Welcome back"
       subtitle="Log in with your phone number and PIN to continue."
       actions={
-        <Button size="lg" onPress={() => formik.handleSubmit()}>
+        <Button size="lg" loading={formik.isSubmitting} onPress={() => formik.handleSubmit()}>
           <Text className="text-base">Log In</Text>
         </Button>
       }
@@ -74,7 +74,11 @@ export default function LoginScreen() {
             Keep me logged in
           </Label>
         </View>
-        <Button variant="link" size="sm" className="px-0">
+        <Button
+          variant="link"
+          size="sm"
+          className="px-0"
+          onPress={() => router.push('/forgot-pin')}>
           <Text className="text-[14px] font-bold">Forgot PIN?</Text>
         </Button>
       </View>
