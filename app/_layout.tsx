@@ -3,6 +3,7 @@ import '@/global.css';
 import { FONT_FILES } from '@/lib/fonts';
 import { NAV_THEME } from '@/lib/theme';
 import { ThemeProvider } from 'expo-router/react-navigation';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalHost } from '@rn-primitives/portal';
 import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
@@ -28,7 +29,9 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={NAV_THEME[theme ?? 'light']}>
         <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-        <Stack />
+        <BottomSheetModalProvider>
+          <Stack />
+        </BottomSheetModalProvider>
         <PortalHost />
       </ThemeProvider>
     </GestureHandlerRootView>

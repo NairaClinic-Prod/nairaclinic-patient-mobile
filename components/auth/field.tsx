@@ -1,3 +1,4 @@
+import { useScrollToFocused } from '@/components/auth/auth-layout';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,7 +14,9 @@ type FieldProps = TextInputProps & {
   right?: React.ReactNode;
 };
 
-export function Field({ label, icon, error, right, ...props }: FieldProps) {
+export function Field({ label, icon, error, right, onFocus, onBlur, ...props }: FieldProps) {
+  const [focused, setFocused] = React.useState(false);
+  const scrollToFocused = useScrollToFocused();
   return (
     <View className="gap-2">
       <Label nativeID={label}>{label}</Label>
@@ -21,11 +24,23 @@ export function Field({ label, icon, error, right, ...props }: FieldProps) {
         <Input
           aria-labelledby={label}
           aria-invalid={!!error}
-          className={`bg-card h-14 rounded-full pl-12 text-base ${right ? 'pr-14' : 'pr-5'} ${error ? 'border-destructive' : ''}`}
+          className={`bg-card h-14 rounded-full pl-12 text-base ${right ? 'pr-14' : 'pr-5'} ${error ? 'border-destructive' : focused ? 'border-primary' : ''}`}
+          onFocus={(event) => {
+            setFocused(true);
+            scrollToFocused();
+            onFocus?.(event);
+          }}
+          onBlur={(event) => {
+            setFocused(false);
+            onBlur?.(event);
+          }}
           {...props}
         />
         <View className="absolute left-4" pointerEvents="none">
-          <Icon as={icon} className="text-muted-foreground size-5" />
+          <Icon
+            as={icon}
+            className={`size-5 ${focused ? 'text-primary' : 'text-muted-foreground'}`}
+          />
         </View>
         {right ? <View className="absolute right-2">{right}</View> : null}
       </View>

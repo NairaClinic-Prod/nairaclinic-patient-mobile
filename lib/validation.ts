@@ -13,7 +13,11 @@ const WEAK_PINS = [
 ];
 
 // Same rules as the patient website, so the backend accepts what the app sends.
-export function validatePhone(phone: string): { valid: boolean; formatted: string; error?: string } {
+export function validatePhone(phone: string): {
+  valid: boolean;
+  formatted: string;
+  error?: string;
+} {
   const trimmed = phone.trim();
   const cleaned = trimmed.replace(/\D/g, '');
   const invalid = {
@@ -55,4 +59,25 @@ export function validateEmail(email: string) {
 export function splitName(name: string) {
   const [firstName = '', ...rest] = name.trim().split(/\s+/);
   return { firstName, lastName: rest.join(' ') };
+}
+
+// The number is typed without the country code, which the country picker supplies.
+export function validateNationalPhone(dial: string, national: string) {
+  const digits = national.replace(/\D/g, '').replace(/^0+/, '');
+  const formatted = `${dial}${digits}`;
+
+  if (dial === '+234') {
+    return /^[789]\d{9}$/.test(digits)
+      ? { valid: true as const, formatted, error: undefined }
+      : {
+          valid: false as const,
+          formatted,
+          error: 'Enter a valid Nigerian number, like +234801 234 5678',
+        };
+  }
+
+  const total = formatted.replace(/\D/g, '').length;
+  return total >= 7 && total <= 15
+    ? { valid: true as const, formatted, error: undefined }
+    : { valid: false as const, formatted, error: 'Enter a valid phone number' };
 }

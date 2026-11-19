@@ -1,5 +1,6 @@
 import { AuthLayout } from '@/components/auth/auth-layout';
 import { Field } from '@/components/auth/field';
+import { PhoneField } from '@/components/auth/phone-field';
 import { PinField } from '@/components/auth/pin-field';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -7,76 +8,90 @@ import { Icon } from '@/components/ui/icon';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Text } from '@/components/ui/text';
-import { splitName, validateEmail, validatePhone, validatePin } from '@/lib/validation';
+import { signUpSchemas } from '@/lib/auth-schemas';
+import { validateNationalPhone } from '@/lib/validation';
 import { Stack, router } from 'expo-router';
-import { Check, Gift, Mail, Phone, ShieldCheck, User } from 'lucide-react-native';
+import { useFormik } from 'formik';
+import { Check, Gift, Mail, ShieldCheck, User } from 'lucide-react-native';
 import * as React from 'react';
 import { View } from 'react-native';
+import type { CountryCode } from 'react-native-country-picker-modal';
 
 const SCREEN_OPTIONS = { headerShown: false };
 const SEXES = ['Female', 'Male'] as const;
 
 type Step = 'phone' | 'code' | 'details';
-type Errors = Partial<
-  Record<
-    'phone' | 'code' | 'name' | 'sex' | 'email' | 'referral' | 'pin' | 'confirmPin' | 'terms',
-    string
-  >
->;
 
-const COPY: Record<Step, { title: string; subtitle: string }> = {
+type Values = {
+  countryCode: CountryCode;
+  callingCode: string;
+  phone: string;
+  code: string;
+  name: string;
+  sex: string;
+  email: string;
+  referral: string;
+  pin: string;
+  confirmPin: string;
+  terms: boolean;
+};
+
+const INITIAL: Values = {
+  countryCode: 'NG',
+  callingCode: '234',
+  phone: '',
+  code: '',
+  name: '',
+  sex: '',
+  email: '',
+  referral: '',
+  pin: '',
+  confirmPin: '',
+  terms: false,
+};
+
+const COPY: Record<Step, { title: string; subtitle: string; action: string }> = {
   phone: {
     title: 'Create an account',
     subtitle: "Enter your phone number. We'll send a 6-digit code on WhatsApp.",
+    action: 'Send code',
   },
-  code: { title: 'Verify your phone', subtitle: 'Enter the 6-digit code we sent on WhatsApp.' },
-  details: { title: 'Your details', subtitle: 'Tell us about you and choose a PIN.' },
+  code: {
+    title: 'Verify your phone',
+    subtitle: 'Enter the 6-digit code we sent on WhatsApp.',
+    action: 'Verify phone',
+  },
+  details: {
+    title: 'Your details',
+    subtitle: 'Tell us about you and choose a PIN.',
+    action: 'Sign Up',
+  },
 };
 
 export default function SignUpScreen() {
   const [step, setStep] = React.useState<Step>('phone');
-  const [phone, setPhone] = React.useState('');
-  const [code, setCode] = React.useState('');
-  const [name, setName] = React.useState('');
-  const [sex, setSex] = React.useState('');
-  const [email, setEmail] = React.useState('');
-  const [referral, setReferral] = React.useState('');
-  const [pin, setPin] = React.useState('');
-  const [confirmPin, setConfirmPin] = React.useState('');
-  const [terms, setTerms] = React.useState(false);
-  const [errors, setErrors] = React.useState<Errors>({});
 
-  const formattedPhone = validatePhone(phone).formatted;
+  const formik = useFormik({
+    initialValues: INITIAL,
+    validationSchema: signUpSchemas[step],
+    onSubmit: (_values, helpers) => {
+      if (step === 'phone') setStep('code');
+      else if (step === 'code') setStep('details');
+      helpers.setTouched({}, false);
+    },
+  });
 
-  function sendCode() {
-    const check = validatePhone(phone);
-    if (!check.valid) return setErrors({ phone: check.error });
-    setErrors({});
-    setCode('');
-    setStep('code');
-  }
-
-  function verifyCode() {
-    if (!/^\d{6}$/.test(code)) return setErrors({ code: 'Enter the 6-digit code.' });
-    setErrors({});
-    setStep('details');
-  }
+  const values = formik.values;
+  const formattedPhone = validateNationalPhone(`+${values.callingCode}`, values.phone).formatted;
+  const error = (name: keyof Values) =>
+    formik.touched[name] ? (formik.errors[name] as string | undefined) : undefined;
+  const set = (name: keyof Values) => (value: string | boolean) =>
+    formik.setFieldValue(name, value);
+  const touch = (name: keyof Values) => () => formik.setFieldTouched(name);
 
   function changeNumber() {
-    setErrors({});
+    formik.setTouched({}, false);
     setStep('phone');
-  }
-
-  function submit() {
-    const next: Errors = {};
-    if (splitName(name).firstName.length < 2) next.name = 'Enter your full name.';
-    if (!sex) next.sex = 'Select your sex.';
-    if (email.trim() && !validateEmail(email)) next.email = 'Enter a valid email address.';
-    const pinCheck = validatePin(pin);
-    if (!pinCheck.valid) next.pin = pinCheck.error;
-    else if (pin !== confirmPin) next.confirmPin = "PINs don't match.";
-    if (!terms) next.terms = 'Accept the terms to continue.';
-    setErrors(next);
   }
 
   return (
@@ -87,27 +102,28 @@ export default function SignUpScreen() {
           ? `Enter the 6-digit code sent to ${formattedPhone} on WhatsApp.`
           : COPY[step].subtitle
       }
+      actions={
+        <Button size="lg" onPress={() => formik.handleSubmit()}>
+          <Text className="text-base">{COPY[step].action}</Text>
+        </Button>
+      }
       footerText="Already have an account?"
       footerAction="Log In"
       onFooterPress={() => router.replace('/login')}>
       <Stack.Screen options={SCREEN_OPTIONS} />
 
       {step === 'phone' ? (
-        <>
-          <Field
-            label="Phone number"
-            icon={Phone}
-            error={errors.phone}
-            value={phone}
-            onChangeText={setPhone}
-            placeholder="08012345678"
-            keyboardType="phone-pad"
-            autoComplete="tel"
-          />
-          <Button size="lg" onPress={sendCode}>
-            <Text className="text-base">Send code</Text>
-          </Button>
-        </>
+        <PhoneField
+          countryCode={values.countryCode}
+          onSelectCountry={(country) => {
+            formik.setFieldValue('countryCode', country.countryCode);
+            formik.setFieldValue('callingCode', country.callingCode);
+          }}
+          value={values.phone}
+          onChangeText={set('phone')}
+          onBlur={touch('phone')}
+          error={error('phone')}
+        />
       ) : null}
 
       {step === 'code' ? (
@@ -115,20 +131,18 @@ export default function SignUpScreen() {
           <Field
             label="Verification code"
             icon={ShieldCheck}
-            error={errors.code}
-            value={code}
-            onChangeText={(text) => setCode(text.replace(/\D/g, ''))}
+            error={error('code')}
+            value={values.code}
+            onChangeText={(text) => set('code')(text.replace(/\D/g, ''))}
+            onBlur={touch('code')}
             placeholder="000000"
             keyboardType="number-pad"
             textContentType="oneTimeCode"
             autoComplete="sms-otp"
             maxLength={6}
           />
-          <Button size="lg" onPress={verifyCode}>
-            <Text className="text-base">Verify phone</Text>
-          </Button>
           <View className="flex-row items-center justify-center gap-2">
-            <Button variant="link" size="sm" onPress={() => setCode('')}>
+            <Button variant="link" size="sm" onPress={() => set('code')('')}>
               <Text className="text-[14px] font-bold">Resend code</Text>
             </Button>
             <Button variant="link" size="sm" onPress={changeNumber}>
@@ -153,9 +167,10 @@ export default function SignUpScreen() {
           <Field
             label="Full name"
             icon={User}
-            error={errors.name}
-            value={name}
-            onChangeText={setName}
+            error={error('name')}
+            value={values.name}
+            onChangeText={set('name')}
+            onBlur={touch('name')}
             placeholder="Enter your full name"
             autoComplete="name"
             autoCapitalize="words"
@@ -164,29 +179,30 @@ export default function SignUpScreen() {
 
           <View className="gap-2">
             <Label nativeID="sex-label">Sex</Label>
-            <RadioGroup value={sex} onValueChange={setSex} className="flex-row gap-3">
+            <RadioGroup value={values.sex} onValueChange={set('sex')} className="flex-row gap-3">
               {SEXES.map((option) => (
                 <View
                   key={option}
-                  className={`bg-card h-14 flex-1 flex-row items-center gap-3 rounded-full border px-5 ${sex === option ? 'border-primary' : 'border-input'}`}>
+                  className={`bg-card h-14 flex-1 flex-row items-center gap-3 rounded-full border px-5 ${values.sex === option ? 'border-primary' : 'border-input'}`}>
                   <RadioGroupItem value={option} aria-labelledby={`sex-${option}`} />
-                  <Label nativeID={`sex-${option}`} onPress={() => setSex(option)}>
+                  <Label nativeID={`sex-${option}`} onPress={() => set('sex')(option)}>
                     {option}
                   </Label>
                 </View>
               ))}
             </RadioGroup>
-            {errors.sex ? (
-              <Text className="text-destructive pl-2 text-[13px]">{errors.sex}</Text>
+            {error('sex') ? (
+              <Text className="text-destructive pl-2 text-[13px]">{error('sex')}</Text>
             ) : null}
           </View>
 
           <Field
             label="Email address (optional)"
             icon={Mail}
-            error={errors.email}
-            value={email}
-            onChangeText={setEmail}
+            error={error('email')}
+            value={values.email}
+            onChangeText={set('email')}
+            onBlur={touch('email')}
             placeholder="Enter your email"
             keyboardType="email-address"
             autoComplete="email"
@@ -196,39 +212,42 @@ export default function SignUpScreen() {
           <Field
             label="Referral code (optional)"
             icon={Gift}
-            error={errors.referral}
-            value={referral}
-            onChangeText={(text) => setReferral(text.toUpperCase())}
+            error={error('referral')}
+            value={values.referral}
+            onChangeText={(text) => set('referral')(text.toUpperCase())}
             placeholder="Enter a referral code if you have one"
             autoCapitalize="characters"
           />
 
-          <PinField label="PIN" value={pin} onChangeText={setPin} error={errors.pin} />
+          <PinField
+            label="PIN"
+            value={values.pin}
+            onChangeText={set('pin')}
+            onBlur={touch('pin')}
+            error={error('pin')}
+          />
           <PinField
             label="Confirm PIN"
-            placeholder="Enter your PIN again"
-            value={confirmPin}
-            onChangeText={setConfirmPin}
-            error={errors.confirmPin}
+            value={values.confirmPin}
+            onChangeText={set('confirmPin')}
+            onBlur={touch('confirmPin')}
+            error={error('confirmPin')}
           />
 
           <View className="gap-2">
             <View className="flex-row items-center gap-2.5">
-              <Checkbox id="terms" checked={terms} onCheckedChange={setTerms} />
+              <Checkbox id="terms" checked={values.terms} onCheckedChange={set('terms')} />
               <Label
                 htmlFor="terms"
-                onPress={() => setTerms((current) => !current)}
+                onPress={() => set('terms')(!values.terms)}
                 className="flex-1 font-normal">
                 I accept the Terms of Service and Privacy Policy
               </Label>
             </View>
-            {errors.terms ? (
-              <Text className="text-destructive pl-1 text-[13px]">{errors.terms}</Text>
+            {error('terms') ? (
+              <Text className="text-destructive pl-1 text-[13px]">{error('terms')}</Text>
             ) : null}
           </View>
-          <Button size="lg" onPress={submit}>
-            <Text className="text-base">Sign Up</Text>
-          </Button>
         </>
       ) : null}
     </AuthLayout>
