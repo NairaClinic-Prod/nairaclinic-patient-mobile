@@ -16,72 +16,51 @@
 @layer theme {
   :root {
     @variant light {
-    --color-background:  oklch(1 0 0);
-    --color-foreground:  oklch(0.145 0 0);
-    --color-card:  oklch(1 0 0);
-    --color-card-foreground:  oklch(0.145 0 0);
-    --color-popover:  oklch(1 0 0);
-    --color-popover-foreground:  oklch(0.145 0 0);
-    --color-primary:  oklch(0.205 0 0);
-    --color-primary-foreground:  oklch(0.985 0 0);
-    --color-secondary:  oklch(0.97 0 0);
-    --color-secondary-foreground:  oklch(0.205 0 0);
-    --color-muted:  oklch(0.97 0 0);
-    --color-muted-foreground:  oklch(0.556 0 0);
-    --color-accent:  oklch(0.97 0 0);
-    --color-accent-foreground:  oklch(0.205 0 0);
-    --color-destructive:  oklch(0.577 0.245 27.325);
-    --color-border:  oklch(0.922 0 0);
-    --color-input:  oklch(0.922 0 0);
-    --color-ring:  oklch(0.708 0 0);
-    --color-chart-1:  oklch(0.646 0.222 41.116);
-    --color-chart-2:  oklch(0.6 0.118 184.704);
-    --color-chart-3:  oklch(0.398 0.07 227.392);
-    --color-chart-4:  oklch(0.828 0.189 84.429);
-    --color-chart-5:  oklch(0.769 0.188 70.08);
-    --color-sidebar:  oklch(0.985 0 0);
-    --color-sidebar-foreground:  oklch(0.145 0 0);
-    --color-sidebar-primary:  oklch(0.205 0 0);
-    --color-sidebar-primary-foreground:  oklch(0.985 0 0);
-    --color-sidebar-accent:  oklch(0.97 0 0);
-    --color-sidebar-accent-foreground:  oklch(0.205 0 0);
-    --color-sidebar-border:  oklch(0.922 0 0);
-    --color-sidebar-ring:  oklch(0.708 0 0);
+      --color-background: #f6f8f5;
+      --color-foreground: #10251e;
+      --color-card: #ffffff;
+      --color-card-foreground: #10251e;
+      --color-popover: #ffffff;
+      --color-popover-foreground: #10251e;
+      --color-primary: #0e6264;
+      --color-primary-foreground: #ffffff;
+      --color-secondary: #e8f3ec;
+      --color-secondary-foreground: #005b5a;
+      --color-muted: #f2f5f2;
+      --color-muted-foreground: #516155;
+      --color-accent: #e4f2ea;
+      --color-accent-foreground: #005b5a;
+      --color-destructive: #b4443a;
+      --color-success: #0f6e50;
+      --color-warning: #8b6823;
+      --color-warning-soft: #fef1ce;
+      --color-border: #e2e7e3;
+      --color-input: #e2e7e3;
+      --color-ring: #0e6264;
     }
 
     @variant dark {
-      --color-background:  oklch(0.145 0 0);
-      --color-foreground:  oklch(0.985 0 0);
-      --color-card:  oklch(0.205 0 0);
-      --color-card-foreground:  oklch(0.985 0 0);
-      --color-popover:  oklch(0.205 0 0);
-      --color-popover-foreground:  oklch(0.985 0 0);
-      --color-primary:  oklch(0.922 0 0);
-      --color-primary-foreground:  oklch(0.205 0 0);
-      --color-secondary:  oklch(0.269 0 0);
-      --color-secondary-foreground:  oklch(0.985 0 0);
-      --color-muted:  oklch(0.269 0 0);
-      --color-muted-foreground:  oklch(0.708 0 0);
-      --color-accent:  oklch(0.269 0 0);
-      --color-accent-foreground:  oklch(0.985 0 0);
-      --color-destructive:  oklch(0.704 0.191 22.216);
-      --color-border:  oklch(1 0 0 / 10%);
-      --color-input:  oklch(1 0 0 / 15%);
-      --color-ring:  oklch(0.556 0 0);
-      --color-chart-1:  oklch(0.488 0.243 264.376);
-      --color-chart-2:  oklch(0.696 0.17 162.48);
-      --color-chart-3:  oklch(0.769 0.188 70.08);
-      --color-chart-4:  oklch(0.627 0.265 303.9);
-      --color-chart-5:  oklch(0.645 0.246 16.439);
-      --color-sidebar:  oklch(0.205 0 0);
-      --color-sidebar-foreground:  oklch(0.985 0 0);
-      --color-sidebar-primary:  oklch(0.488 0.243 264.376);
-      --color-sidebar-primary-foreground:  oklch(0.985 0 0);
-      --color-sidebar-accent:  oklch(0.269 0 0);
-      --color-sidebar-accent-foreground:  oklch(0.985 0 0);
-      --color-sidebar-border:  oklch(1 0 0 / 10%);
-      --color-sidebar-ring:  oklch(0.556 0 0);
+      --color-background: #0b1411;
+      --color-foreground: #e7f0ea;
+      --color-card: #111c18;
+      --color-card-foreground: #e7f0ea;
+      --color-popover: #111c18;
+      --color-popover-foreground: #e7f0ea;
+      --color-primary: #3db3a8;
+      --color-primary-foreground: #04211e;
+      --color-secondary: #173229;
+      --color-secondary-foreground: #8fd8c9;
+      --color-muted: #16231e;
+      --color-muted-foreground: #94a89d;
+      --color-accent: #1a3a30;
+      --color-accent-foreground: #8fd8c9;
+      --color-destructive: #e5786b;
+      --color-success: #4cc38a;
+      --color-warning: #f0c76a;
+      --color-warning-soft: #3a2e10;
+      --color-border: #22322b;
+      --color-input: #22322b;
+      --color-ring: #3db3a8;
     }
   }
 }
-
