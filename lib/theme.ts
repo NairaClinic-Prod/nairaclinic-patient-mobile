@@ -23,6 +23,9 @@ export const THEME = {
     border: '#e2e7e3',
     input: '#e2e7e3',
     ring: '#0e6264',
+    gradientStart: '#cfeedd',
+    gradientMid: '#eef7f0',
+    gradientEnd: '#d3e8ee',
   },
   dark: {
     background: '#0b1411',
@@ -46,6 +49,9 @@ export const THEME = {
     border: '#22322b',
     input: '#22322b',
     ring: '#3db3a8',
+    gradientStart: '#0f2f28',
+    gradientMid: '#0b1411',
+    gradientEnd: '#0d2429',
   },
 } as const;
 
