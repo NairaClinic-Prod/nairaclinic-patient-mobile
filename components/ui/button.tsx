@@ -1,18 +1,22 @@
 import { TextClassContext } from '@/components/ui/text';
+import { useColor } from '@/hooks/use-color';
 import { cn } from '@/lib/utils';
+import { Button as NativeButton, Host, RNHostView, Row, Spacer } from '@expo/ui';
+import { FilledTonalIconButton } from '@expo/ui/jetpack-compose';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Platform, Pressable } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 
 const buttonVariants = cva(
   cn(
     'group shrink-0 flex-row items-center justify-center gap-2 rounded-md shadow-none',
     Platform.select({
-      web: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+      web: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     })
   ),
   {
     variants: {
       variant: {
+        glass: '',
         default: cn(
           'bg-primary active:bg-primary/90 shadow-sm shadow-black/5',
           Platform.select({ web: 'hover:bg-primary/90' })
@@ -47,7 +51,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: 'default',
+      variant: 'glass',
       size: 'default',
     },
   }
@@ -61,6 +65,7 @@ const buttonTextVariants = cva(
   {
     variants: {
       variant: {
+        glass: 'text-primary-foreground font-bold',
         default: 'text-primary-foreground',
         destructive: 'text-white',
         outline: cn(
@@ -71,7 +76,7 @@ const buttonTextVariants = cva(
         ghost: 'group-active:text-accent-foreground',
         link: cn(
           'text-primary group-active:underline',
-          Platform.select({ web: 'underline-offset-4 hover:underline group-hover:underline' })
+          Platform.select({ web: 'underline-offset-4 group-hover:underline hover:underline' })
         ),
       },
       size: {
@@ -82,17 +87,93 @@ const buttonTextVariants = cva(
       },
     },
     defaultVariants: {
-      variant: 'default',
+      variant: 'glass',
       size: 'default',
     },
   }
 );
 
-type ButtonProps = React.ComponentProps<typeof Pressable> &
-  React.RefAttributes<typeof Pressable> &
-  VariantProps<typeof buttonVariants>;
+type ButtonProps = Omit<React.ComponentProps<typeof Pressable>, 'children'> & {
+  children?: React.ReactNode;
+} & VariantProps<typeof buttonVariants>;
 
-function Button({ className, variant, size, ...props }: ButtonProps) {
+const GLASS_HEIGHT = { default: 48, sm: 40, lg: 56, icon: 48 };
+const HAS_IOS_GLASS = Platform.OS === 'ios' && parseInt(String(Platform.Version), 10) >= 26;
+
+// The glass variant is the system button: Liquid Glass on iOS 26+, Material 3 on Android.
+function GlassButton({ size, onPress, disabled, children, accessibilityLabel }: ButtonProps) {
+  const color = useColor();
+  const icon = size === 'icon';
+  const height = GLASS_HEIGHT[size ?? 'default'];
+  const press = onPress && !disabled ? () => onPress({} as never) : undefined;
+  const content = (
+    <RNHostView matchContents>
+      <View>{children}</View>
+    </RNHostView>
+  );
+
+  if (Platform.OS === 'android' && icon) {
+    return (
+      <Host style={{ width: height, height }} seedColor={color.primary}>
+        <FilledTonalIconButton onClick={press} enabled={!disabled}>
+          {content}
+        </FilledTonalIconButton>
+      </Host>
+    );
+  }
+
+  const ios =
+    Platform.OS === 'ios'
+      ? (require('@expo/ui/swift-ui/modifiers') as typeof import('@expo/ui/swift-ui/modifiers'))
+      : null;
+  const modifiers = ios
+    ? [
+        ios.buttonStyle(
+          icon
+            ? HAS_IOS_GLASS
+              ? 'glass'
+              : 'bordered'
+            : HAS_IOS_GLASS
+              ? 'glassProminent'
+              : 'borderedProminent'
+        ),
+        ios.buttonBorderShape(icon ? 'circle' : 'capsule'),
+        ios.controlSize('large'),
+      ]
+    : [];
+
+  return (
+    <Host
+      style={icon ? { width: height, height } : { height, alignSelf: 'stretch' }}
+      seedColor={color.primary}
+      accessibilityLabel={accessibilityLabel ?? undefined}>
+      <NativeButton
+        onPress={press}
+        disabled={!!disabled}
+        modifiers={modifiers}
+        style={icon ? undefined : { height }}>
+        {icon ? (
+          content
+        ) : (
+          <Row style={{ width: '100%' }} alignment="center">
+            <Spacer />
+            {content}
+            <Spacer />
+          </Row>
+        )}
+      </NativeButton>
+    </Host>
+  );
+}
+
+function Button({ className, variant = 'glass', size, ...props }: ButtonProps) {
+  if (variant === 'glass' && Platform.OS !== 'web') {
+    return (
+      <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
+        <GlassButton size={size} {...props} />
+      </TextClassContext.Provider>
+    );
+  }
   return (
     <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
       <Pressable

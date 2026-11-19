@@ -1,3 +1,4 @@
+import { FONT } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
 import { Platform, TextInput } from 'react-native';
 
@@ -25,6 +26,7 @@ function Input({
         className
       )}
       {...props}
+      style={[{ fontFamily: FONT.regular }, props.style]}
     />
   );
 }

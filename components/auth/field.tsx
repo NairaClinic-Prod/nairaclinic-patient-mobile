@@ -1,0 +1,35 @@
+import { Icon } from '@/components/ui/icon';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Text } from '@/components/ui/text';
+import type { LucideIcon } from 'lucide-react-native';
+import * as React from 'react';
+import { View, type TextInputProps } from 'react-native';
+
+type FieldProps = TextInputProps & {
+  label: string;
+  icon: LucideIcon;
+  error?: string;
+  right?: React.ReactNode;
+};
+
+export function Field({ label, icon, error, right, ...props }: FieldProps) {
+  return (
+    <View className="gap-2">
+      <Label nativeID={label}>{label}</Label>
+      <View className="justify-center">
+        <Input
+          aria-labelledby={label}
+          aria-invalid={!!error}
+          className={`bg-card h-14 rounded-full pl-12 text-base ${right ? 'pr-14' : 'pr-5'} ${error ? 'border-destructive' : ''}`}
+          {...props}
+        />
+        <View className="absolute left-4" pointerEvents="none">
+          <Icon as={icon} className="text-muted-foreground size-5" />
+        </View>
+        {right ? <View className="absolute right-2">{right}</View> : null}
+      </View>
+      {error ? <Text className="text-destructive pl-2 text-[13px]">{error}</Text> : null}
+    </View>
+  );
+}

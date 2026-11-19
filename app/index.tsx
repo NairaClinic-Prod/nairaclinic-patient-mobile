@@ -1,6 +1,6 @@
 import { Onboarding } from '@/components/onboarding/onboarding';
 import { Splash } from '@/components/splash/splash';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
@@ -32,7 +32,10 @@ export default function Screen() {
     <>
       <Stack.Screen options={SCREEN_OPTIONS} />
       <Animated.View style={[styles.fill, content]}>
-        <Onboarding />
+        <Onboarding
+          onFinish={() => router.push('/sign-up')}
+          onSignIn={() => router.push('/login')}
+        />
       </Animated.View>
       {showSplash ? (
         <Splash
