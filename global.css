@@ -37,6 +37,19 @@
       --color-border: #e2e7e3;
       --color-input: #e2e7e3;
       --color-ring: #0e6264;
+      --color-chart-1: #0e6264;
+      --color-chart-2: #5aa897;
+      --color-chart-3: #e0a93a;
+      --color-chart-4: #7a6aa8;
+      --color-chart-5: #b4443a;
+      --color-sidebar: #ffffff;
+      --color-sidebar-foreground: #10251e;
+      --color-sidebar-primary: #0e6264;
+      --color-sidebar-primary-foreground: #ffffff;
+      --color-sidebar-accent: #e4f2ea;
+      --color-sidebar-accent-foreground: #005b5a;
+      --color-sidebar-border: #e2e7e3;
+      --color-sidebar-ring: #0e6264;
     }
 
     @variant dark {
@@ -61,6 +74,19 @@
       --color-border: #22322b;
       --color-input: #22322b;
       --color-ring: #3db3a8;
+      --color-chart-1: #3db3a8;
+      --color-chart-2: #7cc9b5;
+      --color-chart-3: #f0c76a;
+      --color-chart-4: #a58fd0;
+      --color-chart-5: #e5786b;
+      --color-sidebar: #0e1814;
+      --color-sidebar-foreground: #e7f0ea;
+      --color-sidebar-primary: #3db3a8;
+      --color-sidebar-primary-foreground: #04211e;
+      --color-sidebar-accent: #1a3a30;
+      --color-sidebar-accent-foreground: #8fd8c9;
+      --color-sidebar-border: #22322b;
+      --color-sidebar-ring: #3db3a8;
     }
   }
 }
