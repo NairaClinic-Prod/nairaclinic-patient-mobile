@@ -103,6 +103,18 @@ export default function SignUpScreen() {
           : COPY[step].subtitle
       }
       actions={
+        step === 'code' ? (
+          <View className="h-9 flex-row items-center justify-center gap-4">
+            <Button variant="link" size="sm" onPress={() => set('code')('')}>
+              <Text className="text-[14px] font-bold">Resend code</Text>
+            </Button>
+            <Button variant="link" size="sm" onPress={changeNumber}>
+              <Text className="text-[14px] font-bold">Use a different number</Text>
+            </Button>
+          </View>
+        ) : null
+      }
+      extra={
         <Button size="lg" onPress={() => formik.handleSubmit()}>
           <Text className="text-base">{COPY[step].action}</Text>
         </Button>
@@ -115,6 +127,7 @@ export default function SignUpScreen() {
       {step === 'phone' ? (
         <PhoneField
           countryCode={values.countryCode}
+          callingCode={values.callingCode}
           onSelectCountry={(country) => {
             formik.setFieldValue('countryCode', country.countryCode);
             formik.setFieldValue('callingCode', country.callingCode);
@@ -141,14 +154,6 @@ export default function SignUpScreen() {
             autoComplete="sms-otp"
             maxLength={6}
           />
-          <View className="flex-row items-center justify-center gap-2">
-            <Button variant="link" size="sm" onPress={() => set('code')('')}>
-              <Text className="text-[14px] font-bold">Resend code</Text>
-            </Button>
-            <Button variant="link" size="sm" onPress={changeNumber}>
-              <Text className="text-[14px] font-bold">Use a different number</Text>
-            </Button>
-          </View>
         </>
       ) : null}
 

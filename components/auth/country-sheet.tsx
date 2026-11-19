@@ -11,7 +11,7 @@ import { useColor } from '@/hooks/use-color';
 import { FONT } from '@/lib/fonts';
 import { Search, X } from 'lucide-react-native';
 import * as React from 'react';
-import { Pressable, View } from 'react-native';
+import { Keyboard, Pressable, View } from 'react-native';
 import {
   FlagType,
   getAllCountries,
@@ -19,6 +19,29 @@ import {
   type Country,
 } from 'react-native-country-picker-modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const ROW_HEIGHT = 56;
+
+const CountryRow = React.memo(function CountryRow({
+  country,
+  onPress,
+}: {
+  country: Country;
+  onPress: (country: Country) => void;
+}) {
+  return (
+    <Pressable
+      onPress={() => onPress(country)}
+      style={{ height: ROW_HEIGHT }}
+      className="border-border flex-row items-center gap-3 border-b active:opacity-60">
+      <Text className="text-2xl">{getEmojiFlag(country.cca2)}</Text>
+      <Text className="flex-1 text-base" numberOfLines={1}>
+        {String(country.name)}
+      </Text>
+      <Text className="text-muted-foreground text-base">+{country.callingCode[0]}</Text>
+    </Pressable>
+  );
+});
 
 type CountrySheetProps = {
   open: boolean;
@@ -46,6 +69,24 @@ export function CountrySheet({ open, onClose, onSelect }: CountrySheetProps) {
         country.callingCode.some((code) => code.startsWith(query))
     );
   }, [countries, filter]);
+
+  // The keyboard goes down first, then the sheet follows.
+  const pick = React.useCallback(
+    (country: Country) => {
+      const finish = () => {
+        onSelect(country);
+        setFilter('');
+        onClose();
+      };
+      if (Keyboard.isVisible()) {
+        Keyboard.dismiss();
+        setTimeout(finish, 260);
+      } else {
+        finish();
+      }
+    },
+    [onSelect, onClose]
+  );
 
   function close() {
     setFilter('');
@@ -110,18 +151,16 @@ export function CountrySheet({ open, onClose, onSelect }: CountrySheetProps) {
         ListEmptyComponent={
           <Text className="text-muted-foreground py-10 text-center">No country found</Text>
         }
-        renderItem={({ item }: { item: Country }) => (
-          <Pressable
-            onPress={() => {
-              onSelect(item);
-              close();
-            }}
-            className="border-border flex-row items-center gap-3 border-b py-3.5 active:opacity-60">
-            <Text className="text-2xl">{getEmojiFlag(item.cca2)}</Text>
-            <Text className="flex-1 text-base">{String(item.name)}</Text>
-            <Text className="text-muted-foreground text-base">+{item.callingCode[0]}</Text>
-          </Pressable>
-        )}
+        renderItem={({ item }: { item: Country }) => <CountryRow country={item} onPress={pick} />}
+        getItemLayout={(_: unknown, index: number) => ({
+          length: ROW_HEIGHT,
+          offset: ROW_HEIGHT * index,
+          index,
+        })}
+        initialNumToRender={12}
+        maxToRenderPerBatch={12}
+        windowSize={7}
+        removeClippedSubviews
       />
     </BottomSheet>
   );

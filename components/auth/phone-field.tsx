@@ -1,24 +1,19 @@
 import { useScrollToFocused } from '@/components/auth/auth-layout';
 import { CountrySheet } from '@/components/auth/country-sheet';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
-import { useColor } from '@/hooks/use-color';
-import { FONT } from '@/lib/fonts';
 import * as React from 'react';
 import { View } from 'react-native';
-import {
-  DARK_THEME,
-  DEFAULT_THEME,
-  FlagButton,
-  ThemeProvider,
-  type CountryCode,
-} from 'react-native-country-picker-modal';
-import { useUniwind } from 'uniwind';
+import { ChevronDown } from 'lucide-react-native';
+import { getEmojiFlag, type CountryCode } from 'react-native-country-picker-modal';
 
 type PhoneFieldProps = {
   label?: string;
   countryCode: CountryCode;
+  callingCode: string;
   onSelectCountry: (country: { countryCode: CountryCode; callingCode: string }) => void;
   value: string;
   onChangeText: (value: string) => void;
@@ -29,52 +24,30 @@ type PhoneFieldProps = {
 export function PhoneField({
   label = 'Phone number',
   countryCode,
+  callingCode,
   onSelectCountry,
   value,
   onChangeText,
   onBlur,
   error,
 }: PhoneFieldProps) {
-  const color = useColor();
-  const { theme } = useUniwind();
   const scrollToFocused = useScrollToFocused();
   const [focused, setFocused] = React.useState(false);
   const [open, setOpen] = React.useState(false);
-
-  const buttonTheme = {
-    ...(theme === 'dark' ? DARK_THEME : DEFAULT_THEME),
-    primaryColor: color.primary,
-    backgroundColor: color.card,
-    onBackgroundTextColor: color.foreground,
-    fontFamily: FONT.regular,
-    fontSize: 16,
-  };
 
   return (
     <View className="gap-2">
       <Label nativeID="phone-label">{label}</Label>
       <View className="flex-row gap-3">
-        <ThemeProvider theme={buttonTheme}>
-          <FlagButton
-            placeholder="Country"
-            countryCode={countryCode}
-            withEmoji
-            withFlagButton
-            withCallingCodeButton
-            onOpen={() => setOpen(true)}
-            containerButtonStyle={{
-              height: 56,
-              paddingHorizontal: 16,
-              borderRadius: 28,
-              borderWidth: 1,
-              borderColor: color.input,
-              backgroundColor: color.card,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          />
-        </ThemeProvider>
+        <Button
+          variant="outline"
+          className="bg-card h-14 gap-2 rounded-full px-4"
+          onPress={() => setOpen(true)}
+          accessibilityLabel="Choose country code">
+          <Text className="text-xl">{getEmojiFlag(countryCode)}</Text>
+          <Text className="text-base">+{callingCode}</Text>
+          <Icon as={ChevronDown} className="text-muted-foreground size-4" />
+        </Button>
         <Input
           aria-labelledby="phone-label"
           aria-invalid={!!error}
@@ -92,7 +65,8 @@ export function PhoneField({
           keyboardType="phone-pad"
           autoComplete="tel"
           maxLength={14}
-          className={`bg-card h-14 flex-1 rounded-full px-5 text-base ${error ? 'border-destructive' : focused ? 'border-primary' : ''}`}
+          style={{ height: 56, paddingHorizontal: 20, fontSize: 16 }}
+          className={`bg-card flex-1 rounded-full ${error ? 'border-destructive' : focused ? 'border-primary' : ''}`}
         />
       </View>
       {error ? <Text className="text-destructive pl-2 text-[13px]">{error}</Text> : null}

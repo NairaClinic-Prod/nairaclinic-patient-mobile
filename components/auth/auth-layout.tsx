@@ -10,16 +10,23 @@ import * as React from 'react';
 import {
   Image,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
+import Animated, { useAnimatedKeyboard, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const LOGO = require('@/assets/images/logo.png');
+
+const FOOTER_HEIGHT = 36;
+const BAR_HEIGHT = 150;
+const BAR_OPEN_HEIGHT = 96;
+const DEFAULT_KEYBOARD_HEIGHT = 340;
+const EXTRA_HEIGHT = 48;
 
 const ScrollToFocusedContext = React.createContext<() => void>(() => undefined);
 
@@ -31,16 +38,19 @@ type AuthLayoutProps = {
   title: string;
   subtitle: string;
   actions: React.ReactNode;
+  extra?: React.ReactNode;
   footerText: string;
   footerAction: string;
   onFooterPress: () => void;
   children: React.ReactNode;
 };
 
+// The button bar rides on the keyboard frame by frame, so nothing jumps or lags behind it.
 export function AuthLayout({
   title,
   subtitle,
   actions,
+  extra,
   footerText,
   footerAction,
   onFooterPress,
@@ -48,14 +58,21 @@ export function AuthLayout({
 }: AuthLayoutProps) {
   const color = useColor();
   const insets = useSafeAreaInsets();
-  const [keyboardOpen, setKeyboardOpen] = React.useState(false);
+  const keyboard = useAnimatedKeyboard();
+  const { height: windowHeight } = useWindowDimensions();
+  const scrollY = React.useRef(0);
+  const keyboardHeight = React.useRef(0);
+  const [keyboardSpace, setKeyboardSpace] = React.useState(0);
+  const contentHeight = React.useRef(0);
+  const viewportHeight = React.useRef(0);
+  const barOpenHeight = BAR_OPEN_HEIGHT + (extra ? EXTRA_HEIGHT : 0);
   const scrollRef = React.useRef<{
     scrollTo: (options: { y: number; animated?: boolean }) => void;
     getInnerViewRef: () => unknown;
     scrollToEnd: (options?: { animated?: boolean }) => void;
   } | null>(null);
 
-  // Brings the focused field into the space above the keyboard and the button bar.
+  // Scrolls only as far as needed to keep the focused field clear of the keyboard and the bar.
   const scrollToFocused = React.useCallback(() => {
     setTimeout(() => {
       const input = TextInput.State.currentlyFocusedInput();
@@ -64,22 +81,45 @@ export function AuthLayout({
       if (!input || !scroll || !inner) return;
       input.measureLayout(
         inner as never,
-        (_x, y) => scroll.scrollTo({ y: Math.max(0, y - 160), animated: true }),
-        () => scroll.scrollToEnd({ animated: true })
+        (_x, y, _w, h) => {
+          const visible =
+            windowHeight - (keyboardHeight.current || DEFAULT_KEYBOARD_HEIGHT) - barOpenHeight - 16;
+          const bottom = y + Math.max(h, 64);
+          let target = scrollY.current;
+          if (bottom > scrollY.current + visible) target = bottom - visible;
+          else if (y - 64 < scrollY.current + insets.top) target = y - 64 - insets.top;
+          scroll.scrollTo({ y: Math.max(0, target), animated: true });
+        },
+        () => undefined
       );
-    }, 350);
-  }, []);
+    }, 100);
+  }, [insets.top, windowHeight, barOpenHeight]);
 
+  // The room below the form appears the moment the keyboard starts to show, so the very first
+  // scroll already has somewhere to go. It is cleared once the keyboard is fully hidden.
   React.useEffect(() => {
     const show = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const hide = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
-    const showSub = Keyboard.addListener(show, () => {
-      setKeyboardOpen(true);
+    const willHide = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(show, (event) => {
+      keyboardHeight.current = event.endCoordinates.height;
+      setKeyboardSpace(event.endCoordinates.height);
       scrollToFocused();
     });
-    const hideSub = Keyboard.addListener(hide, () => setKeyboardOpen(false));
+    const willHideSub = Keyboard.addListener(willHide, () => {
+      // Scroll back in step with the keyboard, so nothing jumps when the room below is removed.
+      const naturalMax = Math.max(
+        0,
+        contentHeight.current - keyboardHeight.current - viewportHeight.current
+      );
+      scrollRef.current?.scrollTo({ y: Math.min(scrollY.current, naturalMax), animated: true });
+    });
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      keyboardHeight.current = 0;
+      setKeyboardSpace(0);
+    });
     return () => {
       showSub.remove();
+      willHideSub.remove();
       hideSub.remove();
     };
   }, [scrollToFocused]);
@@ -88,6 +128,21 @@ export function AuthLayout({
     if (router.canGoBack()) router.back();
     else router.replace('/');
   }
+
+  // The bar keeps one fixed size. On iOS its bottom edge follows the keyboard and the footer
+  // line slides under it. This moves the real layout position (not a transform) because the
+  // native glass button does not follow a transformed parent.
+  const barStyle = useAnimatedStyle(() => {
+    if (Platform.OS !== 'ios') return {};
+    const kh = keyboard.height.get();
+    const lift = Math.min(1, kh / 120);
+    return { bottom: kh - lift * (FOOTER_HEIGHT + 12 + insets.bottom) };
+  });
+
+  // Only the opacity changes, so the footer fades without moving anything else.
+  const footerStyle = useAnimatedStyle(() => ({
+    opacity: 1 - Math.min(1, keyboard.height.get() / 120),
+  }));
 
   return (
     <View className="bg-background flex-1">
@@ -107,59 +162,67 @@ export function AuthLayout({
         className="absolute top-24 right-28 size-20 rounded-full bg-[#f3b46d]/35 dark:bg-[#f3b46d]/10"
       />
 
-      <KeyboardAvoidingView
+      <ScrollView
+        ref={scrollRef as never}
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView
-          ref={scrollRef as never}
-          className="flex-1"
-          contentContainerClassName="grow pb-10"
-          contentContainerStyle={{
-            paddingTop: insets.top + 12,
-            paddingHorizontal: SCREEN_PADDING_X,
-          }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}>
-          <View className="flex-row items-center justify-between">
-            <Button size="icon" onPress={goBack} accessibilityLabel="Go back">
-              <Icon as={ChevronLeft} className="text-foreground size-5" />
-            </Button>
-            <View className="bg-card size-12 items-center justify-center rounded-2xl shadow-sm shadow-black/10">
-              <Image source={LOGO} style={{ width: 32, height: 32 }} resizeMode="contain" />
-            </View>
+        contentContainerStyle={{
+          paddingTop: insets.top + 12,
+          paddingHorizontal: SCREEN_PADDING_X,
+        }}
+        keyboardShouldPersistTaps="handled"
+        onScroll={(event) => {
+          scrollY.current = event.nativeEvent.contentOffset.y;
+        }}
+        scrollEventThrottle={16}
+        onLayout={(event) => {
+          viewportHeight.current = event.nativeEvent.layout.height;
+        }}
+        onContentSizeChange={(_width, height) => {
+          contentHeight.current = height;
+        }}
+        showsVerticalScrollIndicator={false}>
+        <View className="flex-row items-center justify-between">
+          <Button size="icon" onPress={goBack} accessibilityLabel="Go back">
+            <Icon as={ChevronLeft} className="text-foreground size-5" />
+          </Button>
+          <View className="bg-card size-12 items-center justify-center rounded-2xl shadow-sm shadow-black/10">
+            <Image source={LOGO} style={{ width: 32, height: 32 }} resizeMode="contain" />
           </View>
+        </View>
 
-          {keyboardOpen ? null : (
-            <View className="mt-8 gap-2">
-              <Text className="text-[32px] leading-[38px] font-extrabold tracking-tight">
-                {title}
-              </Text>
-              <Text className="text-muted-foreground text-base leading-6">{subtitle}</Text>
-            </View>
-          )}
+        <View className="mt-8 gap-2">
+          <Text className="text-[32px] leading-[38px] font-extrabold tracking-tight">{title}</Text>
+          <Text className="text-muted-foreground text-base leading-6">{subtitle}</Text>
+        </View>
 
-          <ScrollToFocusedContext.Provider value={scrollToFocused}>
-            <View className={`gap-5 ${keyboardOpen ? 'mt-5' : 'mt-8'}`}>{children}</View>
-          </ScrollToFocusedContext.Provider>
-        </ScrollView>
+        <ScrollToFocusedContext.Provider value={scrollToFocused}>
+          <View className="mt-8 gap-5">{children}</View>
+        </ScrollToFocusedContext.Provider>
 
         <View
-          className="border-border bg-background gap-3 border-t pt-4"
           style={{
-            paddingBottom: keyboardOpen ? 8 : insets.bottom + 8,
-            paddingHorizontal: SCREEN_PADDING_X,
-          }}>
-          {actions}
-          {keyboardOpen ? null : (
-            <View className="flex-row items-center justify-center">
-              <Text className="text-muted-foreground text-[15px]">{footerText}</Text>
-              <Button variant="link" size="sm" className="px-1.5" onPress={onFooterPress}>
-                <Text className="text-[15px] font-bold">{footerAction}</Text>
-              </Button>
-            </View>
-          )}
-        </View>
-      </KeyboardAvoidingView>
+            height: BAR_HEIGHT + (extra ? EXTRA_HEIGHT : 0) + insets.bottom + keyboardSpace,
+          }}
+        />
+      </ScrollView>
+
+      <Animated.View
+        className="border-border bg-background absolute inset-x-0 bottom-0 gap-3 border-t pt-4"
+        style={[
+          { paddingHorizontal: SCREEN_PADDING_X, paddingBottom: 8 + insets.bottom },
+          barStyle,
+        ]}>
+        {actions}
+        {extra}
+        <Animated.View style={[{ height: FOOTER_HEIGHT }, footerStyle]}>
+          <View className="flex-row items-center justify-center">
+            <Text className="text-muted-foreground text-[15px]">{footerText}</Text>
+            <Button variant="link" size="sm" className="px-1.5" onPress={onFooterPress}>
+              <Text className="text-[15px] font-bold">{footerAction}</Text>
+            </Button>
+          </View>
+        </Animated.View>
+      </Animated.View>
     </View>
   );
 }

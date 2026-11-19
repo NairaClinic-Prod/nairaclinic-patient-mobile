@@ -46,6 +46,7 @@ export default function LoginScreen() {
       <Stack.Screen options={SCREEN_OPTIONS} />
       <PhoneField
         countryCode={formik.values.countryCode}
+        callingCode={formik.values.callingCode}
         onSelectCountry={(country) => {
           formik.setFieldValue('countryCode', country.countryCode);
           formik.setFieldValue('callingCode', country.callingCode);

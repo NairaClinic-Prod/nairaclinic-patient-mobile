@@ -24,7 +24,8 @@ export function Field({ label, icon, error, right, onFocus, onBlur, ...props }: 
         <Input
           aria-labelledby={label}
           aria-invalid={!!error}
-          className={`bg-card h-14 rounded-full pl-12 text-base ${right ? 'pr-14' : 'pr-5'} ${error ? 'border-destructive' : focused ? 'border-primary' : ''}`}
+          style={{ height: 56, fontSize: 16 }}
+          className={`bg-card rounded-full pl-12 ${right ? 'pr-14' : 'pr-5'} ${error ? 'border-destructive' : focused ? 'border-primary' : ''}`}
           onFocus={(event) => {
             setFocused(true);
             scrollToFocused();
