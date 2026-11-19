@@ -1,3 +1,4 @@
+import { fontForClass } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
 import { Slot } from '@rn-primitives/slot';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -68,6 +69,7 @@ function Text({
   className,
   asChild = false,
   variant = 'default',
+  style,
   ...props
 }: React.ComponentProps<typeof RNText> &
   React.RefAttributes<typeof RNText> &
@@ -76,9 +78,11 @@ function Text({
   }) {
   const textClass = React.useContext(TextClassContext);
   const Component = asChild ? Slot : RNText;
+  const merged = cn(textVariants({ variant }), textClass, className);
   return (
     <Component
-      className={cn(textVariants({ variant }), textClass, className)}
+      className={merged}
+      style={[{ fontFamily: fontForClass(merged), fontWeight: 'normal' }, style]}
       role={variant ? ROLE[variant] : undefined}
       aria-level={variant ? ARIA_LEVEL[variant] : undefined}
       {...props}

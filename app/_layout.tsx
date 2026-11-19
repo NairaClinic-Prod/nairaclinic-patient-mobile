@@ -1,9 +1,12 @@
 import '@/global.css';
 
+import { FONT_FILES } from '@/lib/fonts';
 import { NAV_THEME } from '@/lib/theme';
 import { ThemeProvider } from 'expo-router/react-navigation';
 import { PortalHost } from '@rn-primitives/portal';
 import { Stack } from 'expo-router';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useUniwind } from 'uniwind';
@@ -13,8 +16,13 @@ export {
   ErrorBoundary,
 } from 'expo-router';
 
+SplashScreen.preventAutoHideAsync();
+
 export default function RootLayout() {
   const { theme } = useUniwind();
+  const [fontsLoaded, fontError] = useFonts(FONT_FILES);
+
+  if (!fontsLoaded && !fontError) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

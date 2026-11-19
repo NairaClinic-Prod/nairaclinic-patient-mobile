@@ -6,6 +6,7 @@ import {
 import { CANVAS, SLIDES } from '@/components/onboarding/slides';
 import { Text } from '@/components/ui/text';
 import { useColor } from '@/hooks/use-color';
+import { FONT } from '@/lib/fonts';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as React from 'react';
@@ -130,7 +131,7 @@ function CtaButton({ label, onPress }: { label: string; onPress: () => void }) {
             position: 'absolute',
             color: color.primaryForeground,
             fontSize: 16,
-            fontWeight: '700',
+            fontFamily: FONT.bold,
           }}>
           {label}
         </Animated.Text>
