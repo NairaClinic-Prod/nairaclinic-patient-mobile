@@ -45,17 +45,22 @@ export function isDone(data: CarePlanData) {
   };
 }
 
-export function buildTodo(data: CarePlanData, finished: boolean) {
+export type TodoFilter = 'now' | 'done' | 'all';
+
+export function buildTodo(data: CarePlanData, filter: TodoFilter) {
   const done = isDone(data);
+  const keep = (finished: boolean) => filter === 'all' || finished === (filter === 'done');
   const groups = data.encounters
     .map((encounter) => ({
       encounter,
-      meds: encounter.medications.filter((med) => done.med(med) === finished),
-      tests: encounter.tests.filter((test) => done.test(test) === finished),
+      meds: encounter.medications.filter((med) => keep(done.med(med))),
+      tests: encounter.tests.filter((test) => keep(done.test(test))),
     }))
     .filter((group) => group.meds.length || group.tests.length);
-  const referrals = data.referrals.filter((referral) => done.referral(referral.id) === finished);
-  const personal = data.todos.filter((todo) => todo.done === finished);
+  const referrals = data.referrals.filter((referral) => keep(done.referral(referral.id)));
+  const personal = data.todos
+    .filter((todo) => keep(todo.done))
+    .sort((a, b) => Number(a.done) - Number(b.done));
   return {
     groups,
     referrals,

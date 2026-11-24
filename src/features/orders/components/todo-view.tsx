@@ -1,5 +1,5 @@
 import { AddButton } from '@/components/patterns/add-button';
-import { SegmentedControl } from '@/components/patterns/segmented-control';
+import { InlineSelect } from '@/components/patterns/inline-select';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { AddTodoSheet } from '@/features/care-plan/components/add-todo-sheet';
@@ -11,7 +11,13 @@ import { ReferralRow } from '@/features/care-plan/components/referral-row';
 import { SectionCard } from '@/features/care-plan/components/section-card';
 import { TestRow } from '@/features/care-plan/components/test-row';
 import { toggleDone, toggleTodo, useCarePlan } from '@/features/care-plan/store';
-import { buildTodo, formatDate, todoKey } from '@/features/care-plan/utils';
+import {
+  buildTodo,
+  formatDate,
+  isDone,
+  todoKey,
+  type TodoFilter,
+} from '@/features/care-plan/utils';
 import { CheckCircle2 } from 'lucide-react-native';
 import { ITEM_ENTER, ITEM_EXIT, LIST_LAYOUT } from '@/lib/motion';
 import * as React from 'react';
@@ -24,13 +30,19 @@ type TodoViewProps = {
 
 export function TodoView({ onAddExternal }: TodoViewProps) {
   const data = useCarePlan();
-  const [tab, setTab] = React.useState<'now' | 'done'>('now');
+  const [filter, setFilter] = React.useState<TodoFilter>('now');
   const [adding, setAdding] = React.useState(false);
 
-  const now = buildTodo(data, false);
-  const done = buildTodo(data, true);
-  const finished = tab === 'done';
-  const shown = finished ? done : now;
+  const now = buildTodo(data, 'now');
+  const done = buildTodo(data, 'done');
+  const shown = buildTodo(data, filter);
+  const state = isDone(data);
+  const empty =
+    filter === 'done'
+      ? 'Nothing completed yet.'
+      : filter === 'all'
+        ? 'Nothing here yet. Add something to your to-do.'
+        : "You're all caught up.";
 
   return (
     <View className="gap-4">
@@ -44,17 +56,24 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
         <AddButton label="Add to my to-do" onPress={() => setAdding(true)} />
       </View>
 
-      <SegmentedControl
-        value={tab}
-        onChange={setTab}
-        options={[
-          { value: 'now', label: 'To do now', count: now.count },
-          { value: 'done', label: 'Completed', count: done.count },
-        ]}
-      />
+      <View className="flex-row items-center justify-between gap-3">
+        <Text className="text-muted-foreground text-xs">
+          {`${shown.count} ${shown.count === 1 ? 'item' : 'items'}`}
+        </Text>
+        <InlineSelect<TodoFilter>
+          title="Show"
+          value={filter}
+          options={[
+            { value: 'now', label: `To do · ${now.count}` },
+            { value: 'done', label: `Completed · ${done.count}` },
+            { value: 'all', label: `All · ${now.count + done.count}` },
+          ]}
+          onChange={setFilter}
+        />
+      </View>
 
       {shown.count ? (
-        <Animated.View key={tab} entering={ITEM_ENTER} className="gap-4">
+        <Animated.View key={filter} entering={ITEM_ENTER} className="gap-4">
           {shown.personal.length ? (
             <Animated.View
               layout={LIST_LAYOUT}
@@ -81,7 +100,7 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
                     <RecordRow
                       trailingCenter
                       trailing={
-                        <DoneButton finished={finished} onPress={() => toggleTodo(todo.id)} />
+                        <DoneButton finished={todo.done} onPress={() => toggleTodo(todo.id)} />
                       }>
                       <Text className="text-base leading-5.5 font-bold">{todo.title}</Text>
                       <RecordNote>{todo.note || todo.title}</RecordNote>
@@ -118,7 +137,7 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
                       compact
                       extra={
                         <DoneButton
-                          finished={finished}
+                          finished={state.med(med)}
                           onPress={() => toggleDone(todoKey.med(med))}
                         />
                       }
@@ -136,7 +155,7 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
                       extra={
                         test.status === 'resulted' ? null : (
                           <DoneButton
-                            finished={finished}
+                            finished={state.test(test)}
                             onPress={() => toggleDone(todoKey.test(test))}
                           />
                         )
@@ -161,7 +180,7 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
                     referral={referral}
                     extra={
                       <DoneButton
-                        finished={finished}
+                        finished={state.referral(referral.id)}
                         onPress={() => toggleDone(todoKey.referral(referral.id))}
                       />
                     }
@@ -176,9 +195,7 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
           entering={ITEM_ENTER}
           className="border-border items-center gap-2 rounded-2xl border border-dashed py-12">
           <Icon as={CheckCircle2} className="text-primary size-6" />
-          <Text className="text-muted-foreground text-sm">
-            {finished ? 'Nothing completed yet.' : "You're all caught up."}
-          </Text>
+          <Text className="text-muted-foreground text-sm">{empty}</Text>
         </Animated.View>
       )}
 

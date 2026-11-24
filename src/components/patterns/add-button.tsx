@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 const PRESSED = 0.92;
-const SPRING = { damping: 22, stiffness: 420, mass: 0.6, reduceMotion: ReduceMotion.System };
+const SPRING = { damping: 34, stiffness: 420, mass: 0.6, overshootClamping: true, reduceMotion: ReduceMotion.System };
 
 type AddButtonProps = { label: string; onPress?: () => void };
 

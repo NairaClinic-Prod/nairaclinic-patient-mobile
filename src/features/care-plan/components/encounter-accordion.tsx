@@ -32,7 +32,7 @@ import { MedicationRow, type MedicationHandlers } from './medication-row';
 import { SectionCard } from './section-card';
 import { TestRow, type TestHandlers } from './test-row';
 
-const TURN = { damping: 26, stiffness: 260, mass: 0.7, reduceMotion: ReduceMotion.System };
+const TURN = { damping: 30, stiffness: 260, mass: 0.7, overshootClamping: true, reduceMotion: ReduceMotion.System };
 
 function Chevron({ expanded }: { expanded: boolean }) {
   const turn = useSharedValue(expanded ? 1 : 0);

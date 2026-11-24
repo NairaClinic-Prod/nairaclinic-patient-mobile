@@ -19,7 +19,7 @@ export function FadeIn({ index = 0, className, style, children }: FadeInProps) {
       className={className}
       style={style}
       entering={FadeInDown.springify()
-        .damping(26)
+        .damping(36)
         .stiffness(220)
         .delay(Math.min(index * STAGGER_MS, MAX_DELAY_MS))
         .withInitialValues({ opacity: 0, transform: [{ translateY: 12 }] })
