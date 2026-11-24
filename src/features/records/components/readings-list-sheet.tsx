@@ -19,13 +19,24 @@ type ReadingsListSheetProps = {
 };
 
 function confirmDelete(reading: Reading) {
-  Alert.alert('Delete this reading?', `The reading from ${stampLabel(reading.atUtc)} will be removed.`, [
-    { text: 'Keep it', style: 'cancel' },
-    { text: 'Delete', style: 'destructive', onPress: () => deleteReading(reading.id) },
-  ]);
+  Alert.alert(
+    'Delete this reading?',
+    `The reading from ${stampLabel(reading.atUtc)} will be removed.`,
+    [
+      { text: 'Keep it', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => deleteReading(reading.id) },
+    ]
+  );
 }
 
-export function ReadingsListSheet({ open, kind, readings, onClose, onAdd, onEdit }: ReadingsListSheetProps) {
+export function ReadingsListSheet({
+  open,
+  kind,
+  readings,
+  onClose,
+  onAdd,
+  onEdit,
+}: ReadingsListSheetProps) {
   const list = readings.filter((reading) => reading.kind === kind);
 
   return (
@@ -33,8 +44,7 @@ export function ReadingsListSheet({ open, kind, readings, onClose, onAdd, onEdit
       open={open}
       onClose={onClose}
       title={`${kind === 'bp' ? 'Blood pressure & pulse' : 'Blood sugar'} readings`}
-      subtitle="Your readings stay separate from consultation notes. Times are shown in your own time zone."
-      snapPoints={['86%']}>
+      subtitle="Your readings stay separate from consultation notes. Times are shown in your own time zone.">
       <View className="flex-row items-center justify-between">
         <Text className="text-muted-foreground text-xs">
           {`${list.length} ${list.length === 1 ? 'reading' : 'readings'}`}
@@ -47,7 +57,10 @@ export function ReadingsListSheet({ open, kind, readings, onClose, onAdd, onEdit
             key={reading.id}
             className={`border-border/70 flex-row items-start gap-3 p-3.5 ${index ? 'border-t' : ''}`}>
             <View className="bg-card size-9 items-center justify-center rounded-full">
-              <Icon as={reading.kind === 'bp' ? Gauge : Droplet} className="text-primary size-[18px]" />
+              <Icon
+                as={reading.kind === 'bp' ? Gauge : Droplet}
+                className="text-primary size-[18px]"
+              />
             </View>
             <View className="min-w-0 flex-1 gap-0.5">
               <Text className="text-sm font-bold">

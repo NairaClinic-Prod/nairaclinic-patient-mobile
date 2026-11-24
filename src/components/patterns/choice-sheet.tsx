@@ -29,7 +29,7 @@ export function ChoiceSheet<T extends string>({
   onPick,
 }: ChoiceSheetProps<T>) {
   return (
-    <Sheet open={open} onClose={onClose} title={title} subtitle={subtitle} snapPoints={['46%']}>
+    <Sheet open={open} onClose={onClose} title={title} subtitle={subtitle}>
       <View className="gap-2.5">
         {choices.map((choice) => (
           <Pressable

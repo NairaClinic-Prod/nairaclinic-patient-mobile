@@ -5,6 +5,7 @@ import {
   type BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet';
 import * as React from 'react';
+import { Dimensions } from 'react-native';
 
 export {
   BottomSheetFlatList,
@@ -12,7 +13,7 @@ export {
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
 
-const DEFAULT_SNAP_POINTS = ['65%', '92%'];
+const MAX_HEIGHT_RATIO = 0.92;
 
 type BottomSheetProps = {
   open: boolean;
@@ -21,13 +22,8 @@ type BottomSheetProps = {
   children: React.ReactNode;
 };
 
-// A modal sheet that lifts above the keyboard. Put a header outside the list to keep it pinned.
-export function BottomSheet({
-  open,
-  onClose,
-  snapPoints = DEFAULT_SNAP_POINTS,
-  children,
-}: BottomSheetProps) {
+// A modal sheet that lifts above the keyboard. Without snapPoints it grows to fit its content, up to 92% of the screen.
+export function BottomSheet({ open, onClose, snapPoints, children }: BottomSheetProps) {
   const color = useColor();
   const ref = React.useRef<BottomSheetModal>(null);
 
@@ -59,7 +55,8 @@ export function BottomSheet({
     <BottomSheetModal
       ref={ref}
       snapPoints={snapPoints}
-      enableDynamicSizing={false}
+      enableDynamicSizing={!snapPoints}
+      maxDynamicContentSize={Dimensions.get('window').height * MAX_HEIGHT_RATIO}
       enablePanDownToClose
       onDismiss={handleDismiss}
       backdropComponent={backdrop}

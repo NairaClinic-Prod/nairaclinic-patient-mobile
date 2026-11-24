@@ -26,6 +26,8 @@ export function RecordsScreen() {
   const [listOpen, setListOpen] = React.useState(false);
   const [formOpen, setFormOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<Reading | null>(null);
+  const [dismiss, setDismiss] = React.useState(0);
+  const chartTouch = React.useRef(false);
 
   function openForm(reading: Reading | null, view: VitalView) {
     setKind(view);
@@ -36,34 +38,43 @@ export function RecordsScreen() {
 
   return (
     <BodyLayout scrollView padding={false} tabBar className="gap-5">
-      <TabHeader gutter title="Health records" subtitle={RECORDS_SUBTITLE} />
-      <View className="flex-row items-center gap-2" style={gutter}>
-        <AddFromClinic className="flex-1" textClassName="text-[13px]" />
-        <ActionButton
-          size="md"
-          label="Download"
-          icon={Download}
-          variant="outline"
-          accessibilityLabel="Download all records"
-        />
-      </View>
+      <View
+        className="gap-5"
+        onTouchStart={() => {
+          if (chartTouch.current) chartTouch.current = false;
+          else setDismiss((count) => count + 1);
+        }}>
+        <TabHeader gutter title="Health records" subtitle={RECORDS_SUBTITLE} />
+        <View className="flex-row items-center gap-2" style={gutter}>
+          <AddFromClinic className="flex-1" textClassName="text-[13px]" />
+          <ActionButton
+            size="md"
+            label="Download"
+            icon={Download}
+            variant="outline"
+            accessibilityLabel="Download all records"
+          />
+        </View>
 
-      <View style={gutter}>
-        <VitalsCard
-          readings={readings}
-          onAdd={(view) => openForm(null, view)}
-          onViewAll={(view) => {
-            setKind(view);
-            setListOpen(true);
-          }}
-        />
-      </View>
+        <View style={gutter}>
+          <VitalsCard
+            readings={readings}
+            dismissSignal={dismiss}
+            chartTouch={chartTouch}
+            onAdd={(view) => openForm(null, view)}
+            onViewAll={(view) => {
+              setKind(view);
+              setListOpen(true);
+            }}
+          />
+        </View>
 
-      <CareTeamStrip members={dashboard.careTeam} />
+        <CareTeamStrip members={dashboard.careTeam} />
 
-      <View className="gap-5" style={gutter}>
-        <LabResultsCard />
-        <CarePlanSection />
+        <View className="gap-5" style={gutter}>
+          <LabResultsCard />
+          <CarePlanSection />
+        </View>
       </View>
 
       <ReadingsListSheet
