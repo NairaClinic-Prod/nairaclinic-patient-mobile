@@ -1,0 +1,39 @@
+import { ActionButton } from '@/components/patterns/action-button';
+import { StatusPill } from '@/components/patterns/status-pill';
+import { Text } from '@/components/ui/text';
+import { View } from 'react-native';
+import { MEDICINES_SHOWN } from '../constants';
+import type { ShoppingRequest } from '../types';
+import { formatWhen, medicineLine, plural } from '../utils';
+
+type ClosedRequestCardProps = { request: ShoppingRequest; onOpen: () => void };
+
+export function ClosedRequestCard({ request, onOpen }: ClosedRequestCardProps) {
+  const expired = request.status === 'expired';
+  const names = request.items.map(medicineLine);
+
+  return (
+    <View className="bg-card gap-3 rounded-2xl p-4">
+      <View className="gap-1">
+        <Text className="text-base font-bold leading-[22px]">
+          {`${request.reference} · ${plural(request.items.length, 'medicine')}`}
+        </Text>
+        <Text className="text-muted-foreground text-xs">
+          {`Requested ${formatWhen(request.createdAt)}`}
+        </Text>
+      </View>
+      <StatusPill tone="inactive">{expired ? 'Expired' : 'Cancelled'}</StatusPill>
+      <Text className="text-[13px] leading-5">
+        {`${names.slice(0, MEDICINES_SHOWN).join(' · ')}${names.length > MEDICINES_SHOWN ? ' …' : ''}`}
+      </Text>
+      <View className="border-border gap-3 border-t pt-3">
+        <Text className="text-muted-foreground text-[13px] leading-5">
+          {expired
+            ? 'No pharmacy replied in time, so this request closed. You can make a new order any time.'
+            : 'You cancelled this request.'}
+        </Text>
+        <ActionButton size="md" label="View request" onPress={onOpen} />
+      </View>
+    </View>
+  );
+}

@@ -13,7 +13,7 @@ export function HomeScreen() {
   const { dashboard } = home;
 
   return (
-    <BodyLayout scrollView padding={false} tabBar className="gap-5 pt-2">
+    <BodyLayout scrollView padding={false} tabBar className="gap-5">
       <HomeHeader firstName={home.firstName} unreadCount={home.unreadCount} />
       <ReferralCard referral={home.referral} />
       <QuickActions

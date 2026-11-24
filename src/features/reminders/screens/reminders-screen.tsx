@@ -1,4 +1,5 @@
 import { BodyLayout } from '@/components/common/body-layout';
+import TabHeader from '@/components/common/header';
 import { SegmentedControl } from '@/components/patterns/segmented-control';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
@@ -50,21 +51,19 @@ export function RemindersScreen() {
 
   return (
     <BodyLayout scrollView tabBar className="gap-3">
-      <View className="flex-row items-center justify-between">
-        <View>
-          <Text className="text-xl font-extrabold">Reminders</Text>
-          <Text className="text-muted-foreground mt-0.5 text-xs">
-            {active.length === 1 ? '1 active reminder' : `${active.length} active reminders`}
-          </Text>
-        </View>
-        <Pressable
-          role="button"
-          accessibilityLabel="Add reminder"
-          onPress={addReminder}
-          className="bg-primary size-11 items-center justify-center rounded-full active:opacity-80">
-          <Icon as={Plus} className="text-primary-foreground size-5" />
-        </Pressable>
-      </View>
+      <TabHeader
+        title="Reminders"
+        subtitle={active.length === 1 ? '1 active reminder' : `${active.length} active reminders`}
+        right={
+          <Pressable
+            role="button"
+            accessibilityLabel="Add reminder"
+            onPress={addReminder}
+            className="bg-primary size-11 items-center justify-center rounded-full active:opacity-80">
+            <Icon as={Plus} className="text-primary-foreground size-5" />
+          </Pressable>
+        }
+      />
 
       {next ? (
         <NextUpCard
