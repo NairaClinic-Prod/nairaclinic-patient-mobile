@@ -104,8 +104,6 @@ export function WhereStep({
 
       <AddressField
         label={withStreet ? (lab ? 'Collection address' : 'Delivery address') : 'Your location'}
-        nearest={lab ? 'laboratories' : 'pharmacies'}
-        withStreet={withStreet}
         value={location}
         onChange={onLocation}
       />

@@ -19,8 +19,6 @@ import type { LocationDraft } from '../types';
 type AddressFieldProps = {
   label: string;
   value: LocationDraft;
-  nearest: string;
-  withStreet: boolean;
   onChange: (next: LocationDraft) => void;
 };
 
@@ -34,7 +32,7 @@ const apply = (value: LocationDraft, found: PlaceFound): LocationDraft => ({
   typed: false,
 });
 
-export function AddressField({ label, value, nearest, withStreet, onChange }: AddressFieldProps) {
+export function AddressField({ label, value, onChange }: AddressFieldProps) {
   const [hits, setHits] = React.useState<PlaceHit[]>([]);
   const [searching, setSearching] = React.useState(false);
   const [locating, setLocating] = React.useState(false);
@@ -103,15 +101,7 @@ export function AddressField({ label, value, nearest, withStreet, onChange }: Ad
         placeholder={HAS_PLACES_KEY ? 'Start typing your street' : 'Street, area and town'}
         value={value.address}
         onChangeText={(address) => onChange({ ...value, address, point: undefined, typed: false })}
-        hint={
-          value.point
-            ? withStreet
-              ? `Pinned. We only show ${nearest} close to this address.`
-              : `We show the ${nearest} closest to you first.`
-            : HAS_PLACES_KEY
-              ? 'Start typing your street and pick it from the list, or use your current location.'
-              : 'Type your street, area and town, or use your current location.'
-        }
+        hint={value.point ? 'Pinned on the map.' : undefined}
       />
 
       {typedEnough ? (
@@ -160,7 +150,8 @@ export function AddressField({ label, value, nearest, withStreet, onChange }: Ad
 
       <ActionButton
         size="md"
-        variant="outline"
+        variant="ghost"
+        className="self-start"
         icon={LocateFixed}
         label={locating ? 'Finding you…' : 'Use my current location'}
         disabled={locating}

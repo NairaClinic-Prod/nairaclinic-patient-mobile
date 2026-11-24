@@ -1,9 +1,11 @@
 import { Text } from '@/components/ui/text';
 import { describePoint, type Point } from '@/lib/places';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import * as React from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import MapView, {
   Marker,
+  PROVIDER_GOOGLE,
   type MapPressEvent,
   type MarkerDragStartEndEvent,
 } from 'react-native-maps';
@@ -12,6 +14,12 @@ import type { LocationDraft } from '../types';
 type LocationMapProps = { value: LocationDraft; onChange: (next: LocationDraft) => void };
 
 const DELTA = 0.006;
+
+// Google Maps everywhere except iOS inside Expo Go, which does not ship the Google Maps iOS SDK.
+const PROVIDER =
+  Platform.OS === 'ios' && Constants.executionEnvironment === ExecutionEnvironment.StoreClient
+    ? undefined
+    : PROVIDER_GOOGLE;
 
 export function LocationMap({ value, onChange }: LocationMapProps) {
   const point = value.point;
@@ -50,6 +58,7 @@ export function LocationMap({ value, onChange }: LocationMapProps) {
       <View className="bg-muted border-border h-56 overflow-hidden rounded-2xl border">
         <MapView
           ref={map}
+          provider={PROVIDER}
           style={{ flex: 1 }}
           initialRegion={{
             latitude: point.lat,
@@ -75,9 +84,7 @@ export function LocationMap({ value, onChange }: LocationMapProps) {
           />
         </MapView>
       </View>
-      <Text className="text-muted-foreground text-xs">
-        Drag the pin or tap the map to put it on your house.
-      </Text>
+      <Text className="text-muted-foreground text-xs">Drag the pin or tap the map to adjust.</Text>
     </View>
   );
 }

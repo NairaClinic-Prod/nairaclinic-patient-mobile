@@ -21,12 +21,12 @@ const COPY = {
   medication: {
     list: 'Your prescriptions',
     empty: 'No prescriptions to order from yet. Add one from another clinic first.',
-    note: 'No catalogue prices or payment at this stage. Each pharmacy checks availability and prices for this request.',
+    note: 'Pharmacies quote for the exact strength and pack. No payment yet.',
   },
   lab: {
     list: 'Your test orders',
     empty: 'No test orders from your doctor yet. Add one from another clinic first.',
-    note: 'No payment yet. You choose a laboratory first, then pay to confirm.',
+    note: 'No payment yet. You pick a laboratory next.',
   },
 } as const;
 

@@ -30,8 +30,8 @@ type Stage = 'type' | 'pick' | 'items' | 'where' | 'results' | 'sent';
 type SentMode = 'all' | 'ask' | 'order';
 
 const STEP_LABELS: Record<OrderKind, string[]> = {
-  medication: ['Your medicines', 'Delivery & consent', 'Compare offers'],
-  lab: ['Your tests', 'Collection & place', 'Compare labs'],
+  medication: ['Choose medicines', 'Delivery', 'Compare'],
+  lab: ['Choose tests', 'Collection', 'Compare'],
 };
 
 const STEP_OF: Record<Stage, number> = {
@@ -45,66 +45,34 @@ const STEP_OF: Record<Stage, number> = {
 
 function headingFor(kind: OrderKind | null, stage: Stage) {
   if (stage === 'type' || !kind) {
-    return {
-      eyebrow: 'Make an order',
-      title: 'What would you like to order?',
-      text: 'Choose one and we’ll take you to the right place.',
-    };
+    return { eyebrow: 'Make an order', title: 'What would you like to order?', text: undefined };
   }
   if (kind === 'medication') {
-    if (stage === 'pick') {
-      return {
-        eyebrow: 'Make a medicine order',
-        title: 'What would you like to order?',
-        text: 'Choose medicines you still need from a prescription.',
-      };
-    }
-    if (stage === 'items') {
-      return {
-        eyebrow: 'Your prescription, your choice',
-        title: 'Request prices for your prescription.',
-        text: 'Select the medicines you need. Pharmacies will quote for the exact strength and pack shown.',
-      };
-    }
+    if (stage === 'pick')
+      return { eyebrow: 'Medicines', title: 'Choose a prescription.', text: undefined };
+    if (stage === 'items')
+      return { eyebrow: 'Medicines', title: 'Which medicines do you need?', text: undefined };
     if (stage === 'where') {
       return {
-        eyebrow: 'Your prescription, your choice',
-        title: 'Request prices for your prescription.',
+        eyebrow: 'Medicines',
+        title: 'How should we get them to you?',
         text: 'Your address is shared only with the pharmacy you choose.',
       };
     }
-    return {
-      eyebrow: 'Compare pharmacies',
-      title: 'Who has your medicines?',
-      text: 'Tap a pharmacy to order from it, or send your request to everyone near you.',
-    };
+    return { eyebrow: 'Medicines', title: 'Who has your medicines?', text: undefined };
   }
-  if (stage === 'pick') {
-    return {
-      eyebrow: 'Make a lab order',
-      title: 'What would you like to book?',
-      text: 'Choose an order from your doctor or one you added from another clinic.',
-    };
-  }
-  if (stage === 'items') {
-    return {
-      eyebrow: 'Laboratory tests',
-      title: 'Which tests do you need?',
-      text: 'Untick anything you don’t need. Next we find the laboratories closest to you.',
-    };
-  }
+  if (stage === 'pick')
+    return { eyebrow: 'Lab tests', title: 'Choose a test order.', text: undefined };
+  if (stage === 'items')
+    return { eyebrow: 'Lab tests', title: 'Which tests do you need?', text: undefined };
   if (stage === 'where') {
     return {
-      eyebrow: 'Laboratory tests',
+      eyebrow: 'Lab tests',
       title: 'How should we collect your sample?',
-      text: 'We show the laboratories closest to you first. Your address stays private until you book a home visit.',
+      text: 'Your address stays private until you book a home visit.',
     };
   }
-  return {
-    eyebrow: 'Compare laboratories',
-    title: 'Who can do your tests?',
-    text: 'Closest laboratories that offer these tests, with their published prices.',
-  };
+  return { eyebrow: 'Lab tests', title: 'Who can do your tests?', text: undefined };
 }
 
 const newReference = () => `RQ-${Math.random().toString(36).slice(2, 10).toUpperCase()}`;

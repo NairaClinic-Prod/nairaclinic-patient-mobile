@@ -4,25 +4,19 @@ import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { formatNaira } from '@/features/orders/utils';
 import { cn } from '@/lib/utils';
-import { Clock, MapPin, Route } from 'lucide-react-native';
+import { ChevronDown, MapPin } from 'lucide-react-native';
+import * as React from 'react';
 import { View } from 'react-native';
 import { Choosable } from '../components/choosable';
 import type {
   Collection,
   LabResult,
-  Match,
   PharmacyCombination,
   PharmacyLine,
   PharmacyResult,
 } from '../types';
 
 export type Selection = 'combo' | string | null;
-
-const MATCH: Record<Match, { label: string; box: string; text: string }> = {
-  full: { label: 'Has everything', box: 'bg-secondary', text: 'text-primary' },
-  partial: { label: 'Has some', box: 'bg-warning-soft', text: 'text-warning' },
-  none: { label: 'Not in their stock list', box: 'bg-muted', text: 'text-muted-foreground' },
-};
 
 const kilometres = (meters: number) =>
   meters < 1000 ? `${Math.round(meters / 10) * 10} m` : `${(meters / 1000).toFixed(1)} km`;
@@ -32,107 +26,101 @@ const minutes = (value: number) =>
     ? `${value} min`
     : `${Math.floor(value / 60)} hr${value % 60 ? ` ${value % 60} min` : ''}`;
 
-function Pill({ label, box, text }: { label: string; box: string; text: string }) {
+function Title({ name, branch }: { name: string; branch: string | null }) {
   return (
-    <View className={cn('rounded-full px-2 py-0.5', box)}>
-      <Text className={cn('text-[11px] font-semibold', text)}>{label}</Text>
-    </View>
-  );
-}
-
-function Name({ name, branch }: { name: string; branch: string | null }) {
-  return (
-    <View className="flex-row flex-wrap items-center gap-x-2 gap-y-1">
-      <Text className="text-[15px] font-bold">{name}</Text>
+    <Text className="text-[15px] leading-5 font-bold" numberOfLines={1}>
+      {name}
       {branch ? (
-        <View className="border-border rounded-full border px-2 py-0.5">
-          <Text className="text-muted-foreground text-[11px] font-medium">{`${branch} branch`}</Text>
-        </View>
+        <Text className="text-muted-foreground text-[15px] font-normal">{`  ${branch}`}</Text>
       ) : null}
-    </View>
+    </Text>
   );
 }
 
-function Address({ text }: { text: string }) {
+function Total({ label = 'Total you pay', value }: { label?: string; value: number }) {
   return (
-    <View className="mt-1 flex-row items-center gap-1">
-      <Icon as={MapPin} className="text-muted-foreground size-3" />
-      <Text className="text-muted-foreground flex-1 text-xs" numberOfLines={1}>
-        {text}
-      </Text>
+    <View className="mt-3 flex-row items-baseline justify-between">
+      <Text className="text-muted-foreground text-xs">{label}</Text>
+      <Text className="text-xl font-extrabold">{formatNaira(value)}</Text>
     </View>
   );
 }
 
-function Travel({ offer, delivery }: { offer: PharmacyResult; delivery: boolean }) {
+function Money({ label, value }: { label: string; value: number }) {
   return (
-    <View className="mt-2 flex-row flex-wrap items-center gap-x-4 gap-y-1">
-      <View className="flex-row items-center gap-1">
-        <Icon as={Route} className="text-muted-foreground size-3" />
-        <Text className="text-muted-foreground text-xs">
-          {delivery
-            ? `${kilometres(offer.distanceMeters)} from your delivery address`
-            : `About ${kilometres(offer.distanceMeters)} from you`}
-        </Text>
-      </View>
-      {delivery ? (
-        <View className="flex-row items-center gap-1">
-          <Icon as={Clock} className="text-muted-foreground size-3" />
-          <Text className="text-muted-foreground text-xs">{`About ${minutes(offer.etaMinutes)} delivery`}</Text>
-        </View>
-      ) : null}
+    <View className="flex-row items-baseline justify-between">
+      <Text className="text-muted-foreground text-[13px]">{label}</Text>
+      <Text className="text-[13px]">{formatNaira(value)}</Text>
     </View>
   );
 }
 
-function lineText(line: PharmacyLine) {
-  if (line.have <= 0) return { ok: false, text: 'Not in their stock list' };
-  const price =
-    line.unitPriceKobo === null ? 'Price on request' : `${formatNaira(line.unitPriceKobo)} each`;
-  return line.have >= line.quantity
-    ? { ok: true, text: `In stock · ${price}` }
-    : { ok: false, text: `Only ${line.have} of ${line.quantity} · ${price}` };
+function Details({
+  label = 'View prices',
+  children,
+}: {
+  label?: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <View className="mt-2.5">
+      <PressableScale
+        scaleTo={0.97}
+        role="button"
+        accessibilityState={{ expanded: open }}
+        hitSlop={8}
+        onPress={() => setOpen((current) => !current)}
+        className="flex-row items-center gap-1 self-start">
+        <Text className="text-primary text-xs font-semibold">{open ? 'Hide details' : label}</Text>
+        <Icon as={ChevronDown} className={cn('text-primary size-3.5', open && 'rotate-180')} />
+      </PressableScale>
+      {open ? <View className="border-border mt-3 gap-3 border-t pt-3">{children}</View> : null}
+    </View>
+  );
 }
 
 function Lines({ lines }: { lines: PharmacyLine[] }) {
   return (
-    <View className="mt-3 gap-1.5">
-      {lines.map((line) => {
-        const info = lineText(line);
-        return (
-          <View key={line.name} className="flex-row justify-between gap-3">
-            <Text className="min-w-0 flex-1 text-[13px]" numberOfLines={1}>
-              {line.name}
-            </Text>
-            <Text
-              className={cn('text-[13px]', info.ok ? 'text-foreground' : 'text-muted-foreground')}>
-              {info.text}
-            </Text>
-          </View>
-        );
-      })}
+    <View className="gap-1.5">
+      {lines.map((line) => (
+        <View key={line.name} className="flex-row justify-between gap-3">
+          <Text className="min-w-0 flex-1 text-[13px]" numberOfLines={1}>
+            {line.name}
+          </Text>
+          <Text
+            className={cn(
+              'text-[13px]',
+              line.have >= line.quantity ? 'text-foreground' : 'text-muted-foreground'
+            )}>
+            {line.have <= 0
+              ? 'Not in stock'
+              : line.unitPriceKobo === null
+                ? 'Price on request'
+                : `${line.quantity} × ${formatNaira(line.unitPriceKobo)}`}
+          </Text>
+        </View>
+      ))}
     </View>
   );
 }
 
-function Money({ label, value, strong }: { label: string; value: number; strong?: boolean }) {
+function Section({
+  title,
+  text,
+  children,
+}: {
+  title: string;
+  text?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <View className="flex-row items-baseline justify-between">
-      <Text className={cn(strong ? 'text-sm font-bold' : 'text-muted-foreground text-[13px]')}>
-        {label}
-      </Text>
-      <Text className={cn(strong ? 'text-base font-extrabold' : 'text-[13px]')}>
-        {formatNaira(value)}
-      </Text>
-    </View>
-  );
-}
-
-function Heading({ title, text }: { title: string; text?: string }) {
-  return (
-    <View className="gap-0.5">
-      <Text className="text-sm font-extrabold">{title}</Text>
-      {text ? <Text className="text-muted-foreground text-xs leading-4.5">{text}</Text> : null}
+    <View className="gap-3">
+      <View className="gap-0.5">
+        <Text className="text-sm font-extrabold">{title}</Text>
+        {text ? <Text className="text-muted-foreground text-xs leading-4.5">{text}</Text> : null}
+      </View>
+      {children}
     </View>
   );
 }
@@ -141,13 +129,11 @@ function SendAll({
   checked,
   disabled,
   title,
-  text,
   onChange,
 }: {
   checked: boolean;
   disabled: boolean;
   title: string;
-  text: string;
   onChange: (next: boolean) => void;
 }) {
   return (
@@ -157,13 +143,54 @@ function SendAll({
       accessibilityState={{ checked, disabled }}
       disabled={disabled}
       onPress={() => onChange(!checked)}
-      className="bg-card border-border flex-row items-start gap-3 rounded-2xl border p-4">
+      className="bg-muted flex-row items-center gap-3 rounded-2xl p-4">
       <CheckBox checked={checked} disabled={disabled} />
       <View className="min-w-0 flex-1 gap-0.5">
         <Text className="text-[14px] leading-5 font-semibold">{title}</Text>
-        <Text className="text-muted-foreground text-xs leading-4.5">{text}</Text>
+        <Text className="text-muted-foreground text-xs leading-4.5">
+          The first to accept sends you a price. You pay only then.
+        </Text>
       </View>
     </PressableScale>
+  );
+}
+
+function Others({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: { id: string; name: string; note: string }[];
+}) {
+  const [open, setOpen] = React.useState(false);
+  if (!rows.length) return null;
+  return (
+    <View className="bg-muted overflow-hidden rounded-2xl">
+      <PressableScale
+        scaleTo={0.99}
+        role="button"
+        accessibilityState={{ expanded: open }}
+        onPress={() => setOpen((current) => !current)}
+        className="flex-row items-center justify-between px-4 py-3.5">
+        <Text className="text-[13px] font-bold">{`${title} (${rows.length})`}</Text>
+        <Icon
+          as={ChevronDown}
+          className={cn('text-muted-foreground size-4', open && 'rotate-180')}
+        />
+      </PressableScale>
+      {open
+        ? rows.map((row) => (
+            <View
+              key={row.id}
+              className="border-border/70 flex-row justify-between gap-3 border-t px-4 py-3">
+              <Text className="min-w-0 flex-1 text-[13px]" numberOfLines={1}>
+                {row.name}
+              </Text>
+              <Text className="text-muted-foreground text-xs">{row.note}</Text>
+            </View>
+          ))
+        : null}
+    </View>
   );
 }
 
@@ -197,19 +224,9 @@ export function PharmacyResults({
   const showCombination = !full.length && combination;
 
   return (
-    <View className="gap-5">
-      <Text className="text-muted-foreground text-[13px] leading-5">
-        {delivery
-          ? 'Prices come from each pharmacy’s own stock list and the delivery fee is worked out for your address. '
-          : 'Prices come from each pharmacy’s own stock list. '}
-        {`Tap a pharmacy to choose it, then pay. The pharmacy accepts or rejects your order; if it rejects, you are refunded in full${
-          delivery ? ', and a rider is only booked once it accepts' : ''
-        }.`}
-      </Text>
-
+    <View className="gap-6">
       {full.length ? (
-        <View className="gap-3">
-          <Heading title="Pharmacies with all your medicines" />
+        <Section title="Have everything">
           {full.map((offer) => (
             <Choosable
               key={offer.id}
@@ -217,88 +234,84 @@ export function PharmacyResults({
               disabled={sendToAll}
               label={`Choose ${offer.name}`}
               onPress={() => onSelection(selection === offer.id ? null : offer.id)}>
-              <View className="gap-0 pr-7">
-                <View className="flex-row flex-wrap items-center gap-2">
-                  <Name name={offer.name} branch={offer.branch} />
-                  <Pill {...MATCH[offer.match]} label={MATCH[offer.match].label} />
+              <View className="gap-1 pr-7">
+                <Title name={offer.name} branch={offer.branch} />
+                <Text className="text-muted-foreground text-xs">
+                  {`${kilometres(offer.distanceMeters)} away${delivery ? ` · about ${minutes(offer.etaMinutes)}` : ''}`}
+                </Text>
+              </View>
+              <Total value={offer.totalKobo} />
+              <Details>
+                <View className="flex-row items-center gap-1.5">
+                  <Icon as={MapPin} className="text-muted-foreground size-3.5" />
+                  <Text className="text-muted-foreground flex-1 text-xs">{offer.address}</Text>
                 </View>
-                <Address text={offer.address} />
-                <Travel offer={offer} delivery={delivery} />
                 <Lines lines={offer.lines} />
-              </View>
-              <View className="border-border mt-3 gap-1 border-t pt-3">
-                <Money label="Medicines" value={offer.subtotalKobo} />
-                {delivery ? (
-                  <Money label="Delivery to your address" value={offer.deliveryFeeKobo} />
-                ) : null}
-                {offer.serviceFeeKobo > 0 ? (
-                  <Money label="Service fee" value={offer.serviceFeeKobo} />
-                ) : null}
-                <Money strong label="Total you pay" value={offer.totalKobo} />
-              </View>
+                <View className="gap-1">
+                  <Money label="Medicines" value={offer.subtotalKobo} />
+                  {delivery ? <Money label="Delivery" value={offer.deliveryFeeKobo} /> : null}
+                  {offer.serviceFeeKobo > 0 ? (
+                    <Money label="Service fee" value={offer.serviceFeeKobo} />
+                  ) : null}
+                </View>
+              </Details>
             </Choosable>
           ))}
-        </View>
+        </Section>
       ) : null}
 
       {showCombination ? (
-        <View className="gap-3">
-          <Heading
-            title={`No single pharmacy has everything. These ${combination.parts.length} together do:`}
-          />
+        <Section
+          title={`No single pharmacy has everything`}
+          text={`These ${combination.parts.length} together do, at the lowest price.`}>
           <Choosable
             selected={selection === 'combo'}
             disabled={sendToAll}
             label={`Choose ${combination.parts.length} pharmacies together`}
             onPress={() => onSelection(selection === 'combo' ? null : 'combo')}>
-            <View className="gap-4 pr-7">
+            <View className="gap-1 pr-7">
               {combination.parts.map((part) => (
-                <View key={part.pharmacy.id} className="gap-0">
-                  <Name name={part.pharmacy.name} branch={part.pharmacy.branch} />
-                  <Address text={part.pharmacy.address} />
-                  <Travel offer={part.pharmacy} delivery={delivery} />
+                <Title
+                  key={part.pharmacy.id}
+                  name={part.pharmacy.name}
+                  branch={part.pharmacy.branch}
+                />
+              ))}
+            </View>
+            <Total value={combination.totalKobo} />
+            <Details>
+              {combination.parts.map((part) => (
+                <View key={part.pharmacy.id} className="gap-2">
+                  <Text className="text-[13px] font-bold">{part.pharmacy.name}</Text>
                   <Lines lines={part.lines} />
-                  <View className="mt-2 gap-0.5">
+                  <View className="gap-1">
                     <Money label="Medicines" value={part.subtotalKobo} />
-                    {delivery ? (
-                      <Money
-                        label={`Delivery from ${part.pharmacy.name}`}
-                        value={part.deliveryFeeKobo}
-                      />
-                    ) : null}
+                    {delivery ? <Money label="Delivery" value={part.deliveryFeeKobo} /> : null}
                     <Money label="Service fee" value={part.serviceFeeKobo} />
                   </View>
                 </View>
               ))}
-            </View>
-            <View className="border-border mt-3 border-t pt-3">
-              <Money strong label="Total you pay" value={combination.totalKobo} />
               {delivery ? (
-                <Text className="text-muted-foreground mt-1 text-xs leading-4.5">
-                  Couriers can’t collect from more than one pharmacy per trip, so each pharmacy
-                  sends its own rider with its own delivery fee. This is already the cheapest mix.
+                <Text className="text-muted-foreground text-xs leading-4.5">
+                  Each pharmacy sends its own rider, so each has its own delivery fee.
                 </Text>
               ) : null}
-            </View>
+            </Details>
           </Choosable>
-        </View>
+        </Section>
       ) : null}
 
       {!full.length && !showCombination ? (
-        <View className="border-border rounded-2xl border border-dashed px-4 py-5">
+        <View className="bg-muted rounded-2xl px-4 py-5">
           <Text className="text-muted-foreground text-center text-[13px] leading-5">
-            No pharmacy near you has all of these medicines listed yet. You can send your request to
-            all pharmacies around you: the first one that can supply everything takes it.
+            No pharmacy near you lists all of these medicines yet. Send your request to everyone
+            nearby below.
           </Text>
         </View>
       ) : null}
 
       {onRequest.length ? (
-        <View className="gap-3">
-          <Heading
-            title="Ask for a price"
-            text="These approved pharmacies near you haven’t listed their stock yet. Send them your request and they reply with an itemised price. You pay only if you accept it."
-          />
+        <Section title="Ask for a price" text="These pharmacies reply with an itemised price.">
           {onRequest.map((offer) => (
             <Choosable
               key={offer.id}
@@ -306,47 +319,30 @@ export function PharmacyResults({
               disabled={sendToAll}
               label={`Ask ${offer.name} for a price`}
               onPress={() => onRequestFrom(requestFrom === offer.id ? null : offer.id)}>
-              <View className="gap-0 pr-7">
-                <View className="flex-row flex-wrap items-center gap-2">
-                  <Name name={offer.name} branch={offer.branch} />
-                  <Pill label="Price on request" box="bg-muted" text="text-muted-foreground" />
-                </View>
-                <Address text={offer.address} />
-                <View className="mt-2 flex-row items-center gap-1">
-                  <Icon as={Route} className="text-muted-foreground size-3" />
-                  <Text className="text-muted-foreground text-xs">
-                    {`About ${kilometres(offer.distanceMeters)} from you`}
-                  </Text>
-                </View>
+              <View className="gap-1 pr-7">
+                <Title name={offer.name} branch={offer.branch} />
+                <Text className="text-muted-foreground text-xs">{`${kilometres(offer.distanceMeters)} away · price on request`}</Text>
               </View>
             </Choosable>
           ))}
-        </View>
+        </Section>
       ) : null}
 
-      {others.length ? (
-        <View className="gap-3">
-          <Heading title="Other pharmacies near you" />
-          {others.map((offer) => (
-            <View key={offer.id} className="bg-card border-border rounded-2xl border p-4">
-              <View className="flex-row flex-wrap items-center gap-2">
-                <Name name={offer.name} branch={offer.branch} />
-                <Pill {...MATCH[offer.match]} label={MATCH[offer.match].label} />
-              </View>
-              <Address text={offer.address} />
-              {offer.match === 'none' ? null : <Lines lines={offer.lines} />}
-            </View>
-          ))}
-        </View>
-      ) : null}
+      <Others
+        title="Other pharmacies nearby"
+        rows={others.map((offer) => ({
+          id: offer.id,
+          name: offer.branch ? `${offer.name} · ${offer.branch}` : offer.name,
+          note: offer.match === 'partial' ? 'Has some' : 'Not listed',
+        }))}
+      />
 
       {full.length ? null : (
         <SendAll
           checked={sendToAll}
           disabled={offers.length === 0}
           onChange={onSendToAll}
-          title="Send my request to all pharmacies around me"
-          text="It goes to every nearby NairaClinic pharmacy that can supply everything. The first one to accept takes it and sends its price; you pay only then. If the price doesn’t suit you, cancel it and send to all again."
+          title="Send my request to all pharmacies nearby"
         />
       )}
     </View>
@@ -375,55 +371,35 @@ export function LabResults({
   onSelect,
   onAskAll,
 }: LabResultsProps) {
-  return (
-    <View className="gap-5">
-      <Text className="text-muted-foreground text-[13px] leading-5">
-        {`Closest laboratories that offer ${total === 1 ? 'this test' : 'these tests'}, with their published prices.${
-          collection === 'home' ? ' Home collection fees are added for you.' : ''
-        }`}
-      </Text>
+  const offering = labs.filter((lab) => lab.matchedCount > 0);
+  const rest = labs.filter((lab) => lab.matchedCount === 0);
 
-      {labs.length ? (
-        <View className="gap-3">
-          {labs.map((lab, index) => {
+  return (
+    <View className="gap-6">
+      {offering.length ? (
+        <Section title="Laboratories that can help" text="Closest first.">
+          {offering.map((lab, index) => {
             const full = lab.matchedCount === total;
             return (
               <Choosable
                 key={lab.id}
                 selected={selected === lab.id}
-                disabled={askAll || lab.matchedCount === 0}
+                disabled={askAll}
                 label={`Choose ${lab.labName}`}
                 onPress={() => onSelect(selected === lab.id ? null : lab.id)}>
-                <View className="gap-0 pr-7">
-                  <Text className="text-[15px] font-bold">{lab.labName}</Text>
-                  <Address text={`${lab.branchName} · ${lab.address}`} />
-                  <View className="mt-2.5 flex-row flex-wrap items-center gap-1.5">
-                    <Pill
-                      label={
-                        full
-                          ? `Offers all ${total}`
-                          : `Offers ${lab.matchedCount} of ${total} tests`
-                      }
-                      box={full ? 'bg-secondary' : 'bg-warning-soft'}
-                      text={full ? 'text-success' : 'text-warning'}
-                    />
-                    {lab.labVisits ? (
-                      <Pill label="Lab visit" box="bg-muted" text="text-muted-foreground" />
-                    ) : null}
-                    {lab.homeCollection ? (
-                      <Pill
-                        label={`Home collection ${formatNaira(lab.homeFeeKobo)}`}
-                        box="bg-muted"
-                        text="text-muted-foreground"
-                      />
-                    ) : null}
-                    <Pill
-                      label={`${lab.distanceKm.toFixed(1)} km away${index === 0 ? ' · closest' : ''}`}
-                      box={index === 0 ? 'bg-secondary' : 'bg-muted'}
-                      text={index === 0 ? 'text-primary' : 'text-muted-foreground'}
-                    />
+                <View className="gap-1 pr-7">
+                  <Title name={lab.labName} branch={lab.branchName} />
+                  <Text className="text-muted-foreground text-xs">
+                    {`${full ? `Offers all ${total}` : `Offers ${lab.matchedCount} of ${total}`} · ${lab.distanceKm.toFixed(1)} km${index === 0 ? ' · closest' : ''}`}
+                  </Text>
+                </View>
+                <Total value={labTotalKobo(lab, collection)} />
+                <Details>
+                  <View className="flex-row items-center gap-1.5">
+                    <Icon as={MapPin} className="text-muted-foreground size-3.5" />
+                    <Text className="text-muted-foreground flex-1 text-xs">{lab.address}</Text>
                   </View>
-                  <View className="mt-3 gap-1.5">
+                  <View className="gap-1.5">
                     {lab.matched.map((entry) => (
                       <View key={entry.requested} className="flex-row justify-between gap-3">
                         <Text
@@ -437,44 +413,49 @@ export function LabResults({
                         <Text
                           className={cn(
                             'text-[13px]',
-                            entry.priceKobo === null ? 'text-muted-foreground' : 'text-foreground'
+                            entry.priceKobo === null && 'text-muted-foreground'
                           )}>
                           {entry.priceKobo === null ? 'Not offered' : formatNaira(entry.priceKobo)}
                         </Text>
                       </View>
                     ))}
                   </View>
-                </View>
-                {lab.matchedCount > 0 ? (
-                  <View className="border-border mt-3 gap-1 border-t pt-3">
+                  <View className="gap-1">
                     <Money label="Tests" value={lab.subtotalKobo} />
                     {collection === 'home' ? (
                       <Money label="Home collection" value={lab.homeFeeKobo} />
                     ) : null}
-                    <Money strong label="Total you pay" value={labTotalKobo(lab, collection)} />
-                    <Text className="text-muted-foreground mt-0.5 text-xs">
-                      {`Results in about ${lab.turnaroundHours} hours`}
-                    </Text>
                   </View>
-                ) : null}
+                  <Text className="text-muted-foreground text-xs">
+                    {`Results in about ${lab.turnaroundHours} hours`}
+                  </Text>
+                </Details>
               </Choosable>
             );
           })}
-        </View>
+        </Section>
       ) : (
-        <View className="border-border rounded-2xl border border-dashed px-4 py-6">
+        <View className="bg-muted rounded-2xl px-4 py-5">
           <Text className="text-muted-foreground text-center text-[13px] leading-5">
-            {`No laboratory near you ${collection === 'home' ? 'collects samples at home' : 'lists'} for these tests yet. You can ask all laboratories for a price below.`}
+            {`No laboratory near you ${collection === 'home' ? 'collects at home' : 'lists'} for these tests yet. Ask everyone nearby below.`}
           </Text>
         </View>
       )}
+
+      <Others
+        title="Other laboratories nearby"
+        rows={rest.map((lab) => ({
+          id: lab.id,
+          name: `${lab.labName} · ${lab.branchName}`,
+          note: 'Not offered',
+        }))}
+      />
 
       <SendAll
         checked={askAll}
         disabled={false}
         onChange={onAskAll}
-        title="Send my request to all laboratories around me"
-        text="Can’t find what you need? It goes to every nearby NairaClinic laboratory. Those that do your tests reply with a price, and you pay only if you accept it."
+        title="Send my request to all laboratories nearby"
       />
     </View>
   );
