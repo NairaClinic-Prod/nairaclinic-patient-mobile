@@ -13,6 +13,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 import { NextUpCard } from '../components/next-up-card';
 import { CalendarPromptSheet } from '../components/calendar-prompt-sheet';
+import { CalendarRow } from '../components/calendar-row';
 import { ReminderFormSheet } from '../components/reminder-form-sheet';
 import { ReminderRow } from '../components/reminder-row';
 import { shouldAskNow, useCalendarPrompt } from '../hooks/use-calendar-prompt';
@@ -83,6 +84,8 @@ export function RemindersScreen() {
           />
         </FadeIn>
       ) : null}
+
+      <CalendarRow connected={calendar.connected} onPress={() => setCalendarOpen(true)} />
 
       <FadeIn index={1}>
         <SegmentedControl

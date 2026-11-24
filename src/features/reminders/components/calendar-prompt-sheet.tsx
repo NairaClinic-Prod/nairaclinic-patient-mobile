@@ -8,6 +8,7 @@ import * as React from 'react';
 import { Linking, View } from 'react-native';
 import {
   connectCalendar,
+  useCalendarPrompt,
   isCalendarConnected,
   snoozeCalendarPrompt,
 } from '../hooks/use-calendar-prompt';
@@ -21,6 +22,7 @@ const BENEFITS = [
 type CalendarPromptSheetProps = { open: boolean; onClose: () => void };
 
 export function CalendarPromptSheet({ open, onClose }: CalendarPromptSheetProps) {
+  const { connected } = useCalendarPrompt();
   const [busy, setBusy] = React.useState(false);
   const [denied, setDenied] = React.useState(false);
 
@@ -53,9 +55,13 @@ export function CalendarPromptSheet({ open, onClose }: CalendarPromptSheetProps)
       open={open}
       onClose={dismiss}
       showClose
-      eyebrow="Never miss a reminder"
-      title="Add your reminders to your calendar."
-      subtitle="Connect your calendar and your reminders will show up there too.">
+      eyebrow={connected ? 'Calendar connected' : 'Never miss a reminder'}
+      title={connected ? 'Your calendar is connected.' : 'Add your reminders to your calendar.'}
+      subtitle={
+        connected
+          ? 'Your reminders can show up in your calendar. You can change access in your phone settings.'
+          : 'Connect your calendar and your reminders will show up there too.'
+      }>
       <View className="gap-3">
         {BENEFITS.map(({ icon, text }) => (
           <View key={text} className="flex-row items-center gap-3">
@@ -78,30 +84,48 @@ export function CalendarPromptSheet({ open, onClose }: CalendarPromptSheetProps)
       ) : null}
 
       <View className="gap-2">
-        {denied ? (
-          <ActionButton
-            size="md"
-            icon={CalendarPlus}
-            label="Open settings"
-            onPress={() => {
-              Linking.openSettings();
-              onClose();
-            }}
-          />
+        {connected ? (
+          <>
+            <ActionButton
+              size="md"
+              icon={CalendarCheck}
+              label="Open phone settings"
+              variant="outline"
+              onPress={() => {
+                Linking.openSettings();
+                onClose();
+              }}
+            />
+            <ActionButton size="md" label="Done" onPress={onClose} />
+          </>
         ) : (
-          <ActionButton
-            size="md"
-            icon={CalendarPlus}
-            label={busy ? 'Connecting…' : 'Connect calendar'}
-            disabled={busy}
-            onPress={connect}
-          />
-        )}
-        <ActionButton size="md" variant="ghost" label="Not now" onPress={dismiss} />
-        {denied ? null : (
-          <Text className="text-muted-foreground text-center text-xs">
-            If you skip, we’ll remind you again tomorrow.
-          </Text>
+          <>
+            {denied ? (
+              <ActionButton
+                size="md"
+                icon={CalendarPlus}
+                label="Open settings"
+                onPress={() => {
+                  Linking.openSettings();
+                  onClose();
+                }}
+              />
+            ) : (
+              <ActionButton
+                size="md"
+                icon={CalendarPlus}
+                label={busy ? 'Connecting…' : 'Connect calendar'}
+                disabled={busy}
+                onPress={connect}
+              />
+            )}
+            <ActionButton size="md" variant="ghost" label="Not now" onPress={dismiss} />
+            {denied ? null : (
+              <Text className="text-muted-foreground text-center text-xs">
+                If you skip, we’ll remind you again tomorrow.
+              </Text>
+            )}
+          </>
         )}
       </View>
     </Sheet>
