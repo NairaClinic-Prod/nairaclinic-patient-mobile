@@ -1,9 +1,9 @@
 export const FONT_FILES = {
-  PlusJakartaSans_400Regular: require('@/assets/fonts/PlusJakartaSans_400Regular.ttf'),
-  PlusJakartaSans_500Medium: require('@/assets/fonts/PlusJakartaSans_500Medium.ttf'),
-  PlusJakartaSans_600SemiBold: require('@/assets/fonts/PlusJakartaSans_600SemiBold.ttf'),
-  PlusJakartaSans_700Bold: require('@/assets/fonts/PlusJakartaSans_700Bold.ttf'),
-  PlusJakartaSans_800ExtraBold: require('@/assets/fonts/PlusJakartaSans_800ExtraBold.ttf'),
+  PlusJakartaSans_400Regular: require('@assets/fonts/PlusJakartaSans_400Regular.ttf'),
+  PlusJakartaSans_500Medium: require('@assets/fonts/PlusJakartaSans_500Medium.ttf'),
+  PlusJakartaSans_600SemiBold: require('@assets/fonts/PlusJakartaSans_600SemiBold.ttf'),
+  PlusJakartaSans_700Bold: require('@assets/fonts/PlusJakartaSans_700Bold.ttf'),
+  PlusJakartaSans_800ExtraBold: require('@assets/fonts/PlusJakartaSans_800ExtraBold.ttf'),
 };
 
 export const FONT = {

@@ -1,6 +1,6 @@
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import { Reveal } from '@/components/onboarding/reveal';
+import { Reveal } from '@/features/onboarding/components/reveal';
 import { useColor } from '@/hooks/use-color';
 import type { LucideIcon } from 'lucide-react-native';
 import {
@@ -20,7 +20,7 @@ import * as React from 'react';
 import { Image, View, type ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-const LOGO = require('@/assets/images/logo.png');
+const LOGO = require('@assets/images/logo.png');
 
 export const CANVAS = 320;
 const CENTER = CANVAS / 2;

@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import { SCREEN_PADDING_X } from '@/constants/app.constant';
+import { SCREEN_PADDING_X } from '@/constants/ui';
 import { useColor } from '@/hooks/use-color';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -20,7 +20,7 @@ import {
 import Animated, { useAnimatedKeyboard, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const LOGO = require('@/assets/images/logo.png');
+const LOGO = require('@assets/images/logo.png');
 
 const FOOTER_HEIGHT = 36;
 const BAR_HEIGHT = 150;

@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { RESEND_SECONDS } from '@/constants/app.constant';
-import { useCountdown } from '@/hooks/use-countdown';
+import { RESEND_SECONDS } from '@/features/auth/constants';
+import { useCountdown } from '@/features/auth/hooks/use-countdown';
 import * as React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 

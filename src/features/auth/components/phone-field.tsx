@@ -1,5 +1,5 @@
-import { useScrollToFocused } from '@/components/auth/auth-layout';
-import { CountrySheet } from '@/components/auth/country-sheet';
+import { useScrollToFocused } from '@/features/auth/components/auth-layout';
+import { CountrySheet } from '@/features/auth/components/country-sheet';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';

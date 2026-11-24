@@ -16,7 +16,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
-const LOGO = require('@/assets/images/logo.png');
+const LOGO = require('@assets/images/logo.png');
 
 const PALETTE = {
   light: {

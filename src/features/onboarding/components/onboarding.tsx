@@ -2,8 +2,8 @@ import {
   ProgressContext,
   Reveal,
   SlideIndexContext,
-} from '@/components/onboarding/reveal';
-import { CANVAS, SLIDES } from '@/components/onboarding/slides';
+} from '@/features/onboarding/components/reveal';
+import { CANVAS, SLIDES } from '@/features/onboarding/components/slides';
 import { Text } from '@/components/ui/text';
 import { useColor } from '@/hooks/use-color';
 import { FONT } from '@/lib/fonts';
@@ -25,7 +25,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
-const LOGO = require('@/assets/images/logo.png');
+const LOGO = require('@assets/images/logo.png');
 const LAST = SLIDES.length - 1;
 
 function Stage({ children }: { children: React.ReactNode }) {
@@ -208,16 +208,17 @@ export function Onboarding({ onFinish, onSignIn }: OnboardingProps) {
       <View
         className="flex-row items-center justify-between px-6"
         style={{ paddingTop: insets.top + 12 }}>
-        <View className="flex-row items-center gap-2">
+        {/* <View className="flex-row items-center gap-2">
           <Image source={LOGO} style={{ width: 32, height: 32 }} resizeMode="contain" />
           <Text className="text-xl font-bold tracking-tight">NairaClinic</Text>
-        </View>
+        </View> */}
         <Pressable
           onPress={() => goTo(LAST)}
           disabled={current === LAST}
           hitSlop={12}
           accessibilityRole="button"
-          accessibilityLabel="Skip">
+          accessibilityLabel="Skip"
+          className='absolute top-10 right-8'>
           <Animated.View
             style={{
               opacity: current === LAST ? 0 : 1,

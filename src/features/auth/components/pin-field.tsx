@@ -1,4 +1,4 @@
-import { useScrollToFocused } from '@/components/auth/auth-layout';
+import { useScrollToFocused } from '@/features/auth/components/auth-layout';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';

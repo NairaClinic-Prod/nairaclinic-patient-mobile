@@ -1,15 +1,15 @@
-import { AuthLayout } from '@/components/auth/auth-layout';
-import { CodeActions } from '@/components/auth/code-actions';
-import { Field } from '@/components/auth/field';
-import { PhoneField } from '@/components/auth/phone-field';
-import { PinField } from '@/components/auth/pin-field';
+import { AuthLayout } from '@/features/auth/components/auth-layout';
+import { CodeActions } from '@/features/auth/components/code-actions';
+import { Field } from '@/features/auth/components/field';
+import { PhoneField } from '@/features/auth/components/phone-field';
+import { PinField } from '@/features/auth/components/pin-field';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Icon } from '@/components/ui/icon';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Text } from '@/components/ui/text';
-import { signUpSchemas } from '@/lib/auth-schemas';
+import { signUpSchemas } from '@/features/auth/schemas';
 import { validateNationalPhone } from '@/lib/validation';
 import { Stack, router } from 'expo-router';
 import { useFormik } from 'formik';
@@ -69,7 +69,7 @@ const COPY: Record<Step, { title: string; subtitle: string; action: string }> = 
   },
 };
 
-export default function SignUpScreen() {
+export function SignUpScreen() {
   const [step, setStep] = React.useState<Step>('phone');
 
   const formik = useFormik({

@@ -1,11 +1,11 @@
-import { AuthLayout } from '@/components/auth/auth-layout';
-import { PhoneField } from '@/components/auth/phone-field';
-import { PinField } from '@/components/auth/pin-field';
+import { AuthLayout } from '@/features/auth/components/auth-layout';
+import { PhoneField } from '@/features/auth/components/phone-field';
+import { PinField } from '@/features/auth/components/pin-field';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
-import { loginSchema } from '@/lib/auth-schemas';
+import { loginSchema } from '@/features/auth/schemas';
 import { Stack, router } from 'expo-router';
 import { useFormik } from 'formik';
 import { View } from 'react-native';
@@ -23,7 +23,7 @@ type Values = {
 
 const INITIAL: Values = { countryCode: 'NG', callingCode: '234', phone: '', pin: '', keep: true };
 
-export default function LoginScreen() {
+export function LoginScreen() {
   const formik = useFormik({
     initialValues: INITIAL,
     validationSchema: loginSchema,

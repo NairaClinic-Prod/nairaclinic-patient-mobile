@@ -1,5 +1,5 @@
-import { Onboarding } from '@/components/onboarding/onboarding';
-import { Splash } from '@/components/splash/splash';
+import { Onboarding } from '@/features/onboarding/components/onboarding';
+import { Splash } from '@/features/onboarding/components/splash';
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
@@ -12,7 +12,7 @@ const SCREEN_OPTIONS = {
 
 let splashPlayed = false;
 
-export default function Screen() {
+export function OnboardingScreen() {
   const [showSplash, setShowSplash] = React.useState(!splashPlayed);
   const exit = useSharedValue(splashPlayed ? 1 : 0);
 
@@ -33,8 +33,8 @@ export default function Screen() {
       <Stack.Screen options={SCREEN_OPTIONS} />
       <Animated.View style={[styles.fill, content]}>
         <Onboarding
-          onFinish={() => router.push('/sign-up')}
-          onSignIn={() => router.push('/login')}
+          onFinish={() => router.push('/auth/sign-up')}
+          onSignIn={() => router.push('/auth/login')}
         />
       </Animated.View>
       {showSplash ? (

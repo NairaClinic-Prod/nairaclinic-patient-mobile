@@ -6,7 +6,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import { SCREEN_PADDING_X } from '@/constants/app.constant';
+import { SCREEN_PADDING_X } from '@/constants/ui';
 import { useColor } from '@/hooks/use-color';
 import { FONT } from '@/lib/fonts';
 import { Search, X } from 'lucide-react-native';
