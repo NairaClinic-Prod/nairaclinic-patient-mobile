@@ -17,11 +17,13 @@ type CareTeamStripProps = {
 
 export function CareTeamStrip({ members, onSelect, onSeeAll, onBook }: CareTeamStripProps) {
   return (
-    <View className="gap-4">
+    <View className="gap-3">
       <SectionHeader title="Your care team" action="See all" onActionPress={onSeeAll} />
       <HScroll>
         {members.map((member) => (
-          <View key={member.doctorUserId} className="bg-card h-[188px] w-32 gap-1.5 rounded-2xl p-2.5">
+          <View
+            key={member.doctorUserId}
+            className="bg-card h-[188px] w-32 gap-1.5 rounded-2xl p-2.5">
             <Pressable
               role="button"
               onPress={() => onSelect?.(member)}

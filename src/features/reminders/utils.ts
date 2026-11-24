@@ -96,3 +96,14 @@ export function missingFor(draft: ReminderDraft) {
       : []),
   ];
 }
+
+const LONG_DATE = new Intl.DateTimeFormat('en-NG', {
+  timeZone: 'UTC',
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+});
+
+export function longDateLabel(date: string) {
+  return LONG_DATE.format(new Date(`${date}T12:00:00Z`));
+}

@@ -29,7 +29,7 @@ export function ReminderRow({ group, state, last, onOpen, onToggle }: ReminderRo
 
   return (
     <View
-      className={cn('border-border h-[68px] flex-row items-center', last ? '' : 'border-b')}>
+      className={cn('border-border h-16 flex-row items-center', last ? '' : 'border-b')}>
       <Pressable
         role="button"
         accessibilityLabel={`View or edit ${meta.title}`}
@@ -37,7 +37,7 @@ export function ReminderRow({ group, state, last, onOpen, onToggle }: ReminderRo
         className="h-full flex-1 flex-row items-center gap-3 pl-3.5 active:opacity-70">
         <View
           className={cn(
-            'size-10 items-center justify-center rounded-xl',
+            'size-10 items-center justify-center rounded-full',
             state === 'active' ? 'bg-secondary' : 'bg-muted'
           )}>
           <Icon

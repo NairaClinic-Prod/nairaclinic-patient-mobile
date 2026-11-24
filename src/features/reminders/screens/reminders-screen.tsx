@@ -49,7 +49,7 @@ export function RemindersScreen() {
   const addReminder = () => openEditor({ draft: blankDraft() });
 
   return (
-    <BodyLayout scrollView tabBar className="gap-4 pt-2">
+    <BodyLayout scrollView tabBar className="gap-3">
       <View className="flex-row items-center justify-between">
         <View>
           <Text className="text-xl font-extrabold">Reminders</Text>
