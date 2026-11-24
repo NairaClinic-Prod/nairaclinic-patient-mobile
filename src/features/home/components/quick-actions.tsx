@@ -1,11 +1,41 @@
 import { PressableScale } from '@/components/shared/pressable-scale';
-import { HScroll } from '@/components/shared/h-scroll';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import { cn } from '@/lib/utils';
+import { SCREEN_PADDING_X } from '@/constants/ui';
 import { FileHeart, Pill, Stethoscope, type LucideIcon } from 'lucide-react-native';
+import { View } from 'react-native';
 
-type Action = { label: string; icon: LucideIcon; primary?: boolean; onPress?: () => void };
+type CardProps = {
+  label: string;
+  text: string;
+  icon: LucideIcon;
+  onPress?: () => void;
+};
+
+function ActionCard({ label, text, icon, onPress }: CardProps) {
+  return (
+    <PressableScale
+      scaleTo={0.97}
+      role="button"
+      accessibilityLabel={`${label}. ${text}`}
+      onPress={onPress}
+      className="bg-card border-border flex-1 items-center justify-center gap-1.5 rounded-2xl border px-3 py-3.5">
+      <Icon as={icon} className="text-primary size-[18px]" />
+      <View className="items-center gap-px self-stretch">
+        <Text
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.85}
+          className="text-center text-sm leading-5 font-semibold tracking-tight">
+          {label}
+        </Text>
+        <Text className="text-muted-foreground text-center text-[11px] leading-4" numberOfLines={1}>
+          {text}
+        </Text>
+      </View>
+    </PressableScale>
+  );
+}
 
 type QuickActionsProps = {
   onBook?: () => void;
@@ -14,37 +44,30 @@ type QuickActionsProps = {
 };
 
 export function QuickActions({ onBook, onRecords, onOrder }: QuickActionsProps) {
-  const actions: Action[] = [
-    { label: 'Book a consultation', icon: Stethoscope, primary: true, onPress: onBook },
-    { label: 'Medical records', icon: FileHeart, onPress: onRecords },
-    { label: 'Make an order', icon: Pill, onPress: onOrder },
-  ];
-
   return (
-    <HScroll>
-      {actions.map(({ label, icon, primary, onPress }) => (
-        <PressableScale
-          scaleTo={0.96}
-          key={label}
-          role="button"
-          onPress={onPress}
-          className={cn(
-            'flex-row items-center gap-2 rounded-full px-4 py-2.5',
-            primary ? 'bg-primary' : 'bg-card'
-          )}>
-          <Icon
-            as={icon}
-            className={cn('size-4', primary ? 'text-primary-foreground' : 'text-primary')}
-          />
-          <Text
-            className={cn(
-              'text-[13px] font-bold',
-              primary ? 'text-primary-foreground' : undefined
-            )}>
-            {label}
-          </Text>
-        </PressableScale>
-      ))}
-    </HScroll>
+    <View className="gap-2.5" style={{ paddingHorizontal: SCREEN_PADDING_X }}>
+      <View className="flex-row items-stretch gap-2.5">
+        <ActionCard
+          label="Book a consultation"
+          text="Find care today"
+          icon={Stethoscope}
+          onPress={onBook}
+        />
+        <ActionCard
+          label="Medical records"
+          text="View your history"
+          icon={FileHeart}
+          onPress={onRecords}
+        />
+      </View>
+      <View className="flex-row">
+        <ActionCard
+          label="Make an order"
+          text="Medicines or lab tests"
+          icon={Pill}
+          onPress={onOrder}
+        />
+      </View>
+    </View>
   );
 }
