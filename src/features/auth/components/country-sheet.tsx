@@ -18,7 +18,7 @@ import {
   getEmojiFlag,
   type Country,
 } from 'react-native-country-picker-modal';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSheetBottom } from '@/hooks/use-screen-insets';
 
 const ROW_HEIGHT = 56;
 
@@ -51,7 +51,7 @@ type CountrySheetProps = {
 
 export function CountrySheet({ open, onClose, onSelect }: CountrySheetProps) {
   const color = useColor();
-  const insets = useSafeAreaInsets();
+  const sheetBottom = useSheetBottom();
   const [filter, setFilter] = React.useState('');
   const [focused, setFocused] = React.useState(false);
   const [countries, setCountries] = React.useState<Country[]>([]);
@@ -146,7 +146,7 @@ export function CountrySheet({ open, onClose, onSelect }: CountrySheetProps) {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingHorizontal: SCREEN_PADDING_X,
-          paddingBottom: insets.bottom + 16,
+          paddingBottom: sheetBottom,
         }}
         ListEmptyComponent={
           <Text className="text-muted-foreground py-10 text-center">No country found</Text>

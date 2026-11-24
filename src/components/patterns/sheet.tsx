@@ -3,9 +3,9 @@ import { BottomSheet, BottomSheetScrollView } from '@/components/ui/bottom-sheet
 import type { BottomSheetScrollViewMethods } from '@gorhom/bottom-sheet';
 import { Text } from '@/components/ui/text';
 import { SCREEN_PADDING_X } from '@/constants/ui';
+import { useSheetBottom } from '@/hooks/use-screen-insets';
 import * as React from 'react';
 import { View, type HostInstance } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type SheetProps = {
   open: boolean;
@@ -26,8 +26,7 @@ export function Sheet({
   footer,
   children,
 }: SheetProps) {
-  const insets = useSafeAreaInsets();
-  const bottom = Math.max(insets.bottom, 16);
+  const bottom = useSheetBottom();
   const frame = React.useRef<HostInstance>(null);
   const scroll = React.useRef<BottomSheetScrollViewMethods>(null);
   const offset = React.useRef(0);
@@ -88,7 +87,7 @@ export function Sheet({
               contentContainerStyle={{
                 paddingHorizontal: SCREEN_PADDING_X,
                 paddingTop: 8,
-                paddingBottom: 24,
+                paddingBottom: footer ? 0 : bottom,
                 gap: 16,
               }}>
               {heading}

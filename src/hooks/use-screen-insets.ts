@@ -1,4 +1,9 @@
-import { TAB_BAR_CLEARANCE, TAB_BAR_HEIGHT, TAB_BAR_MIN_BOTTOM } from '@/constants/ui';
+import {
+  SHEET_BOTTOM_SPACE,
+  TAB_BAR_CLEARANCE,
+  TAB_BAR_HEIGHT,
+  TAB_BAR_MIN_BOTTOM,
+} from '@/constants/ui';
 import * as React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -12,4 +17,9 @@ export function useScreenInsets() {
     }),
     [top, bottom]
   );
+}
+
+export function useSheetBottom() {
+  const { bottom } = useSafeAreaInsets();
+  return Math.max(bottom, SHEET_BOTTOM_SPACE);
 }

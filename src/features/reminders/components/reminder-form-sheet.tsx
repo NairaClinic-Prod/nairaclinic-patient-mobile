@@ -27,7 +27,7 @@ import {
 } from 'lucide-react-native';
 import * as React from 'react';
 import { Pressable, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSheetBottom } from '@/hooks/use-screen-insets';
 import { MAX_TIMES, REPEAT_OPTIONS, WEEKDAYS } from '../constants';
 import type { ReminderDraft, ReminderRepeat } from '../types';
 import { dateLabel, isDateKey, missingFor, todayKey } from '../utils';
@@ -84,7 +84,7 @@ export function ReminderFormSheet({
   onClose,
   onSave,
 }: ReminderFormSheetProps) {
-  const insets = useSafeAreaInsets();
+  const sheetBottom = useSheetBottom();
   const [draft, setDraft] = React.useState(initial);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -98,7 +98,8 @@ export function ReminderFormSheet({
   const personal = draft.kind === 'general';
   const test = draft.kind === 'lab';
   const missing = missingFor(draft);
-  const patch = (change: Partial<ReminderDraft>) => setDraft((current) => ({ ...current, ...change }));
+  const patch = (change: Partial<ReminderDraft>) =>
+    setDraft((current) => ({ ...current, ...change }));
 
   function save() {
     const failure = onSave(draft);
@@ -131,7 +132,7 @@ export function ReminderFormSheet({
           contentContainerStyle={{
             paddingHorizontal: SCREEN_PADDING_X,
             paddingTop: 8,
-            paddingBottom: 24,
+            paddingBottom: 0,
             gap: 18,
           }}>
           <View className="gap-0.5">
@@ -176,7 +177,7 @@ export function ReminderFormSheet({
                   <IconBadge icon={fact.icon} />
                   <View>
                     <Text className="text-muted-foreground text-[11px]">{fact.label}</Text>
-                    <Text className="mt-0.5 text-xs font-bold leading-4" numberOfLines={2}>
+                    <Text className="mt-0.5 text-xs leading-4 font-bold" numberOfLines={2}>
                       {fact.value}
                     </Text>
                   </View>
@@ -341,7 +342,9 @@ export function ReminderFormSheet({
           </View>
 
           {error ? (
-            <Text role="alert" className="bg-warning-soft text-warning rounded-2xl px-4 py-3 text-xs">
+            <Text
+              role="alert"
+              className="bg-warning-soft text-warning rounded-2xl px-4 py-3 text-xs">
               {error}
             </Text>
           ) : null}
@@ -349,7 +352,7 @@ export function ReminderFormSheet({
 
         <View
           className="border-border/70 gap-2.5 border-t px-6 pt-3"
-          style={{ paddingBottom: Math.max(insets.bottom, 12) }}>
+          style={{ paddingBottom: sheetBottom }}>
           <Text
             className={cn(
               'text-center text-[11px]',
