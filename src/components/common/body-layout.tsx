@@ -1,5 +1,5 @@
 import {
-  CollapsingBar,
+  HeaderBar,
   HeaderBarContext,
   type HeaderBarInfo,
 } from '@/components/common/collapsing-header';
@@ -19,6 +19,7 @@ type BodyLayoutProps = {
   tabBar?: boolean;
   gradient?: boolean;
   collapsingHeader?: boolean;
+  fixedHeader?: boolean;
   className?: string;
   children?: React.ReactNode;
 };
@@ -30,12 +31,15 @@ export function BodyLayout({
   tabBar = false,
   gradient = tabBar,
   collapsingHeader = COLLAPSING_TAB_HEADER,
+  fixedHeader = false,
   className,
   children,
 }: BodyLayoutProps) {
   const { top, bottom, tabBar: tabBarSpace } = useScreenInsets();
   const color = useColor();
-  const collapsing = collapsingHeader && scrollView && tabBar;
+  const fixed = fixedHeader && scrollView && tabBar;
+  const collapsing = collapsingHeader && scrollView && tabBar && !fixed;
+  const active = fixed || collapsing;
   const scrollY = useSharedValue(0);
   const [info, setInfo] = React.useState<HeaderBarInfo | null>(null);
 
@@ -44,6 +48,7 @@ export function BodyLayout({
       setInfo((current) => ({ title: '', bottom: 0, ...current, ...next })),
     []
   );
+  const headerBar = React.useMemo(() => ({ register, fixed }), [register, fixed]);
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollY.set(event.contentOffset.y);
   });
@@ -59,7 +64,7 @@ export function BodyLayout({
       {scrollView ? (
         <Animated.ScrollView
           className="flex-1"
-          onScroll={collapsing ? onScroll : undefined}
+          onScroll={active ? onScroll : undefined}
           scrollEventThrottle={16}
           contentContainerClassName={className}
           contentContainerStyle={[{ flexGrow: 1 }, spacing]}
@@ -76,7 +81,7 @@ export function BodyLayout({
   );
 
   return (
-    <HeaderBarContext.Provider value={collapsing ? register : null}>
+    <HeaderBarContext.Provider value={active ? headerBar : null}>
       <View className="bg-background flex-1">
         {gradient ? (
           <LinearGradient
@@ -87,7 +92,14 @@ export function BodyLayout({
           />
         ) : null}
         {body}
-        {collapsing && info?.title ? <CollapsingBar scrollY={scrollY} info={info} /> : null}
+        {active && info && (fixed ? info.content : info.title) ? (
+          <HeaderBar
+            scrollY={scrollY}
+            info={info}
+            fixed={fixed}
+            gutter={padding ? SCREEN_PADDING_X : 0}
+          />
+        ) : null}
       </View>
     </HeaderBarContext.Provider>
   );

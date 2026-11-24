@@ -12,20 +12,15 @@ type TabHeaderProps = {
   gutter?: boolean;
 };
 
+// In a fixed layout the bar draws the live header, so the copy in the page only holds its place.
 const TabHeader = ({ title, compactTitle, subtitle, right, gutter = false }: TabHeaderProps) => {
-  const register = useHeaderBar();
+  const bar = useHeaderBar();
+  const fixed = bar?.fixed ?? false;
+  const register = bar?.register;
   const small = compactTitle ?? (typeof title === 'string' ? title : '');
 
-  React.useEffect(() => {
-    register?.({ title: small, right });
-  }, [register, small, right]);
-
-  return (
+  const row = (
     <View
-      onLayout={(event) => {
-        const { y, height } = event.nativeEvent.layout;
-        register?.({ bottom: y + height });
-      }}
       className="flex-row items-center justify-between gap-4 pt-4"
       style={gutter ? { paddingHorizontal: SCREEN_PADDING_X } : undefined}>
       <View className="min-w-0 flex-1">
@@ -39,6 +34,22 @@ const TabHeader = ({ title, compactTitle, subtitle, right, gutter = false }: Tab
         ) : null}
       </View>
       {right}
+    </View>
+  );
+
+  React.useEffect(() => {
+    register?.({ title: small, right, content: fixed ? row : undefined });
+  });
+
+  return (
+    <View
+      pointerEvents={fixed ? 'none' : 'auto'}
+      style={fixed ? { opacity: 0 } : undefined}
+      onLayout={(event) => {
+        const { y, height } = event.nativeEvent.layout;
+        register?.({ bottom: y + height });
+      }}>
+      {row}
     </View>
   );
 };
