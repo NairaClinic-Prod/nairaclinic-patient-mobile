@@ -1,4 +1,4 @@
-import { Sheet } from '@/components/patterns/sheet';
+import { Sheet } from '@/components/shared/sheet';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { ChevronRight, type LucideIcon } from 'lucide-react-native';

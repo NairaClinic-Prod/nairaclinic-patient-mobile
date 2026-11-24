@@ -1,5 +1,5 @@
-import { ActionButton } from '@/components/patterns/action-button';
-import { ChipTabs } from '@/components/patterns/chip-tabs';
+import { ActionButton } from '@/components/shared/action-button';
+import { ChipTabs } from '@/components/shared/chip-tabs';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { CARE_PLAN_TABS } from '@/features/care-plan/constants';

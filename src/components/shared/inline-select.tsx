@@ -1,5 +1,5 @@
-import { PressableScale } from '@/components/patterns/pressable-scale';
-import { Sheet } from '@/components/patterns/sheet';
+import { PressableScale } from '@/components/shared/pressable-scale';
+import { Sheet } from '@/components/shared/sheet';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';

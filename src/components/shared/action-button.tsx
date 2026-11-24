@@ -1,5 +1,5 @@
-import { PressableScale } from '@/components/patterns/pressable-scale';
-import { useButtonFill } from '@/components/patterns/button-row';
+import { PressableScale } from '@/components/shared/pressable-scale';
+import { useButtonFill } from '@/components/shared/button-row';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';

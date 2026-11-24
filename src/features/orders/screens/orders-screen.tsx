@@ -1,8 +1,8 @@
-import { FadeIn } from '@/components/patterns/fade-in';
+import { FadeIn } from '@/components/shared/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
 import TabHeader from '@/components/common/header';
-import { SegmentedControl } from '@/components/patterns/segmented-control';
-import { StatTile } from '@/components/patterns/stat-tile';
+import { SegmentedControl } from '@/components/shared/segmented-control';
+import { StatTile } from '@/components/shared/stat-tile';
 import { CircleCheck, ShoppingBag, Wallet } from 'lucide-react-native';
 import * as React from 'react';
 import { View } from 'react-native';

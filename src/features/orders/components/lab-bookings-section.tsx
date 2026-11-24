@@ -1,7 +1,7 @@
-import { ActionButton } from '@/components/patterns/action-button';
-import { Sheet } from '@/components/patterns/sheet';
-import { SectionHeader } from '@/components/patterns/section-header';
-import { StatusPill } from '@/components/patterns/status-pill';
+import { ActionButton } from '@/components/shared/action-button';
+import { Sheet } from '@/components/shared/sheet';
+import { SectionHeader } from '@/components/shared/section-header';
+import { StatusPill } from '@/components/shared/status-pill';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { Building2, ChevronRight, ExternalLink, FlaskConical, House } from 'lucide-react-native';
@@ -32,9 +32,8 @@ export function LabBookingsSection({ bookings, onViewAll }: LabBookingsSectionPr
               key={booking.id}
               role="button"
               onPress={() => setOpen(booking)}
-              className={`border-border flex-row items-center gap-3 px-3.5 py-3 active:opacity-70 ${
-                index < list.length - 1 ? 'border-b' : ''
-              }`}>
+              className={`border-border flex-row items-center gap-3 px-3.5 py-3 active:opacity-70 ${index < list.length - 1 ? 'border-b' : ''
+                }`}>
               <View className="bg-secondary size-10 items-center justify-center rounded-full">
                 <Icon as={FlaskConical} className="text-primary size-4.5" />
               </View>
@@ -107,9 +106,8 @@ function LabBookingSheet({
                 className="text-muted-foreground size-4"
               />
               <Text className="text-muted-foreground flex-1 text-xs leading-4.5">
-                {`${formatWhen(booking.slotStart)} · ${
-                  booking.collection === 'home' ? 'Sample collected at home' : booking.address
-                }`}
+                {`${formatWhen(booking.slotStart)} · ${booking.collection === 'home' ? 'Sample collected at home' : booking.address
+                  }`}
               </Text>
             </View>
           </View>

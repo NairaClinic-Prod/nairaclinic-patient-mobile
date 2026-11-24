@@ -1,8 +1,8 @@
 import { BodyLayout } from '@/components/common/body-layout';
-import { ActionButton } from '@/components/patterns/action-button';
-import { ChoiceChips } from '@/components/patterns/choice-chips';
-import { SubScreenHeader } from '@/components/patterns/sub-screen-header';
-import { TextField } from '@/components/patterns/text-field';
+import { ActionButton } from '@/components/shared/action-button';
+import { ChoiceChips } from '@/components/shared/choice-chips';
+import { SubScreenHeader } from '@/components/shared/sub-screen-header';
+import { TextField } from '@/components/shared/text-field';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { DateField } from '@/features/reminders/components/reminder-pickers';

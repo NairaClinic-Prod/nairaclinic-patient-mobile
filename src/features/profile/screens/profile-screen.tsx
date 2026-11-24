@@ -1,4 +1,4 @@
-import { FadeIn } from '@/components/patterns/fade-in';
+import { FadeIn } from '@/components/shared/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
 import TabHeader from '@/components/common/header';
 import { Icon } from '@/components/ui/icon';

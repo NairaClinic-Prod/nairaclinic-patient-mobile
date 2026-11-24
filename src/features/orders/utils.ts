@@ -1,4 +1,4 @@
-import type { PillTone } from '@/components/patterns/status-pill';
+import type { PillTone } from '@/components/shared/status-pill';
 import { OPEN_STATUSES, ORDER_STATUS_LABEL, VIEW_STATUSES } from './constants';
 import type { OrdersData, OrderStatus, PharmacyOrder, RequestItem } from './types';
 
@@ -83,7 +83,7 @@ export function summarize(data: OrdersData) {
   };
 }
 
-export const medicineLine =(item: RequestItem | { name: string; quantity: number }) =>
+export const medicineLine = (item: RequestItem | { name: string; quantity: number }) =>
   `${item.name} × ${item.quantity} ${item.quantity === 1 ? 'pack' : 'packs'}`;
 
 export const plural = (count: number, one: string, many = `${one}s`) =>

@@ -1,4 +1,4 @@
-import { useSheetScroll } from '@/components/patterns/sheet-context';
+import { useSheetScroll } from '@/components/shared/sheet-context';
 import { Text } from '@/components/ui/text';
 import { BottomSheetTextInput } from '@/components/ui/bottom-sheet';
 import { useColor } from '@/hooks/use-color';

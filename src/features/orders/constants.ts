@@ -1,4 +1,4 @@
-import type { PillTone } from '@/components/patterns/status-pill';
+import type { PillTone } from '@/components/shared/status-pill';
 import type { LabBookingStatus, OrderStatus, OrderView } from './types';
 
 export const VIEW_STATUSES: Record<OrderView, readonly OrderStatus[]> = {

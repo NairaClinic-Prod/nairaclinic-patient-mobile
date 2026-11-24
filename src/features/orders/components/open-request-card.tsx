@@ -1,5 +1,5 @@
-import { ActionButton } from '@/components/patterns/action-button';
-import { StatusPill } from '@/components/patterns/status-pill';
+import { ActionButton } from '@/components/shared/action-button';
+import { StatusPill } from '@/components/shared/status-pill';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { Building2, ChevronDown, Lock, Package } from 'lucide-react-native';

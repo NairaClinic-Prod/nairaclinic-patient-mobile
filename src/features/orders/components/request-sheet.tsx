@@ -1,5 +1,5 @@
-import { Sheet } from '@/components/patterns/sheet';
-import { StatusPill } from '@/components/patterns/status-pill';
+import { Sheet } from '@/components/shared/sheet';
+import { StatusPill } from '@/components/shared/status-pill';
 import { Text } from '@/components/ui/text';
 import { View } from 'react-native';
 import type { ShoppingRequest } from '../types';

@@ -1,6 +1,6 @@
-import { FadeIn } from '@/components/patterns/fade-in';
+import { FadeIn } from '@/components/shared/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
-import { SubScreenHeader } from '@/components/patterns/sub-screen-header';
+import { SubScreenHeader } from '@/components/shared/sub-screen-header';
 import { Text } from '@/components/ui/text';
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import { PaymentMethodsView } from '../components/payment-methods-view';

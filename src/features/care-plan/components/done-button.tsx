@@ -1,5 +1,5 @@
-import { PressableScale } from '@/components/patterns/pressable-scale';
-import { ActionButton } from '@/components/patterns/action-button';
+import { PressableScale } from '@/components/shared/pressable-scale';
+import { ActionButton } from '@/components/shared/action-button';
 import { Icon } from '@/components/ui/icon';
 import * as Haptics from 'expo-haptics';
 import { Check, RotateCcw } from 'lucide-react-native';

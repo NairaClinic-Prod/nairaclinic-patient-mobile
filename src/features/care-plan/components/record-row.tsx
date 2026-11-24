@@ -1,4 +1,4 @@
-import { ButtonRow } from '@/components/patterns/button-row';
+import { ButtonRow } from '@/components/shared/button-row';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import type { LucideIcon } from 'lucide-react-native';

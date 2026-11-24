@@ -1,4 +1,4 @@
-import { PressableScale } from '@/components/patterns/pressable-scale';
+import { PressableScale } from '@/components/shared/pressable-scale';
 import { Text } from '@/components/ui/text';
 import { SCREEN_PADDING_X } from '@/constants/ui';
 import { cn } from '@/lib/utils';

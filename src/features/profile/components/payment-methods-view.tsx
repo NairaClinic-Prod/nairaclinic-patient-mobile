@@ -1,6 +1,6 @@
-import { ActionButton } from '@/components/patterns/action-button';
-import { EmptyState } from '@/components/patterns/empty-state';
-import { Sheet } from '@/components/patterns/sheet';
+import { ActionButton } from '@/components/shared/action-button';
+import { EmptyState } from '@/components/shared/empty-state';
+import { Sheet } from '@/components/shared/sheet';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { CreditCard, Landmark, Plus, Share2, Star, Trash2 } from 'lucide-react-native';

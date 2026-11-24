@@ -1,6 +1,6 @@
-import { FadeIn } from '@/components/patterns/fade-in';
+import { FadeIn } from '@/components/shared/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
-import { ActionButton } from '@/components/patterns/action-button';
+import { ActionButton } from '@/components/shared/action-button';
 import TabHeader from '@/components/common/header';
 import { SCREEN_PADDING_X } from '@/constants/ui';
 import { AddFromClinic } from '@/features/care-plan/components/add-from-clinic';

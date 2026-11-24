@@ -1,5 +1,5 @@
-import { ActionButton } from '@/components/patterns/action-button';
-import { Sheet } from '@/components/patterns/sheet';
+import { ActionButton } from '@/components/shared/action-button';
+import { Sheet } from '@/components/shared/sheet';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { Droplet, Gauge, Pencil, Plus, Trash2 } from 'lucide-react-native';

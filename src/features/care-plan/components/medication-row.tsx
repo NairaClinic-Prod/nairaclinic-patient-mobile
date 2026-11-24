@@ -1,5 +1,5 @@
-import { ActionButton } from '@/components/patterns/action-button';
-import { StatusPill } from '@/components/patterns/status-pill';
+import { ActionButton } from '@/components/shared/action-button';
+import { StatusPill } from '@/components/shared/status-pill';
 import { Text } from '@/components/ui/text';
 import { BellPlus, PackageCheck, Pill, ShoppingBag } from 'lucide-react-native';
 import type * as React from 'react';

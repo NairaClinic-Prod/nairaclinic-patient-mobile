@@ -1,4 +1,4 @@
-import { ActionButton } from '@/components/patterns/action-button';
+import { ActionButton } from '@/components/shared/action-button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { useOrdersData } from '@/features/orders/hooks/use-orders';
@@ -42,9 +42,8 @@ export function LabResultsCard({ onViewAll }: LabResultsCardProps) {
                 {result.testNames.join(', ')}
               </Text>
               <Text className="text-muted-foreground text-[11px]" numberOfLines={1}>
-                {`${result.labName} · ${result.reference}${
-                  result.releasedAt ? ` · ${formatDay(result.releasedAt)}` : ''
-                }`}
+                {`${result.labName} · ${result.reference}${result.releasedAt ? ` · ${formatDay(result.releasedAt)}` : ''
+                  }`}
               </Text>
             </View>
             {result.url ? (

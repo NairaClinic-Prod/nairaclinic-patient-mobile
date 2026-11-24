@@ -1,4 +1,4 @@
-import { PressableScale } from '@/components/patterns/pressable-scale';
+import { PressableScale } from '@/components/shared/pressable-scale';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { ArrowDownRight, ArrowUpRight, ChevronRight, Wallet } from 'lucide-react-native';

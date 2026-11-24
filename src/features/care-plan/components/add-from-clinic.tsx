@@ -1,5 +1,5 @@
-import { ActionButton } from '@/components/patterns/action-button';
-import { ChoiceSheet } from '@/components/patterns/choice-sheet';
+import { ActionButton } from '@/components/shared/action-button';
+import { ChoiceSheet } from '@/components/shared/choice-sheet';
 import { FlaskConical, Pill, Plus } from 'lucide-react-native';
 import * as React from 'react';
 

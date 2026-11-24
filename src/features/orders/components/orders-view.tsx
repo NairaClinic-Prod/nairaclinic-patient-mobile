@@ -1,8 +1,8 @@
-import { ActionButton } from '@/components/patterns/action-button';
-import { AddButton } from '@/components/patterns/add-button';
-import { ChoiceSheet } from '@/components/patterns/choice-sheet';
-import { ChipTabs } from '@/components/patterns/chip-tabs';
-import { EmptyState } from '@/components/patterns/empty-state';
+import { ActionButton } from '@/components/shared/action-button';
+import { AddButton } from '@/components/shared/add-button';
+import { ChoiceSheet } from '@/components/shared/choice-sheet';
+import { EmptyState } from '@/components/shared/empty-state';
+import { InlineSelect } from '@/components/shared/inline-select';
 import { Text } from '@/components/ui/text';
 import {
   AddFromClinicSheet,
@@ -58,6 +58,9 @@ export function OrdersView({ onMakeOrder, onAddExternal, onBookLab }: OrdersView
   const extra = (value: OrderView) =>
     value === 'requests' ? openOnly.length : value === 'closed' ? closedOnly.length : 0;
   const orders = ordersIn(view);
+  const total = (value: OrderView) => ordersIn(value).length + extra(value);
+  const activeTotal = total('requests') + total('active');
+  const pastTotal = total('closed') + total('history');
   const selected = data.orders.find((order) => order.id === selectedId) ?? null;
   const request: ShoppingRequest | null =
     data.requests.find((item) => item.id === requestId) ?? null;
@@ -77,35 +80,40 @@ export function OrdersView({ onMakeOrder, onAddExternal, onBookLab }: OrdersView
         <AddButton label="Add or make an order" onPress={() => setMenuOpen(true)} />
       </View>
 
-      <ChipTabs
-        value={view}
-        onChange={setView}
-        options={VIEWS.map(({ value, label }) => ({
-          value,
-          label,
-          count: ordersIn(value).length + extra(value),
-        }))}
-      />
+      <View className="flex-row items-center justify-between gap-3">
+        <Text className="text-muted-foreground text-xs">
+          <Text className="text-foreground text-xs font-bold">{activeTotal}</Text>
+          {' active · '}
+          <Text className="text-foreground text-xs font-bold">{pastTotal}</Text>
+          {' past'}
+        </Text>
+        <InlineSelect<OrderView>
+          title="Show"
+          value={view}
+          options={VIEWS.map(({ value, label }) => ({ value, label }))}
+          onChange={setView}
+        />
+      </View>
 
       <Animated.View key={view} entering={ITEM_ENTER} className="gap-3">
         {view === 'requests'
           ? openOnly.map((item) => (
-              <OpenRequestCard
-                key={item.id}
-                request={item}
-                onOpen={() => setRequestId(item.id)}
-                onCancel={() => cancelRequest(item.id)}
-              />
-            ))
+            <OpenRequestCard
+              key={item.id}
+              request={item}
+              onOpen={() => setRequestId(item.id)}
+              onCancel={() => cancelRequest(item.id)}
+            />
+          ))
           : null}
         {view === 'closed'
           ? closedOnly.map((item) => (
-              <ClosedRequestCard
-                key={item.id}
-                request={item}
-                onOpen={() => setRequestId(item.id)}
-              />
-            ))
+            <ClosedRequestCard
+              key={item.id}
+              request={item}
+              onOpen={() => setRequestId(item.id)}
+            />
+          ))
           : null}
         {orders.map((order) => (
           <OrderCard

@@ -1,5 +1,5 @@
-import { EmptyState } from '@/components/patterns/empty-state';
-import { StatTile } from '@/components/patterns/stat-tile';
+import { EmptyState } from '@/components/shared/empty-state';
+import { StatTile } from '@/components/shared/stat-tile';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { formatNaira } from '@/features/orders/utils';

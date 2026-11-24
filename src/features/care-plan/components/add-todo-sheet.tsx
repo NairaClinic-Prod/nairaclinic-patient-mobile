@@ -1,6 +1,6 @@
-import { ActionButton } from '@/components/patterns/action-button';
-import { Sheet } from '@/components/patterns/sheet';
-import { TextField } from '@/components/patterns/text-field';
+import { ActionButton } from '@/components/shared/action-button';
+import { Sheet } from '@/components/shared/sheet';
+import { TextField } from '@/components/shared/text-field';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';

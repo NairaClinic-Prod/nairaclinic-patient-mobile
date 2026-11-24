@@ -1,4 +1,4 @@
-import { SectionHeader } from '@/components/patterns/section-header';
+import { SectionHeader } from '@/components/shared/section-header';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';

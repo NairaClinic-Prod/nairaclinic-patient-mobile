@@ -1,6 +1,6 @@
-import { PressableScale } from '@/components/patterns/pressable-scale';
-import { HScroll } from '@/components/patterns/h-scroll';
-import { SectionHeader } from '@/components/patterns/section-header';
+import { PressableScale } from '@/components/shared/pressable-scale';
+import { HScroll } from '@/components/shared/h-scroll';
+import { SectionHeader } from '@/components/shared/section-header';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';

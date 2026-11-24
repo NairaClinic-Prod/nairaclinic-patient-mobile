@@ -1,5 +1,5 @@
-import { AddButton } from '@/components/patterns/add-button';
-import { InlineSelect } from '@/components/patterns/inline-select';
+import { AddButton } from '@/components/shared/add-button';
+import { InlineSelect } from '@/components/shared/inline-select';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { AddTodoSheet } from '@/features/care-plan/components/add-todo-sheet';
@@ -23,6 +23,8 @@ import { ITEM_ENTER, ITEM_EXIT, LIST_LAYOUT } from '@/lib/motion';
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
 import { View } from 'react-native';
+
+const FILTER_LABEL: Record<TodoFilter, string> = { now: 'To do', done: 'Completed', all: 'All' };
 
 type TodoViewProps = {
   onAddExternal?: (kind: ClinicRecordKind) => void;
@@ -58,15 +60,18 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
 
       <View className="flex-row items-center justify-between gap-3">
         <Text className="text-muted-foreground text-xs">
-          {`${shown.count} ${shown.count === 1 ? 'item' : 'items'}`}
+          <Text className="text-foreground text-xs font-bold">{now.count}</Text>
+          {' to do · '}
+          <Text className="text-foreground text-xs font-bold">{done.count}</Text>
+          {' completed'}
         </Text>
         <InlineSelect<TodoFilter>
           title="Show"
           value={filter}
           options={[
-            { value: 'now', label: `To do · ${now.count}` },
-            { value: 'done', label: `Completed · ${done.count}` },
-            { value: 'all', label: `All · ${now.count + done.count}` },
+            { value: 'now', label: FILTER_LABEL.now },
+            { value: 'done', label: FILTER_LABEL.done },
+            { value: 'all', label: FILTER_LABEL.all },
           ]}
           onChange={setFilter}
         />

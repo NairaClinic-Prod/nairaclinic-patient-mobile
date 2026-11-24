@@ -1,4 +1,4 @@
-import { SheetScrollContext } from '@/components/patterns/sheet-context';
+import { SheetScrollContext } from '@/components/shared/sheet-context';
 import { BottomSheet, BottomSheetScrollView } from '@/components/ui/bottom-sheet';
 import type { BottomSheetScrollViewMethods } from '@gorhom/bottom-sheet';
 import { Text } from '@/components/ui/text';

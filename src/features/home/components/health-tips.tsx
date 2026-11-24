@@ -1,4 +1,4 @@
-import { SectionHeader } from '@/components/patterns/section-header';
+import { SectionHeader } from '@/components/shared/section-header';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { SCREEN_PADDING_X } from '@/constants/ui';

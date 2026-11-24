@@ -1,5 +1,5 @@
-import { PressableScale } from '@/components/patterns/pressable-scale';
-import { HScroll } from '@/components/patterns/h-scroll';
+import { PressableScale } from '@/components/shared/pressable-scale';
+import { HScroll } from '@/components/shared/h-scroll';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';

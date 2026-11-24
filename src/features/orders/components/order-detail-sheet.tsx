@@ -1,6 +1,6 @@
-import { ActionButton } from '@/components/patterns/action-button';
-import { Sheet } from '@/components/patterns/sheet';
-import { StatusPill } from '@/components/patterns/status-pill';
+import { ActionButton } from '@/components/shared/action-button';
+import { Sheet } from '@/components/shared/sheet';
+import { StatusPill } from '@/components/shared/status-pill';
 import { Text } from '@/components/ui/text';
 import * as React from 'react';
 import { View } from 'react-native';

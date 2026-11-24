@@ -1,9 +1,9 @@
-import { ActionButton } from '@/components/patterns/action-button';
-import { ChoiceChips } from '@/components/patterns/choice-chips';
-import { SegmentedControl } from '@/components/patterns/segmented-control';
-import { ReadOnlyField } from '@/components/patterns/read-only-field';
-import { Sheet } from '@/components/patterns/sheet';
-import { TextField } from '@/components/patterns/text-field';
+import { ActionButton } from '@/components/shared/action-button';
+import { ChoiceChips } from '@/components/shared/choice-chips';
+import { SegmentedControl } from '@/components/shared/segmented-control';
+import { ReadOnlyField } from '@/components/shared/read-only-field';
+import { Sheet } from '@/components/shared/sheet';
+import { TextField } from '@/components/shared/text-field';
 import { Text } from '@/components/ui/text';
 import * as Haptics from 'expo-haptics';
 import * as React from 'react';
@@ -105,18 +105,18 @@ export function ReadingSheet({ open, editing, defaultKind, onClose }: ReadingShe
     saveReading(
       form.kind === 'bp'
         ? {
-            ...common,
-            kind: 'bp',
-            systolic: Number(form.systolic),
-            diastolic: Number(form.diastolic),
-            pulse: form.pulse ? Number(form.pulse) : null,
-          }
+          ...common,
+          kind: 'bp',
+          systolic: Number(form.systolic),
+          diastolic: Number(form.diastolic),
+          pulse: form.pulse ? Number(form.pulse) : null,
+        }
         : {
-            ...common,
-            kind: 'sugar',
-            sugar: fromUnit(Number(form.sugar), form.unit),
-            timing: form.timing,
-          }
+          ...common,
+          kind: 'sugar',
+          sugar: fromUnit(Number(form.sugar), form.unit),
+          timing: form.timing,
+        }
     );
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     onClose();

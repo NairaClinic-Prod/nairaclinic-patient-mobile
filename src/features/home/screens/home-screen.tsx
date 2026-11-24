@@ -1,4 +1,4 @@
-import { FadeIn } from '@/components/patterns/fade-in';
+import { FadeIn } from '@/components/shared/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
 import { router } from 'expo-router';
 import { AppointmentsSection } from '../components/appointments-section';

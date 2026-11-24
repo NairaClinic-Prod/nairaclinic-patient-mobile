@@ -1,8 +1,8 @@
-import { FadeIn } from '@/components/patterns/fade-in';
+import { FadeIn } from '@/components/shared/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
 import TabHeader from '@/components/common/header';
-import { AddButton } from '@/components/patterns/add-button';
-import { SegmentedControl } from '@/components/patterns/segmented-control';
+import { AddButton } from '@/components/shared/add-button';
+import { SegmentedControl } from '@/components/shared/segmented-control';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
