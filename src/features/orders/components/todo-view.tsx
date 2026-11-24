@@ -12,7 +12,7 @@ import { SectionCard } from '@/features/care-plan/components/section-card';
 import { TestRow } from '@/features/care-plan/components/test-row';
 import { toggleDone, toggleTodo, useCarePlan } from '@/features/care-plan/store';
 import { buildTodo, formatDate, todoKey } from '@/features/care-plan/utils';
-import { Bell, CheckCircle2 } from 'lucide-react-native';
+import { CheckCircle2 } from 'lucide-react-native';
 import * as React from 'react';
 import { View } from 'react-native';
 
@@ -55,7 +55,7 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
         <View className="gap-4">
           {shown.personal.length ? (
             <View className="overflow-hidden rounded-2xl">
-              <View className="bg-secondary px-4 py-3">
+              <View className="bg-card/60 px-4 py-3">
                 <Text className="text-[15px] font-bold">
                   {'My to-dos '}
                   <Text className="text-muted-foreground text-[15px] font-normal">
@@ -68,8 +68,8 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
                 {shown.personal.map((todo, index) => (
                   <View key={todo.id} className={index ? 'border-border/70 border-t' : ''}>
                     <RecordRow
-                      icon={Bell}
-                      actions={
+                      trailingCenter
+                      trailing={
                         <DoneButton finished={finished} onPress={() => toggleTodo(todo.id)} />
                       }>
                       <Text className="text-base leading-[22px] font-bold">{todo.title}</Text>
@@ -83,7 +83,7 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
 
           {shown.groups.map(({ encounter, meds, tests }) => (
             <View key={encounter.id} className="overflow-hidden rounded-2xl">
-              <View className="bg-secondary px-4 py-3">
+              <View className="bg-card/60 px-4 py-3">
                 <Text className="text-[15px] font-bold">
                   {`${encounter.title} · ${formatDate(encounter.dateIso)}`}
                 </Text>

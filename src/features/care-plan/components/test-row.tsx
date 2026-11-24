@@ -31,6 +31,7 @@ export function TestRow({ test, handlers, compact = false, extra }: TestRowProps
 
   return (
     <RecordRow
+      trailing={extra}
       // icon={FlaskConical}
       actions={
         <>
@@ -51,7 +52,6 @@ export function TestRow({ test, handlers, compact = false, extra }: TestRowProps
               />
             </>
           )}
-          {extra}
           {resulted ? (
             <ActionButton
               label="Delete"

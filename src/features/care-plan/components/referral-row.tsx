@@ -18,6 +18,7 @@ type ReferralRowProps = {
 export function ReferralRow({ referral, extra, onFindSpecialist, onLetter }: ReferralRowProps) {
   return (
     <RecordRow
+      trailing={extra}
       // icon={Share2}
       actions={
         <>
@@ -34,7 +35,6 @@ export function ReferralRow({ referral, extra, onFindSpecialist, onLetter }: Ref
             variant="outline"
             onPress={() => onLetter?.(referral)}
           />
-          {extra}
         </>
       }>
       <View className="gap-1.5">

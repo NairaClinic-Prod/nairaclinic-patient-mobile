@@ -68,12 +68,8 @@ export function MedicationRow({ med, handlers, compact = false, extra }: Medicat
   return (
     <RecordRow
       // icon={Pill}
-      actions={
-        <>
-          {actions}
-          {extra}
-        </>
-      }>
+      actions={actions}
+      trailing={extra}>
       <View className="gap-1">
         <RecordTag>{`Rx #${med.rx}`}</RecordTag>
         <Text className="text-base font-bold leading-[22px]">

@@ -8,10 +8,12 @@ import { View } from 'react-native';
 type RecordRowProps = {
   icon?: LucideIcon;
   actions?: React.ReactNode;
+  trailing?: React.ReactNode;
+  trailingCenter?: boolean;
   children: React.ReactNode;
 };
 
-export function RecordRow({ icon, actions, children }: RecordRowProps) {
+export function RecordRow({ icon, actions, trailing, trailingCenter, children }: RecordRowProps) {
   return (
     <View className="gap-3 py-3.5">
       <View className="flex-row gap-3">
@@ -23,6 +25,9 @@ export function RecordRow({ icon, actions, children }: RecordRowProps) {
           ) : null
         }
         <View className="min-w-0 flex-1 gap-2">{children}</View>
+        {trailing ? (
+          <View className={trailingCenter ? 'justify-center' : 'justify-start'}>{trailing}</View>
+        ) : null}
       </View>
       {actions ? <ButtonRow>{actions}</ButtonRow> : null}
     </View>
