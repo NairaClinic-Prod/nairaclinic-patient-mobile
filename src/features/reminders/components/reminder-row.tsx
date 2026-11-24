@@ -1,12 +1,12 @@
-import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
+import { useColor } from '@/hooks/use-color';
 import { cn } from '@/lib/utils';
+import * as Haptics from 'expo-haptics';
 import { Bell, FlaskConical, Pill, type LucideIcon } from 'lucide-react-native';
-import { View } from 'react-native';
+import { Pressable, Switch, View } from 'react-native';
 import { REPEAT_LABEL } from '../constants';
 import type { ReminderGroup, ReminderKind, ReminderState } from '../types';
-import { dateLabel } from '../utils';
 
 const ICON: Record<ReminderKind, LucideIcon> = {
   medication: Pill,
@@ -14,80 +14,65 @@ const ICON: Record<ReminderKind, LucideIcon> = {
   general: Bell,
 };
 
-const STATE_LABEL: Record<ReminderState, string> = {
-  active: 'Active',
-  paused: 'Paused',
-  ended: 'Ended',
-};
-
 type ReminderRowProps = {
   group: ReminderGroup;
   state: ReminderState;
   last: boolean;
-  onEdit: () => void;
+  onOpen: () => void;
   onToggle: () => void;
 };
 
-export function ReminderRow({ group, state, last, onEdit, onToggle }: ReminderRowProps) {
+export function ReminderRow({ group, state, last, onOpen, onToggle }: ReminderRowProps) {
+  const color = useColor();
   const { meta } = group;
-  const detail = [meta.dose, meta.frequency].filter(Boolean).join(' · ');
-  const range = meta.startDate
-    ? `${dateLabel(meta.startDate)}${
-        meta.endDate && meta.endDate !== meta.startDate ? ` – ${dateLabel(meta.endDate)}` : ''
-      }`
-    : '';
+  const summary = `${meta.times.join(' · ')} · ${REPEAT_LABEL[meta.repeat]}`;
 
   return (
-    <View className={cn('border-border flex-row gap-3 py-4', last ? '' : 'border-b')}>
-      <View className="bg-secondary size-9 items-center justify-center rounded-xl">
-        <Icon as={ICON[meta.kind]} className="text-secondary-foreground size-4" />
-      </View>
-      <View className="flex-1 gap-1">
-        <Text className="text-sm font-bold">{meta.title}</Text>
-        {detail ? <Text className="text-muted-foreground text-xs">{detail}</Text> : null}
-        {meta.sourceLine ? (
-          <Text className="text-muted-foreground text-xs">{meta.sourceLine}</Text>
-        ) : null}
-        <View className="mt-1 flex-row flex-wrap items-center gap-2">
-          <View
+    <View
+      className={cn('border-border h-[68px] flex-row items-center', last ? '' : 'border-b')}>
+      <Pressable
+        role="button"
+        accessibilityLabel={`View or edit ${meta.title}`}
+        onPress={onOpen}
+        className="h-full flex-1 flex-row items-center gap-3 pl-3.5 active:opacity-70">
+        <View
+          className={cn(
+            'size-10 items-center justify-center rounded-xl',
+            state === 'active' ? 'bg-secondary' : 'bg-muted'
+          )}>
+          <Icon
+            as={ICON[meta.kind]}
             className={cn(
-              'rounded-md border px-2 py-0.5',
-              state === 'active' ? 'bg-secondary border-success/20' : 'bg-muted border-border'
-            )}>
-            <Text
-              className={cn(
-                'text-[11px] font-semibold',
-                state === 'active' ? 'text-success' : 'text-muted-foreground'
-              )}>
-              {STATE_LABEL[state]}
-            </Text>
-          </View>
-          {meta.times.length ? (
-            <Text className="text-xs font-semibold">{`${meta.times.join(', ')} WAT`}</Text>
-          ) : null}
-          <Text className="text-muted-foreground text-xs">{REPEAT_LABEL[meta.repeat]}</Text>
+              'size-[18px]',
+              state === 'active' ? 'text-primary' : 'text-muted-foreground'
+            )}
+          />
         </View>
-        {range ? <Text className="text-muted-foreground text-xs">{range}</Text> : null}
-        <View className="mt-2 flex-row gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            className="rounded-xl"
-            accessibilityLabel={`View or edit ${meta.title}`}
-            onPress={onEdit}>
-            <Text className="text-xs">View / edit</Text>
-          </Button>
-          {state !== 'ended' ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rounded-xl"
-              accessibilityLabel={`${state === 'active' ? 'Pause' : 'Resume'} ${meta.title}`}
-              onPress={onToggle}>
-              <Text className="text-primary text-xs">{state === 'active' ? 'Pause' : 'Resume'}</Text>
-            </Button>
-          ) : null}
+        <View className="flex-1 gap-0.5">
+          <Text
+            className={cn('text-[13px] font-bold', state === 'active' ? '' : 'text-muted-foreground')}
+            numberOfLines={1}>
+            {meta.title}
+          </Text>
+          <Text className="text-muted-foreground text-[11px]" numberOfLines={1}>
+            {state === 'ended' ? `Ended · ${summary}` : summary}
+          </Text>
         </View>
+      </Pressable>
+      <View className="w-[64px] items-center">
+        {state === 'ended' ? null : (
+          <Switch
+            accessibilityLabel={`${state === 'active' ? 'Pause' : 'Resume'} ${meta.title}`}
+            value={state === 'active'}
+            onValueChange={() => {
+              Haptics.selectionAsync();
+              onToggle();
+            }}
+            trackColor={{ false: color.border, true: color.primary }}
+            ios_backgroundColor={color.border}
+            style={{ transform: [{ scale: 0.8 }] }}
+          />
+        )}
       </View>
     </View>
   );

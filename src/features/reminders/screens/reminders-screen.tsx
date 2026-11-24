@@ -1,21 +1,23 @@
 import { BodyLayout } from '@/components/common/body-layout';
+import { SegmentedControl } from '@/components/patterns/segmented-control';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
-import { cn } from '@/lib/utils';
 import { CalendarClock, Plus, Search } from 'lucide-react-native';
 import * as React from 'react';
 import { Pressable, View } from 'react-native';
+import { NextUpCard } from '../components/next-up-card';
 import { ReminderFormSheet } from '../components/reminder-form-sheet';
 import { ReminderRow } from '../components/reminder-row';
-import { ReminderStats } from '../components/reminder-stats';
 import { useReminders } from '../hooks/use-reminders';
 import type { ReminderDraft, ReminderGroup } from '../types';
 import { blankDraft, formatNext, nextOccurrence, stateOf } from '../utils';
 
 type Filter = 'active' | 'inactive';
 type Editing = { draft: ReminderDraft; id?: string };
+
+const SEARCH_FROM = 6;
 
 export function RemindersScreen() {
   const { groups, toggle, save } = useReminders();
@@ -28,7 +30,6 @@ export function RemindersScreen() {
   const rows = groups.map((group) => ({ group, state: stateOf(group) }));
   const active = rows.filter((row) => row.state === 'active');
   const inactive = rows.filter((row) => row.state !== 'active');
-  const paused = rows.filter((row) => row.state === 'paused').length;
 
   const needle = query.trim().toLowerCase();
   const shown = (filter === 'active' ? active : inactive).filter(({ group }) =>
@@ -49,59 +50,40 @@ export function RemindersScreen() {
 
   return (
     <BodyLayout scrollView tabBar className="gap-4 pt-2">
-      <View className="gap-1">
-        <Text className="text-xl font-extrabold">Your reminders, together.</Text>
-        <Text className="text-muted-foreground text-xs">
-          Medicines, tests and everyday care. Keep the routines that matter to you in one place.
-        </Text>
+      <View className="flex-row items-center justify-between">
+        <View>
+          <Text className="text-xl font-extrabold">Reminders</Text>
+          <Text className="text-muted-foreground mt-0.5 text-xs">
+            {active.length === 1 ? '1 active reminder' : `${active.length} active reminders`}
+          </Text>
+        </View>
+        <Pressable
+          role="button"
+          accessibilityLabel="Add reminder"
+          onPress={addReminder}
+          className="bg-primary size-11 items-center justify-center rounded-full active:opacity-80">
+          <Icon as={Plus} className="text-primary-foreground size-5" />
+        </Pressable>
       </View>
 
-      <ReminderStats
-        active={active.length}
-        paused={paused}
-        next={next ? formatNext(next.at) : null}
-        nextTitle={next?.group.meta.title}
+      {next ? (
+        <NextUpCard
+          when={formatNext(next.at)}
+          title={next.group.meta.title}
+          detail={next.group.meta.dose}
+        />
+      ) : null}
+
+      <SegmentedControl
+        value={filter}
+        onChange={setFilter}
+        options={[
+          { value: 'active', label: 'Active', count: active.length },
+          { value: 'inactive', label: 'Paused or ended', count: inactive.length },
+        ]}
       />
 
-      <View className="bg-card gap-4 rounded-2xl p-4">
-        <View className="flex-row items-center justify-between gap-3">
-          <Text className="flex-1 text-sm font-bold">
-            {`${filter === 'active' ? 'Active reminders' : 'Paused or ended'} · ${shown.length}`}
-          </Text>
-          <Button size="sm" variant="default" className="rounded-xl" onPress={addReminder}>
-            <Icon as={Plus} className="text-primary-foreground size-3.5" />
-            <Text className="text-xs">Add reminder</Text>
-          </Button>
-        </View>
-
-        <View role="tablist" className="bg-muted flex-row self-start rounded-full p-0.5">
-          {(['active', 'inactive'] as const).map((value) => {
-            const selected = filter === value;
-            return (
-              <Pressable
-                key={value}
-                role="tab"
-                accessibilityState={{ selected }}
-                onPress={() => setFilter(value)}
-                className={cn(
-                  'h-8 flex-row items-center rounded-full px-3.5',
-                  selected ? 'bg-card' : ''
-                )}>
-                <Text
-                  className={cn(
-                    'text-xs font-semibold',
-                    selected ? 'text-foreground' : 'text-muted-foreground'
-                  )}>
-                  {value === 'active' ? 'Active' : 'Paused or ended'}
-                </Text>
-                <Text className="text-muted-foreground ml-1.5 text-xs">
-                  {(value === 'active' ? active : inactive).length}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
+      {groups.length >= SEARCH_FROM ? (
         <View className="justify-center">
           <Input
             aria-label="Search your reminders"
@@ -110,28 +92,28 @@ export function RemindersScreen() {
             onChangeText={setQuery}
             returnKeyType="search"
             style={{ height: 40, fontSize: 14 }}
-            className="bg-background rounded-full pl-10"
+            className="bg-card rounded-full pl-10"
           />
           <View className="absolute left-3.5" pointerEvents="none">
             <Icon as={Search} className="text-muted-foreground size-4" />
           </View>
         </View>
+      ) : null}
 
+      <View className="bg-card overflow-hidden rounded-2xl">
         {shown.length ? (
-          <View>
-            {shown.map(({ group, state }, index) => (
-              <ReminderRow
-                key={group.id}
-                group={group}
-                state={state}
-                last={index === shown.length - 1}
-                onToggle={() => toggle(group.id)}
-                onEdit={() => openEditor({ draft: group.meta, id: group.id })}
-              />
-            ))}
-          </View>
+          shown.map(({ group, state }, index) => (
+            <ReminderRow
+              key={group.id}
+              group={group}
+              state={state}
+              last={index === shown.length - 1}
+              onToggle={() => toggle(group.id)}
+              onOpen={() => openEditor({ draft: group.meta, id: group.id })}
+            />
+          ))
         ) : (
-          <View className="items-center gap-2.5 py-4">
+          <View className="items-center gap-2.5 px-6 py-8">
             <View className="bg-secondary size-10 items-center justify-center rounded-full">
               <Icon as={CalendarClock} className="text-primary size-4" />
             </View>
