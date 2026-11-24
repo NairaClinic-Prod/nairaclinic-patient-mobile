@@ -46,7 +46,13 @@ export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   cancelled: 'Cancelled',
 };
 
-export const OPEN_STATUSES: readonly OrderStatus[] = ['new', 'quoted', 'accepted', 'preparing', 'ready'];
+export const OPEN_STATUSES: readonly OrderStatus[] = [
+  'new',
+  'quoted',
+  'accepted',
+  'preparing',
+  'ready',
+];
 
 export const BOOKING_STATUS: Record<LabBookingStatus, { label: string; tone: PillTone }> = {
   pending_payment: { label: 'Awaiting payment', tone: 'pending' },

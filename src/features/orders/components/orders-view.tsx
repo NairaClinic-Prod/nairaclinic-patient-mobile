@@ -21,7 +21,7 @@ import { LabBookingsSection } from './lab-bookings-section';
 import { OpenRequestCard } from './open-request-card';
 import { OrderCard } from './order-card';
 import { OrderDetailSheet } from './order-detail-sheet';
-import { RequestSheet } from './request-sheet';
+import { OffersSheet } from './offers-sheet';
 
 const OPEN_ITEM = ['open', 'available', 'pending'];
 
@@ -98,22 +98,22 @@ export function OrdersView({ onMakeOrder, onAddExternal, onBookLab }: OrdersView
       <Animated.View key={view} entering={ITEM_ENTER} className="gap-3">
         {view === 'requests'
           ? openOnly.map((item) => (
-            <OpenRequestCard
-              key={item.id}
-              request={item}
-              onOpen={() => setRequestId(item.id)}
-              onCancel={() => cancelRequest(item.id)}
-            />
-          ))
+              <OpenRequestCard
+                key={item.id}
+                request={item}
+                onOpen={() => setRequestId(item.id)}
+                onCancel={() => cancelRequest(item.id)}
+              />
+            ))
           : null}
         {view === 'closed'
           ? closedOnly.map((item) => (
-            <ClosedRequestCard
-              key={item.id}
-              request={item}
-              onOpen={() => setRequestId(item.id)}
-            />
-          ))
+              <ClosedRequestCard
+                key={item.id}
+                request={item}
+                onOpen={() => setRequestId(item.id)}
+              />
+            ))
           : null}
         {orders.map((order) => (
           <OrderCard
@@ -187,7 +187,14 @@ export function OrdersView({ onMakeOrder, onAddExternal, onBookLab }: OrdersView
         }}
         onCancel={cancelOrder}
       />
-      <RequestSheet request={request} onClose={() => setRequestId(null)} />
+      <OffersSheet
+        request={request}
+        onClose={() => setRequestId(null)}
+        onOpenOrder={(orderId) => {
+          setRequestId(null);
+          setTimeout(() => setSelectedId(orderId), 300);
+        }}
+      />
     </View>
   );
 }

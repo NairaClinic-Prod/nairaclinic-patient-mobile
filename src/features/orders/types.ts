@@ -1,12 +1,5 @@
 export type OrderStatus =
-  | 'new'
-  | 'quoted'
-  | 'accepted'
-  | 'preparing'
-  | 'ready'
-  | 'completed'
-  | 'declined'
-  | 'cancelled';
+  'new' | 'quoted' | 'accepted' | 'preparing' | 'ready' | 'completed' | 'declined' | 'cancelled';
 
 export type OrderView = 'requests' | 'closed' | 'active' | 'history';
 
@@ -40,9 +33,46 @@ export type PharmacyOrder = {
   collectionCode: string | null;
   declineReason: string | null;
   deliveryStatus: string | null;
+  contactName: string;
+  contactPhone: string;
+  timeline: { status: OrderStatus; at: string }[];
 };
 
-export type RequestItem = { name: string; status: string; quantity: number };
+export type RequestItem = {
+  id: string;
+  name: string;
+  status: string;
+  quantity: number;
+  brand?: string | null;
+};
+
+export type OfferLine = { itemId: string; unitPriceKobo: number | null; quantity: number };
+
+export type PharmacyOffer = {
+  id: string;
+  pharmacyId: string;
+  name: string;
+  branch: string | null;
+  replied: boolean;
+  asked: boolean;
+  covers: number;
+  estimatedTotalKobo: number;
+  deliveryFeeKobo: number;
+  distanceMeters: number | null;
+  etaMinutes: number | null;
+  lines: OfferLine[];
+};
+
+export type TimelineEntry = { at: string; tone: 'info' | 'good' | 'warn' | 'bad'; text: string };
+
+export type RequestOrder = {
+  id: string;
+  reference: string;
+  status: OrderStatus;
+  pharmacyName: string;
+  totalKobo: number | null;
+  paid: boolean;
+};
 
 export type ShoppingRequest = {
   id: string;
@@ -54,6 +84,11 @@ export type ShoppingRequest = {
   items: RequestItem[];
   replies: number;
   waiting: number;
+  deliveryAddress: string | null;
+  expiresAt: string | null;
+  offers: PharmacyOffer[];
+  timeline: TimelineEntry[];
+  orders: RequestOrder[];
 };
 
 export type LabBookingStatus =

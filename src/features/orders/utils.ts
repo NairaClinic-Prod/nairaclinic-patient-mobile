@@ -1,6 +1,13 @@
 import type { PillTone } from '@/components/shared/status-pill';
 import { OPEN_STATUSES, ORDER_STATUS_LABEL, VIEW_STATUSES } from './constants';
-import type { OrdersData, OrderStatus, PharmacyOrder, RequestItem } from './types';
+import type {
+  OrdersData,
+  OrderStatus,
+  PharmacyOffer,
+  PharmacyOrder,
+  RequestItem,
+  ShoppingRequest,
+} from './types';
 
 const NAIRA = new Intl.NumberFormat('en-NG', {
   style: 'currency',
@@ -88,3 +95,48 @@ export const medicineLine = (item: RequestItem | { name: string; quantity: numbe
 
 export const plural = (count: number, one: string, many = `${one}s`) =>
   `${count} ${count === 1 ? one : many}`;
+
+export const OPEN_ITEM_STATUSES = ['open', 'available', 'pending'];
+
+export const distanceLabel = (meters: number) =>
+  meters < 1000 ? `${meters} m` : `${(meters / 1000).toFixed(1)} km`;
+
+export const hasLine = (offer: PharmacyOffer, item: RequestItem) => {
+  const line = offer.lines.find((entry) => entry.itemId === item.id);
+  return Boolean(line && line.unitPriceKobo !== null && line.quantity >= item.quantity);
+};
+
+// Each medicine goes to the cheapest chosen pharmacy that has it; delivery is charged once per pharmacy used.
+export function quoteFor(request: ShoppingRequest, chosenIds: string[]) {
+  const chosen = request.offers.filter((offer) => chosenIds.includes(offer.pharmacyId));
+  const open = request.items.filter((item) => OPEN_ITEM_STATUSES.includes(item.status));
+  const used = new Set<string>();
+  let medicinesKobo = 0;
+  let covered = 0;
+
+  for (const item of open) {
+    let best: { kobo: number; pharmacyId: string } | null = null;
+    for (const offer of chosen) {
+      const line = offer.lines.find((entry) => entry.itemId === item.id);
+      if (!line || line.unitPriceKobo === null || line.quantity < item.quantity) continue;
+      const kobo = line.unitPriceKobo * item.quantity;
+      if (!best || kobo < best.kobo) best = { kobo, pharmacyId: offer.pharmacyId };
+    }
+    if (best) {
+      medicinesKobo += best.kobo;
+      covered += 1;
+      used.add(best.pharmacyId);
+    }
+  }
+
+  const deliveryKobo = chosen
+    .filter((offer) => used.has(offer.pharmacyId))
+    .reduce((sum, offer) => sum + offer.deliveryFeeKobo, 0);
+
+  return {
+    open: open.length,
+    covered,
+    pharmacies: used.size,
+    totalKobo: medicinesKobo + deliveryKobo,
+  };
+}

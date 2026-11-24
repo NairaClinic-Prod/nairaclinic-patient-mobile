@@ -26,9 +26,9 @@ export function OrderCard({ order, onOpen, onCancel }: OrderCardProps) {
   return (
     <View className="bg-card gap-3 rounded-2xl p-4">
       <View className="flex-row gap-3">
-        <View className="bg-secondary size-10 items-center justify-center rounded-full">
+        {/* <View className="bg-secondary size-10 items-center justify-center rounded-full">
           <Icon as={Pill} className="text-primary size-5" />
-        </View>
+        </View> */}
         <View className="min-w-0 flex-1 gap-1.5">
           <StatusPill tone={orderTone(order.status)}>{orderStatusLabel(order)}</StatusPill>
           <Text className="text-[15px] leading-5 font-bold">
