@@ -8,11 +8,14 @@ import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { CalendarClock, Plus, Search } from 'lucide-react-native';
+import { useFocusEffect } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
 import { NextUpCard } from '../components/next-up-card';
+import { CalendarPromptSheet } from '../components/calendar-prompt-sheet';
 import { ReminderFormSheet } from '../components/reminder-form-sheet';
 import { ReminderRow } from '../components/reminder-row';
+import { shouldAskNow, useCalendarPrompt } from '../hooks/use-calendar-prompt';
 import { useReminders } from '../hooks/use-reminders';
 import type { ReminderDraft, ReminderGroup } from '../types';
 import { blankDraft, formatNext, nextOccurrence, stateOf } from '../utils';
@@ -24,6 +27,8 @@ const SEARCH_FROM = 6;
 
 export function RemindersScreen() {
   const { groups, toggle, save } = useReminders();
+  const calendar = useCalendarPrompt();
+  const [calendarOpen, setCalendarOpen] = React.useState(false);
   const [filter, setFilter] = React.useState<Filter>('active');
   const [query, setQuery] = React.useState('');
   const [editing, setEditing] = React.useState<Editing | null>(null);
@@ -43,6 +48,16 @@ export function RemindersScreen() {
     .map(({ group }) => ({ group, at: nextOccurrence(group.meta) }))
     .filter((entry): entry is { group: ReminderGroup; at: Date } => entry.at !== null)
     .sort((a, b) => a.at.getTime() - b.at.getTime())[0];
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!calendar.ready) return;
+      const timer = setTimeout(() => {
+        if (shouldAskNow()) setCalendarOpen(true);
+      }, 700);
+      return () => clearTimeout(timer);
+    }, [calendar.ready])
+  );
 
   function openEditor(entry: Editing) {
     setEditing(entry);
@@ -136,8 +151,17 @@ export function RemindersScreen() {
         draft={editing?.draft ?? fallbackDraft}
         editing={Boolean(editing?.id)}
         onClose={() => setSheetOpen(false)}
-        onSave={(draft) => save(draft, editing?.id)}
+        onSave={(draft) => {
+          const failure = save(draft, editing?.id);
+          if (!failure) {
+            setTimeout(() => {
+              if (shouldAskNow()) setCalendarOpen(true);
+            }, 900);
+          }
+          return failure;
+        }}
       />
+      <CalendarPromptSheet open={calendarOpen} onClose={() => setCalendarOpen(false)} />
     </BodyLayout>
   );
 }

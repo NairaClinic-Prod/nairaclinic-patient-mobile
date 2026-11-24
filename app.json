@@ -27,6 +27,12 @@
     "plugins": [
       "expo-router",
       [
+        "expo-calendar",
+        {
+          "calendarPermission": "NairaClinic adds your medicine and care reminders to your calendar so you never miss one."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/logo.png",
