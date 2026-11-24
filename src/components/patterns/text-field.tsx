@@ -1,8 +1,10 @@
+import { useSheetScroll } from '@/components/patterns/sheet-context';
 import { Text } from '@/components/ui/text';
 import { BottomSheetTextInput } from '@/components/ui/bottom-sheet';
 import { useColor } from '@/hooks/use-color';
 import { FONT } from '@/lib/fonts';
-import { View, TextInput, type TextInputProps } from 'react-native';
+import * as React from 'react';
+import { View, TextInput, type HostInstance, type TextInputProps } from 'react-native';
 
 type TextFieldProps = Omit<TextInputProps, 'style'> & {
   label: string;
@@ -25,16 +27,22 @@ export function TextField({
   ...props
 }: TextFieldProps) {
   const color = useColor();
+  const frame = React.useRef<HostInstance>(null);
+  const sheetScroll = useSheetScroll();
   const Input = (sheet ? BottomSheetTextInput : TextInput) as typeof TextInput;
 
   return (
-    <View className="gap-1.5">
+    <View ref={frame} className="gap-1.5">
       <Text className="text-muted-foreground text-xs font-semibold">
         {label}
         {required ? <Text className="text-destructive text-xs font-semibold">{' *'}</Text> : null}
       </Text>
       <Input
         {...props}
+        onFocus={(event) => {
+          props.onFocus?.(event);
+          if (sheet) sheetScroll?.reveal(frame);
+        }}
         multiline={multiline}
         editable={!disabled}
         accessibilityLabel={label}

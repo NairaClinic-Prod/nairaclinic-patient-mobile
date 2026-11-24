@@ -18,6 +18,20 @@ const STAMP = new Intl.DateTimeFormat('en-GB', {
   hour12: true,
 });
 
+const DATE_ONLY = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+});
+const TIME_ONLY = new Intl.DateTimeFormat('en-GB', {
+  hour: 'numeric',
+  minute: '2-digit',
+  hour12: true,
+});
+
+export const dateOnlyLabel = (iso: string) => DATE_ONLY.format(new Date(iso));
+export const timeOnlyLabel = (iso: string) => TIME_ONLY.format(new Date(iso));
+
 export const dayLabel = (iso: string) => DAY.format(new Date(iso));
 export const stampLabel = (iso: string) => STAMP.format(new Date(iso));
 
@@ -28,7 +42,8 @@ export const localDateKey = (date: Date) =>
 
 export const localTime = (date: Date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 
-export const toIso = (dateKey: string, time: string) => new Date(`${dateKey}T${time}:00`).toISOString();
+export const toIso = (dateKey: string, time: string) =>
+  new Date(`${dateKey}T${time}:00`).toISOString();
 
 export const newReadingId = () =>
   `r-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;

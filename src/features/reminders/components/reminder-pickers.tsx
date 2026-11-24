@@ -1,7 +1,7 @@
 import { Text } from '@/components/ui/text';
 import { useColor } from '@/hooks/use-color';
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import { Platform, Pressable } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 import { useUniwind } from 'uniwind';
 import { isDateKey, isTime, longDateLabel } from '../utils';
 
@@ -27,6 +27,15 @@ function keyToDate(value: string) {
 function dateToKey(date: Date) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
+
+const OVERLAY = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  opacity: 0.02,
+} as const;
 
 type TimeFieldProps = {
   value: string;
@@ -61,18 +70,21 @@ export function TimeField({ value, label, onChange }: TimeFieldProps) {
   }
 
   return (
-    <DateTimePicker
-      accessibilityLabel={label}
-      value={date}
-      mode="time"
-      display="compact"
-      accentColor={color.primary}
-      themeVariant={theme === 'dark' ? 'dark' : 'light'}
-      onChange={(_event, picked) => {
-        if (picked) onChange(dateToTime(picked));
-      }}
-      style={{ alignSelf: 'flex-start', marginLeft: -10 }}
-    />
+    <View className="justify-center self-start">
+      <Text className="text-2xl font-extrabold">{isTime(value) ? value : '--:--'}</Text>
+      <DateTimePicker
+        accessibilityLabel={label}
+        value={date}
+        mode="time"
+        display="compact"
+        accentColor={color.primary}
+        themeVariant={theme === 'dark' ? 'dark' : 'light'}
+        onChange={(_event, picked) => {
+          if (picked) onChange(dateToTime(picked));
+        }}
+        style={OVERLAY}
+      />
+    </View>
   );
 }
 
@@ -113,18 +125,23 @@ export function DateField({ value, label, minimum, onChange }: DateFieldProps) {
   }
 
   return (
-    <DateTimePicker
-      accessibilityLabel={label}
-      value={date}
-      mode="date"
-      display="compact"
-      minimumDate={minimumDate}
-      accentColor={color.primary}
-      themeVariant={theme === 'dark' ? 'dark' : 'light'}
-      onChange={(_event, picked) => {
-        if (picked) onChange(dateToKey(picked));
-      }}
-      style={{ alignSelf: 'flex-start', marginLeft: -10 }}
-    />
+    <View className="justify-center self-start">
+      <Text className="text-[13px] font-bold">
+        {isDateKey(value) ? longDateLabel(value) : 'Choose date'}
+      </Text>
+      <DateTimePicker
+        accessibilityLabel={label}
+        value={date}
+        mode="date"
+        display="compact"
+        minimumDate={minimumDate}
+        accentColor={color.primary}
+        themeVariant={theme === 'dark' ? 'dark' : 'light'}
+        onChange={(_event, picked) => {
+          if (picked) onChange(dateToKey(picked));
+        }}
+        style={OVERLAY}
+      />
+    </View>
   );
 }

@@ -1,8 +1,10 @@
+import { SheetScrollContext } from '@/components/patterns/sheet-context';
 import { BottomSheet, BottomSheetScrollView } from '@/components/ui/bottom-sheet';
+import type { BottomSheetScrollViewMethods } from '@gorhom/bottom-sheet';
 import { Text } from '@/components/ui/text';
 import { SCREEN_PADDING_X } from '@/constants/ui';
-import type * as React from 'react';
-import { View } from 'react-native';
+import * as React from 'react';
+import { View, type HostInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type SheetProps = {
@@ -26,6 +28,22 @@ export function Sheet({
 }: SheetProps) {
   const insets = useSafeAreaInsets();
   const bottom = Math.max(insets.bottom, 16);
+  const frame = React.useRef<HostInstance>(null);
+  const scroll = React.useRef<BottomSheetScrollViewMethods>(null);
+  const offset = React.useRef(0);
+
+  // Waits for the keyboard to settle, then scrolls the field up if it is hidden behind it or the pinned footer.
+  const reveal = React.useCallback((field: React.RefObject<HostInstance | null>) => {
+    setTimeout(() => {
+      field.current?.measureInWindow((_x, fieldY, _w, fieldH) => {
+        frame.current?.measureInWindow((_fx, frameY, _fw, frameH) => {
+          const top = fieldY - frameY;
+          if (top >= 0 && top + fieldH <= frameH - 16) return;
+          scroll.current?.scrollTo({ y: Math.max(0, top + offset.current - 24), animated: true });
+        });
+      });
+    }, 350);
+  }, []);
 
   const heading = (
     <View className="gap-0.5">
@@ -56,31 +74,39 @@ export function Sheet({
 
   return (
     <BottomSheet open={open} onClose={onClose} snapPoints={snapPoints}>
-      <View style={{ flex: 1 }}>
-        <BottomSheetScrollView
-          style={{ flex: 1 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingHorizontal: SCREEN_PADDING_X,
-            paddingTop: 8,
-            paddingBottom: 24,
-            gap: 16,
-          }}>
-          {heading}
-          {children}
-        </BottomSheetScrollView>
-        {footer ? (
-          <View
-            style={{
-              paddingHorizontal: SCREEN_PADDING_X,
-              paddingTop: 12,
-              paddingBottom: bottom,
-            }}>
-            {footer}
+      <SheetScrollContext.Provider value={{ reveal }}>
+        <View style={{ flex: 1 }}>
+          <View ref={frame} style={{ flex: 1 }}>
+            <BottomSheetScrollView
+              ref={scroll}
+              onScroll={(event) => {
+                offset.current = event.nativeEvent.contentOffset.y;
+              }}
+              style={{ flex: 1 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingHorizontal: SCREEN_PADDING_X,
+                paddingTop: 8,
+                paddingBottom: 24,
+                gap: 16,
+              }}>
+              {heading}
+              {children}
+            </BottomSheetScrollView>
           </View>
-        ) : null}
-      </View>
+          {footer ? (
+            <View
+              style={{
+                paddingHorizontal: SCREEN_PADDING_X,
+                paddingTop: 12,
+                paddingBottom: bottom,
+              }}>
+              {footer}
+            </View>
+          ) : null}
+        </View>
+      </SheetScrollContext.Provider>
     </BottomSheet>
   );
 }

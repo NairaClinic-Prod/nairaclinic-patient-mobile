@@ -1,17 +1,19 @@
 import { ActionButton } from '@/components/patterns/action-button';
 import { ChoiceChips } from '@/components/patterns/choice-chips';
 import { SegmentedControl } from '@/components/patterns/segmented-control';
+import { ReadOnlyField } from '@/components/patterns/read-only-field';
 import { Sheet } from '@/components/patterns/sheet';
 import { TextField } from '@/components/patterns/text-field';
 import { Text } from '@/components/ui/text';
-import { DateField, TimeField } from '@/features/reminders/components/reminder-pickers';
 import * as Haptics from 'expo-haptics';
 import * as React from 'react';
 import { View } from 'react-native';
 import { TIMING_LABEL } from '../constants';
 import { saveReading } from '../hooks/use-vitals';
 import type { Reading, SugarTiming, SugarUnit, VitalView } from '../types';
-import { fromUnit, localDateKey, localTime, newReadingId, toIso, toUnit } from '../utils';
+import { dateOnlyLabel, fromUnit, newReadingId, timeOnlyLabel, toUnit } from '../utils';
+
+const FIXED_HINT = "Read-only. It's recorded automatically when you save, so it can't be edited.";
 
 type ReadingSheetProps = {
   open: boolean;
@@ -22,8 +24,6 @@ type ReadingSheetProps = {
 
 type Form = {
   kind: VitalView;
-  date: string;
-  time: string;
   systolic: string;
   diastolic: string;
   pulse: string;
@@ -37,11 +37,8 @@ const digits = (value: string, decimals = false) =>
   decimals ? value.replace(/[^\d.]/g, '').slice(0, 5) : value.replace(/\D/g, '').slice(0, 3);
 
 function initialForm(editing: Reading | null, kind: VitalView): Form {
-  const base = new Date(editing?.atUtc ?? Date.now());
   const form: Form = {
     kind: editing?.kind ?? kind,
-    date: localDateKey(base),
-    time: localTime(base),
     systolic: '',
     diastolic: '',
     pulse: '',
@@ -78,13 +75,18 @@ function missingFor(form: Form) {
 
 export function ReadingSheet({ open, editing, defaultKind, onClose }: ReadingSheetProps) {
   const [form, setForm] = React.useState(() => initialForm(editing, defaultKind));
+  const [openedAt, setOpenedAt] = React.useState(() => new Date().toISOString());
 
   React.useEffect(() => {
-    if (open) setForm(initialForm(editing, defaultKind));
+    if (open) {
+      setForm(initialForm(editing, defaultKind));
+      setOpenedAt(new Date().toISOString());
+    }
   }, [open, editing, defaultKind]);
 
   const patch = (change: Partial<Form>) => setForm((current) => ({ ...current, ...change }));
   const missing = missingFor(form);
+  const taken = editing?.atUtc ?? openedAt;
 
   function changeUnit(unit: SugarUnit) {
     const value = Number(form.sugar);
@@ -97,7 +99,7 @@ export function ReadingSheet({ open, editing, defaultKind, onClose }: ReadingShe
   function save() {
     const common = {
       id: editing?.id ?? newReadingId(),
-      atUtc: toIso(form.date, form.time),
+      atUtc: editing ? editing.atUtc : new Date().toISOString(),
       note: form.note.trim() || undefined,
     };
     saveReading(
@@ -133,7 +135,13 @@ export function ReadingSheet({ open, editing, defaultKind, onClose }: ReadingShe
             <Text className="text-muted-foreground text-xs">{`Still needed: ${missing.join(', ')}.`}</Text>
           ) : null}
           <View className="flex-row gap-2">
-            <ActionButton size="md" label="Cancel" variant="outline" className="flex-1" onPress={onClose} />
+            <ActionButton
+              size="md"
+              label="Cancel"
+              variant="outline"
+              className="flex-1"
+              onPress={onClose}
+            />
             <ActionButton
               size="md"
               label={editing ? 'Save changes' : 'Save reading'}
@@ -215,6 +223,7 @@ export function ReadingSheet({ open, editing, defaultKind, onClose }: ReadingShe
           />
           <ChoiceChips
             label="When was it taken?"
+            scroll
             options={Object.values(TIMING_LABEL)}
             value={TIMING_LABEL[form.timing]}
             onChange={(label) => {
@@ -227,15 +236,9 @@ export function ReadingSheet({ open, editing, defaultKind, onClose }: ReadingShe
         </View>
       )}
 
-      <View className="flex-row gap-2.5">
-        <View className="bg-muted flex-1 gap-1 rounded-3xl p-3">
-          <Text className="text-muted-foreground text-[11px]">Date</Text>
-          <DateField label="Date" value={form.date} onChange={(date) => patch({ date })} />
-        </View>
-        <View className="bg-muted flex-1 gap-1 rounded-3xl p-3">
-          <Text className="text-muted-foreground text-[11px]">Time</Text>
-          <TimeField label="Time" value={form.time} onChange={(time) => patch({ time })} />
-        </View>
+      <View className="flex-row gap-2.5" style={{ zIndex: 2 }}>
+        <ReadOnlyField label="Date" value={dateOnlyLabel(taken)} hint={FIXED_HINT} />
+        <ReadOnlyField label="Time" value={timeOnlyLabel(taken)} hint={FIXED_HINT} />
       </View>
 
       <TextField
