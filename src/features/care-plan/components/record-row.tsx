@@ -36,7 +36,7 @@ export function RecordRow({ icon, actions, trailing, trailingCenter, children }:
 
 export function RecordNote({ children }: { children: string }) {
   return (
-    <Text className="bg-muted text-muted-foreground rounded-xl px-3 py-2.5 text-xs leading-[18px]">
+    <Text className="bg-muted text-muted-foreground rounded-xl px-3 py-2.5 text-xs leading-[18px] w-full">
       {children}
     </Text>
   );

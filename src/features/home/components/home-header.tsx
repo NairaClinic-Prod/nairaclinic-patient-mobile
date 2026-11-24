@@ -15,6 +15,7 @@ export function HomeHeader({ firstName, unreadCount, onBellPress }: HomeHeaderPr
   return (
     <TabHeader
       gutter
+      compactTitle="Home"
       title={
         <Text className="text-xl leading-7">
           <Text className="text-xl font-normal">{greeting()}</Text>
@@ -30,7 +31,7 @@ export function HomeHeader({ firstName, unreadCount, onBellPress }: HomeHeaderPr
           className="bg-card size-11 items-center justify-center rounded-full active:opacity-70">
           <Icon as={Bell} className="text-foreground size-5" />
           {unreadCount > 0 ? (
-            <View className="bg-destructive border-card absolute right-2.5 top-2.5 size-2.5 rounded-full border-2" />
+            <View className="bg-destructive border-card absolute top-2.5 right-2.5 size-2.5 rounded-full border-2" />
           ) : null}
         </Pressable>
       }
