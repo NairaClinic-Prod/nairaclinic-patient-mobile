@@ -29,7 +29,9 @@ function Chips({ med }: { med: CareMedication }) {
     <View className="flex-row flex-wrap gap-1.5">
       {med.state === 'owned' ? <StatusPill tone="active">You have this medicine</StatusPill> : null}
       {med.state === 'ordered' ? <StatusPill tone="active">Ordered</StatusPill> : null}
-      {med.state === 'available' && !ended ? <StatusPill tone="info">Ready to order</StatusPill> : null}
+      {med.state === 'available' && !ended ? (
+        <StatusPill tone="info">Ready to order</StatusPill>
+      ) : null}
       {ended ? (
         <StatusPill tone="inactive">Course ended</StatusPill>
       ) : left !== null ? (
@@ -54,7 +56,11 @@ export function MedicationRow({ med, handlers, compact = false, extra }: Medicat
     ) : ended ? null : (
       <>
         {isOrderable(med) ? (
-          <ActionButton label="Order" icon={ShoppingBag} onPress={() => handlers?.onOrder?.([med])} />
+          <ActionButton
+            label="Order"
+            icon={ShoppingBag}
+            onPress={() => handlers?.onOrder?.([med])}
+          />
         ) : null}
         <ActionButton
           label="I have this medicine"
@@ -72,7 +78,7 @@ export function MedicationRow({ med, handlers, compact = false, extra }: Medicat
       trailing={extra}>
       <View className="gap-1">
         <RecordTag>{`Rx #${med.rx}`}</RecordTag>
-        <Text className="text-base font-bold leading-[22px]">
+        <Text className="text-base leading-5.5 font-bold">
           {med.name}
           {med.strength ? (
             <Text className="text-muted-foreground text-base font-normal">{` ${med.strength}`}</Text>

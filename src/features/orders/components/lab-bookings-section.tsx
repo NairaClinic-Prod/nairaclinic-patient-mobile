@@ -18,7 +18,9 @@ type LabBookingsSectionProps = { bookings: LabBooking[]; onViewAll?: () => void 
 
 export function LabBookingsSection({ bookings, onViewAll }: LabBookingsSectionProps) {
   const [open, setOpen] = React.useState<LabBooking | null>(null);
-  const list = bookings.filter((booking) => booking.status !== 'pending_payment').slice(0, LABS_SHOWN);
+  const list = bookings
+    .filter((booking) => booking.status !== 'pending_payment')
+    .slice(0, LABS_SHOWN);
 
   return (
     <View className="gap-3">
@@ -34,10 +36,10 @@ export function LabBookingsSection({ bookings, onViewAll }: LabBookingsSectionPr
                 index < list.length - 1 ? 'border-b' : ''
               }`}>
               <View className="bg-secondary size-10 items-center justify-center rounded-full">
-                <Icon as={FlaskConical} className="text-primary size-[18px]" />
+                <Icon as={FlaskConical} className="text-primary size-4.5" />
               </View>
               <View className="min-w-0 flex-1 gap-1">
-                <Text className="text-[13px] font-bold leading-[18px]">
+                <Text className="text-[13px] leading-4.5 font-bold">
                   {booking.items.map((item) => item.name).join(', ')}
                 </Text>
                 <Text className="text-muted-foreground text-[11px] leading-4">
@@ -53,7 +55,7 @@ export function LabBookingsSection({ bookings, onViewAll }: LabBookingsSectionPr
         </View>
       ) : (
         <View className="border-border rounded-2xl border border-dashed px-4 py-6">
-          <Text className="text-muted-foreground text-center text-xs leading-[18px]">
+          <Text className="text-muted-foreground text-center text-xs leading-4.5">
             {EMPTY_TEXT}
           </Text>
         </View>
@@ -80,7 +82,13 @@ function Line({ label, value }: { label: string; value: string }) {
   );
 }
 
-function LabBookingSheet({ booking, onClose }: { booking: LabBooking | null; onClose: () => void }) {
+function LabBookingSheet({
+  booking,
+  onClose,
+}: {
+  booking: LabBooking | null;
+  onClose: () => void;
+}) {
   return (
     <Sheet
       open={Boolean(booking)}
@@ -98,7 +106,7 @@ function LabBookingSheet({ booking, onClose }: { booking: LabBooking | null; onC
                 as={booking.collection === 'home' ? House : Building2}
                 className="text-muted-foreground size-4"
               />
-              <Text className="text-muted-foreground flex-1 text-xs leading-[18px]">
+              <Text className="text-muted-foreground flex-1 text-xs leading-4.5">
                 {`${formatWhen(booking.slotStart)} · ${
                   booking.collection === 'home' ? 'Sample collected at home' : booking.address
                 }`}
@@ -135,7 +143,9 @@ function LabBookingSheet({ booking, onClose }: { booking: LabBooking | null; onC
                       {result.testNames.join(', ')}
                     </Text>
                     <Text className="text-muted-foreground text-[11px]">
-                      {result.releasedAt ? `Released ${formatDay(result.releasedAt)}` : result.fileName}
+                      {result.releasedAt
+                        ? `Released ${formatDay(result.releasedAt)}`
+                        : result.fileName}
                     </Text>
                   </View>
                   {result.url ? (

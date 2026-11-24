@@ -13,7 +13,9 @@ import { TestRow } from '@/features/care-plan/components/test-row';
 import { toggleDone, toggleTodo, useCarePlan } from '@/features/care-plan/store';
 import { buildTodo, formatDate, todoKey } from '@/features/care-plan/utils';
 import { CheckCircle2 } from 'lucide-react-native';
+import { ITEM_ENTER, ITEM_EXIT, LIST_LAYOUT } from '@/lib/motion';
 import * as React from 'react';
+import Animated from 'react-native-reanimated';
 import { View } from 'react-native';
 
 type TodoViewProps = {
@@ -52,9 +54,13 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
       />
 
       {shown.count ? (
-        <View className="gap-4">
+        <Animated.View key={tab} entering={ITEM_ENTER} className="gap-4">
           {shown.personal.length ? (
-            <View className="overflow-hidden rounded-2xl">
+            <Animated.View
+              layout={LIST_LAYOUT}
+              entering={ITEM_ENTER}
+              exiting={ITEM_EXIT}
+              className="overflow-hidden rounded-2xl">
               <View className="bg-card/60 px-4 py-3">
                 <Text className="text-[15px] font-bold">
                   {'My to-dos '}
@@ -66,23 +72,33 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
               </View>
               <View className="bg-card px-4">
                 {shown.personal.map((todo, index) => (
-                  <View key={todo.id} className={index ? 'border-border/70 border-t' : ''}>
+                  <Animated.View
+                    key={todo.id}
+                    layout={LIST_LAYOUT}
+                    entering={ITEM_ENTER}
+                    exiting={ITEM_EXIT}
+                    className={index ? 'border-border/70 border-t' : ''}>
                     <RecordRow
                       trailingCenter
                       trailing={
                         <DoneButton finished={finished} onPress={() => toggleTodo(todo.id)} />
                       }>
-                      <Text className="text-base leading-[22px] font-bold">{todo.title}</Text>
+                      <Text className="text-base leading-5.5 font-bold">{todo.title}</Text>
                       <RecordNote>{todo.note || todo.title}</RecordNote>
                     </RecordRow>
-                  </View>
+                  </Animated.View>
                 ))}
               </View>
-            </View>
+            </Animated.View>
           ) : null}
 
           {shown.groups.map(({ encounter, meds, tests }) => (
-            <View key={encounter.id} className="overflow-hidden rounded-2xl">
+            <Animated.View
+              key={encounter.id}
+              layout={LIST_LAYOUT}
+              entering={ITEM_ENTER}
+              exiting={ITEM_EXIT}
+              className="overflow-hidden rounded-2xl">
               <View className="bg-card/60 px-4 py-3">
                 <Text className="text-[15px] font-bold">
                   {`${encounter.title} · ${formatDate(encounter.dateIso)}`}
@@ -129,11 +145,15 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
                   ))}
                 </SectionCard>
               ) : null}
-            </View>
+            </Animated.View>
           ))}
 
           {shown.referrals.length ? (
-            <View className="overflow-hidden rounded-2xl">
+            <Animated.View
+              layout={LIST_LAYOUT}
+              entering={ITEM_ENTER}
+              exiting={ITEM_EXIT}
+              className="overflow-hidden rounded-2xl">
               <SectionCard title="Referrals & specialist care" count={shown.referrals.length}>
                 {shown.referrals.map((referral) => (
                   <ReferralRow
@@ -148,16 +168,18 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
                   />
                 ))}
               </SectionCard>
-            </View>
+            </Animated.View>
           ) : null}
-        </View>
+        </Animated.View>
       ) : (
-        <View className="border-border items-center gap-2 rounded-2xl border border-dashed py-12">
+        <Animated.View
+          entering={ITEM_ENTER}
+          className="border-border items-center gap-2 rounded-2xl border border-dashed py-12">
           <Icon as={CheckCircle2} className="text-primary size-6" />
           <Text className="text-muted-foreground text-sm">
             {finished ? 'Nothing completed yet.' : "You're all caught up."}
           </Text>
-        </View>
+        </Animated.View>
       )}
 
       <AddTodoSheet open={adding} onClose={() => setAdding(false)} onPickExternal={onAddExternal} />

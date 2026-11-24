@@ -34,10 +34,10 @@ export function AppointmentRow({ appointment, ready, last, onPress }: Appointmen
       <View className="bg-secondary size-11 items-center justify-center rounded-xl">
         {parts ? (
           <>
-            <Text className="text-primary text-[9px] font-bold leading-3 tracking-wider">
+            <Text className="text-primary text-[9px] leading-3 font-bold tracking-wider">
               {parts.month}
             </Text>
-            <Text className="text-primary text-base font-extrabold leading-5">{parts.day}</Text>
+            <Text className="text-primary text-base leading-5 font-extrabold">{parts.day}</Text>
           </>
         ) : (
           <Text className="text-primary text-[11px] font-bold">TBC</Text>

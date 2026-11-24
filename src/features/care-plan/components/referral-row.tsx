@@ -38,7 +38,7 @@ export function ReferralRow({ referral, extra, onFindSpecialist, onLetter }: Ref
         </>
       }>
       <View className="gap-1.5">
-        <Text className="text-base font-bold leading-[22px]">{referral.title}</Text>
+        <Text className="text-base leading-5.5 font-bold">{referral.title}</Text>
         <StatusPill tone={referral.onPlatform ? 'active' : 'info'}>
           {referral.onPlatform ? 'On NairaClinic' : 'Outside NairaClinic'}
         </StatusPill>

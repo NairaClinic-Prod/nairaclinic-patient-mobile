@@ -1,8 +1,9 @@
+import { PressableScale } from '@/components/patterns/pressable-scale';
 import { Text } from '@/components/ui/text';
 import { SCREEN_PADDING_X } from '@/constants/ui';
 import { cn } from '@/lib/utils';
 import * as Haptics from 'expo-haptics';
-import { Pressable, ScrollView } from 'react-native';
+import { ScrollView } from 'react-native';
 
 type Option<T extends string> = { value: T; label: string; count?: number };
 
@@ -30,7 +31,7 @@ export function ChipTabs<T extends string>({
       {options.map((option) => {
         const selected = option.value === value;
         return (
-          <Pressable
+          <PressableScale
             key={option.value}
             role="tab"
             accessibilityState={{ selected }}
@@ -40,7 +41,7 @@ export function ChipTabs<T extends string>({
               onChange(option.value);
             }}
             className={cn(
-              'h-10 flex-row items-center gap-1.5 rounded-full border px-4 active:opacity-70',
+              'h-10 flex-row items-center gap-1.5 rounded-full border px-4',
               selected ? 'border-primary bg-secondary' : 'border-border bg-card'
             )}>
             <Text
@@ -59,7 +60,7 @@ export function ChipTabs<T extends string>({
                 {option.count}
               </Text>
             ) : null}
-          </Pressable>
+          </PressableScale>
         );
       })}
     </ScrollView>

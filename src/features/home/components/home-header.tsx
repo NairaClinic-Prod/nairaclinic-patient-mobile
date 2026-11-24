@@ -17,7 +17,7 @@ export function HomeHeader({ firstName, unreadCount, onBellPress }: HomeHeaderPr
       gutter
       compactTitle="Home"
       title={
-        <Text className="text-xl leading-7">
+        <Text className="text-xl leading-7 tracking-tight">
           <Text className="text-xl font-normal">{greeting()}</Text>
           {firstName ? <Text className="text-xl font-extrabold">{`, ${firstName}`}</Text> : null}
         </Text>

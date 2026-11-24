@@ -59,7 +59,7 @@ export function ReadingsListSheet({
             <View className="bg-card size-9 items-center justify-center rounded-full">
               <Icon
                 as={reading.kind === 'bp' ? Gauge : Droplet}
-                className="text-primary size-[18px]"
+                className="text-primary size-4.5"
               />
             </View>
             <View className="min-w-0 flex-1 gap-0.5">
@@ -70,7 +70,7 @@ export function ReadingsListSheet({
               </Text>
               <Text className="text-muted-foreground text-[11px]">{stampLabel(reading.atUtc)}</Text>
               {reading.note ? (
-                <Text className="text-muted-foreground text-xs leading-[18px]">{reading.note}</Text>
+                <Text className="text-muted-foreground text-xs leading-4.5">{reading.note}</Text>
               ) : null}
             </View>
             <ActionButton

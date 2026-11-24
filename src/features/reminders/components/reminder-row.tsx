@@ -28,8 +28,7 @@ export function ReminderRow({ group, state, last, onOpen, onToggle }: ReminderRo
   const summary = `${meta.times.join(' · ')} · ${REPEAT_LABEL[meta.repeat]}`;
 
   return (
-    <View
-      className={cn('border-border h-16 flex-row items-center', last ? '' : 'border-b')}>
+    <View className={cn('border-border h-16 flex-row items-center', last ? '' : 'border-b')}>
       <Pressable
         role="button"
         accessibilityLabel={`View or edit ${meta.title}`}
@@ -43,14 +42,17 @@ export function ReminderRow({ group, state, last, onOpen, onToggle }: ReminderRo
           <Icon
             as={ICON[meta.kind]}
             className={cn(
-              'size-[18px]',
+              'size-4.5',
               state === 'active' ? 'text-primary' : 'text-muted-foreground'
             )}
           />
         </View>
         <View className="flex-1 gap-0.5">
           <Text
-            className={cn('text-[13px] font-bold', state === 'active' ? '' : 'text-muted-foreground')}
+            className={cn(
+              'text-[13px] font-bold',
+              state === 'active' ? '' : 'text-muted-foreground'
+            )}
             numberOfLines={1}>
             {meta.title}
           </Text>

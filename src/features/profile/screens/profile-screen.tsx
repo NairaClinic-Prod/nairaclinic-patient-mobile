@@ -1,3 +1,4 @@
+import { FadeIn } from '@/components/patterns/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
 import TabHeader from '@/components/common/header';
 import { Icon } from '@/components/ui/icon';
@@ -42,23 +43,29 @@ export function ProfileScreen() {
         }
       />
 
-      <ProfileHero
-        initials={initialsOf(profile)}
-        firstName={profile.firstName}
-        contact={profile.email || profile.phone || 'Complete your personal details'}
-        onEdit={() => open('personal')}
-      />
+      <FadeIn index={0}>
+        <ProfileHero
+          initials={initialsOf(profile)}
+          firstName={profile.firstName}
+          contact={profile.email || profile.phone || 'Complete your personal details'}
+          onEdit={() => open('personal')}
+        />
+      </FadeIn>
 
-      <WalletCard wallet={wallet} onPress={() => open('payment-methods')} />
+      <FadeIn index={1}>
+        <WalletCard wallet={wallet} onPress={() => open('payment-methods')} />
+      </FadeIn>
 
-      <SummaryTiles
-        cards={cards.length}
-        payments={transactions.length}
-        onCards={() => open('payment-methods')}
-        onTransactions={() => open('transactions')}
-      />
+      <FadeIn index={2}>
+        <SummaryTiles
+          cards={cards.length}
+          payments={transactions.length}
+          onCards={() => open('payment-methods')}
+          onTransactions={() => open('transactions')}
+        />
+      </FadeIn>
 
-      <View className="gap-3">
+      <FadeIn index={3} className="gap-3">
         <Text className="text-lg font-extrabold">Personal information</Text>
         <MenuList
           items={[
@@ -85,9 +92,9 @@ export function ProfileScreen() {
             },
           ]}
         />
-      </View>
+      </FadeIn>
 
-      <View className="gap-3">
+      <FadeIn index={4} className="gap-3">
         <Text className="text-lg font-extrabold">Account</Text>
         <MenuList
           items={[
@@ -126,7 +133,7 @@ export function ProfileScreen() {
             },
           ]}
         />
-      </View>
+      </FadeIn>
     </BodyLayout>
   );
 }

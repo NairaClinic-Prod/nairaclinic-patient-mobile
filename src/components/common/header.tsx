@@ -25,7 +25,7 @@ const TabHeader = ({ title, compactTitle, subtitle, right, gutter = false }: Tab
       style={gutter ? { paddingHorizontal: SCREEN_PADDING_X } : undefined}>
       <View className="min-w-0 flex-1">
         {typeof title === 'string' ? (
-          <Text className="text-xl font-extrabold">{title}</Text>
+          <Text className="text-xl font-extrabold tracking-tight">{title}</Text>
         ) : (
           title
         )}

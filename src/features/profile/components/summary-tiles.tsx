@@ -1,7 +1,8 @@
+import { PressableScale } from '@/components/patterns/pressable-scale';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { ArrowUpRight, ReceiptText, type LucideIcon } from 'lucide-react-native';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
 type TileProps = {
   pill: string;
@@ -13,11 +14,12 @@ type TileProps = {
 
 function Tile({ pill, title, text, icon, onPress }: TileProps) {
   return (
-    <Pressable
+    <PressableScale
+      scaleTo={0.98}
       role="button"
       accessibilityLabel={title}
       onPress={onPress}
-      className="bg-card min-h-[132px] flex-1 justify-between gap-3 rounded-3xl p-3.5 active:opacity-80">
+      className="bg-card min-h-[132px] flex-1 justify-between gap-3 rounded-3xl p-3.5">
       <View className="flex-row items-start justify-between">
         <View className="bg-secondary rounded-full px-3 py-1.5">
           <Text className="text-secondary-foreground text-xs font-bold">{pill}</Text>
@@ -30,7 +32,7 @@ function Tile({ pill, title, text, icon, onPress }: TileProps) {
         <Text className="text-[13px] font-extrabold">{title}</Text>
         <Text className="text-muted-foreground text-xs leading-4">{text}</Text>
       </View>
-    </Pressable>
+    </PressableScale>
   );
 }
 

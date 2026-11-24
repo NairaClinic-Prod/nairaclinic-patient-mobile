@@ -149,9 +149,7 @@ function EverythingIllustration() {
           }}
         />
       </Reveal>
-      <Reveal
-        distance={24}
-        style={{ position: 'absolute', left: CENTER - 52, top: CENTER - 52 }}>
+      <Reveal distance={24} style={{ position: 'absolute', left: CENTER - 52, top: CENTER - 52 }}>
         <View
           style={[
             SHADOW,
@@ -170,7 +168,7 @@ function EverythingIllustration() {
       {SATELLITES.map((item) => (
         <Reveal
           key={item.angle}
-         
+
           distance={item.distance}
           style={polar(item.angle, 112, 56)}>
           <Bubble icon={item.icon} size={56} filled={item.filled} />
@@ -258,9 +256,7 @@ function DoctorIllustration() {
       </Reveal>
       <Reveal distance={80} style={{ position: 'absolute', left: 178, top: 40 }}>
         <Chip>
-          <View
-            style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color.success }}
-          />
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color.success }} />
           <Text className="text-[13px] font-semibold">Available now</Text>
         </Chip>
       </Reveal>
@@ -289,7 +285,7 @@ function DeliveryIllustration() {
       {STEPS.map((step, i) => (
         <Reveal
           key={step.title}
-         
+
           distance={step.distance}
           style={{ position: 'absolute', left: 36, top: 24 + i * 100, width: 248 }}>
           <Card
@@ -382,7 +378,8 @@ function VitalsIllustration() {
                   width: 10,
                   height,
                   borderRadius: 5,
-                  backgroundColor: i === BEAT_BARS.length - 1 ? color.primary : `${color.primary}33`,
+                  backgroundColor:
+                    i === BEAT_BARS.length - 1 ? color.primary : `${color.primary}33`,
                 }}
               />
             ))}
@@ -391,9 +388,7 @@ function VitalsIllustration() {
       </Reveal>
       <Reveal distance={90} style={{ position: 'absolute', left: 82, top: 276 }}>
         <Chip>
-          <View
-            style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color.success }}
-          />
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color.success }} />
           <Text className="text-[13px] font-semibold">Heart rate normal</Text>
         </Chip>
       </Reveal>

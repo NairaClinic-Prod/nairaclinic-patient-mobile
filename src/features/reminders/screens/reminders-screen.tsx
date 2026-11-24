@@ -1,3 +1,4 @@
+import { FadeIn } from '@/components/patterns/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
 import TabHeader from '@/components/common/header';
 import { AddButton } from '@/components/patterns/add-button';
@@ -59,21 +60,25 @@ export function RemindersScreen() {
       />
 
       {next ? (
-        <NextUpCard
-          when={formatNext(next.at)}
-          title={next.group.meta.title}
-          detail={next.group.meta.dose}
-        />
+        <FadeIn index={0}>
+          <NextUpCard
+            when={formatNext(next.at)}
+            title={next.group.meta.title}
+            detail={next.group.meta.dose}
+          />
+        </FadeIn>
       ) : null}
 
-      <SegmentedControl
-        value={filter}
-        onChange={setFilter}
-        options={[
-          { value: 'active', label: 'Active', count: active.length },
-          { value: 'inactive', label: 'Paused or ended', count: inactive.length },
-        ]}
-      />
+      <FadeIn index={1}>
+        <SegmentedControl
+          value={filter}
+          onChange={setFilter}
+          options={[
+            { value: 'active', label: 'Active', count: active.length },
+            { value: 'inactive', label: 'Paused or ended', count: inactive.length },
+          ]}
+        />
+      </FadeIn>
 
       {groups.length >= SEARCH_FROM ? (
         <View className="justify-center">
@@ -92,7 +97,7 @@ export function RemindersScreen() {
         </View>
       ) : null}
 
-      <View className="bg-card overflow-hidden rounded-2xl">
+      <FadeIn index={2} className="bg-card overflow-hidden rounded-2xl">
         {shown.length ? (
           shown.map(({ group, state }, index) => (
             <ReminderRow
@@ -124,7 +129,7 @@ export function RemindersScreen() {
             ) : null}
           </View>
         )}
-      </View>
+      </FadeIn>
 
       <ReminderFormSheet
         open={sheetOpen}

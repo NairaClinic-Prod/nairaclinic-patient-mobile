@@ -1,8 +1,9 @@
+import { PressableScale } from '@/components/patterns/pressable-scale';
 import { Text } from '@/components/ui/text';
 import { SCREEN_PADDING_X } from '@/constants/ui';
 import { cn } from '@/lib/utils';
 import * as Haptics from 'expo-haptics';
-import { Pressable, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 type ChoiceChipsProps = {
   label: string;
@@ -27,7 +28,7 @@ export function ChoiceChips({
   const chips = options.map((option) => {
     const selected = option.toLowerCase() === value.toLowerCase();
     return (
-      <Pressable
+      <PressableScale
         key={option}
         role="button"
         disabled={disabled}
@@ -37,7 +38,7 @@ export function ChoiceChips({
           onChange(selected ? '' : option);
         }}
         className={cn(
-          'h-10 items-center justify-center rounded-full border px-4 active:opacity-70',
+          'h-10 items-center justify-center rounded-full border px-4',
           selected ? 'border-primary bg-secondary' : 'border-border bg-card'
         )}>
         <Text
@@ -47,7 +48,7 @@ export function ChoiceChips({
           )}>
           {option}
         </Text>
-      </Pressable>
+      </PressableScale>
     );
   });
 

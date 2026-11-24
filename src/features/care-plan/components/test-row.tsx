@@ -43,7 +43,11 @@ export function TestRow({ test, handlers, compact = false, extra }: TestRowProps
             />
           ) : (
             <>
-              <ActionButton label="Order" icon={ShoppingBag} onPress={() => handlers?.onOrder?.(test)} />
+              <ActionButton
+                label="Order"
+                icon={ShoppingBag}
+                onPress={() => handlers?.onOrder?.(test)}
+              />
               <ActionButton
                 label="Upload result"
                 icon={Upload}
@@ -64,7 +68,7 @@ export function TestRow({ test, handlers, compact = false, extra }: TestRowProps
       }>
       <View className="gap-1">
         <RecordTag>{`Test #${test.n}`}</RecordTag>
-        <Text className="text-base font-bold leading-[22px]">{test.name}</Text>
+        <Text className="text-base leading-5.5 font-bold">{test.name}</Text>
       </View>
       {compact ? null : resulted ? (
         <StatusPill tone="active">Result available</StatusPill>

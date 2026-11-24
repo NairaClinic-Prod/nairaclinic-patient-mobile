@@ -1,10 +1,11 @@
+import { PressableScale } from '@/components/patterns/pressable-scale';
 import { HScroll } from '@/components/patterns/h-scroll';
 import { SectionHeader } from '@/components/patterns/section-header';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { CalendarPlus, Plus } from 'lucide-react-native';
-import { Image, Pressable, View } from 'react-native';
+import { Image, View } from 'react-native';
 import type { CareTeamDoctor } from '../types';
 import { drName, initials } from '../utils';
 
@@ -24,10 +25,11 @@ export function CareTeamStrip({ members, onSelect, onSeeAll, onBook }: CareTeamS
           <View
             key={member.doctorUserId}
             className="bg-card h-[188px] w-32 gap-1.5 rounded-2xl p-2.5">
-            <Pressable
+            <PressableScale
+              scaleTo={0.98}
               role="button"
               onPress={() => onSelect?.(member)}
-              className="bg-secondary/40 flex-1 items-center justify-center gap-2 rounded-xl p-2.5 active:opacity-70">
+              className="bg-secondary/40 flex-1 items-center justify-center gap-2 rounded-xl p-2.5">
               {member.photoUrl ? (
                 <Image source={{ uri: member.photoUrl }} className="size-12 rounded-full" />
               ) : (
@@ -38,7 +40,7 @@ export function CareTeamStrip({ members, onSelect, onSeeAll, onBook }: CareTeamS
                 </View>
               )}
               <View className="h-8 justify-center">
-                <Text className="text-center text-xs font-bold leading-4" numberOfLines={2}>
+                <Text className="text-center text-xs leading-4 font-bold" numberOfLines={2}>
                   {drName(member.name)}
                 </Text>
               </View>
@@ -47,7 +49,7 @@ export function CareTeamStrip({ members, onSelect, onSeeAll, onBook }: CareTeamS
                   {member.specialty ?? ' '}
                 </Text>
               </View>
-            </Pressable>
+            </PressableScale>
             <View className="h-9">
               {member.hasOpenSlots ? (
                 <Button
@@ -63,10 +65,11 @@ export function CareTeamStrip({ members, onSelect, onSeeAll, onBook }: CareTeamS
             </View>
           </View>
         ))}
-        <Pressable
+        <PressableScale
+          scaleTo={0.98}
           role="button"
           onPress={onBook}
-          className="border-primary/40 bg-secondary/40 h-[188px] w-32 items-center justify-center gap-1.5 rounded-2xl border border-dashed p-3 active:opacity-80">
+          className="border-primary/40 bg-secondary/40 h-[188px] w-32 items-center justify-center gap-1.5 rounded-2xl border border-dashed p-3">
           <View className="bg-card size-10 items-center justify-center rounded-full">
             <Icon as={Plus} className="text-primary size-4" />
           </View>
@@ -76,7 +79,7 @@ export function CareTeamStrip({ members, onSelect, onSeeAll, onBook }: CareTeamS
               Your doctors appear here after a consultation
             </Text>
           )}
-        </Pressable>
+        </PressableScale>
       </HScroll>
     </View>
   );

@@ -15,7 +15,7 @@ export function ClosedRequestCard({ request, onOpen }: ClosedRequestCardProps) {
   return (
     <View className="bg-card gap-3 rounded-2xl p-4">
       <View className="gap-1">
-        <Text className="text-base font-bold leading-[22px]">
+        <Text className="text-base leading-5.5 font-bold">
           {`${request.reference} · ${plural(request.items.length, 'medicine')}`}
         </Text>
         <Text className="text-muted-foreground text-xs">

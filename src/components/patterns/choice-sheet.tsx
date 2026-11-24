@@ -41,7 +41,7 @@ export function ChoiceSheet<T extends string>({
             }}
             className="bg-muted flex-row items-center gap-3 rounded-3xl p-3.5 active:opacity-70">
             <View className="bg-card size-10 items-center justify-center rounded-full">
-              <Icon as={choice.icon} className="text-primary size-[18px]" />
+              <Icon as={choice.icon} className="text-primary size-4.5" />
             </View>
             <View className="flex-1 gap-0.5">
               <Text className="text-[13px] font-bold">{choice.title}</Text>

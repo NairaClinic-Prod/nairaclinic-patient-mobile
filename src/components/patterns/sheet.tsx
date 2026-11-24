@@ -46,7 +46,7 @@ export function Sheet({
 
   const heading = (
     <View className="gap-0.5">
-      <Text className="text-xl font-extrabold">{title}</Text>
+      <Text className="text-xl font-extrabold tracking-tight">{title}</Text>
       {subtitle ? <Text className="text-muted-foreground text-xs">{subtitle}</Text> : null}
     </View>
   );

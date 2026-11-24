@@ -16,13 +16,39 @@ import {
   Upload,
   UserRound,
 } from 'lucide-react-native';
+import { ITEM_ENTER, ITEM_EXIT, LIST_LAYOUT } from '@/lib/motion';
+import * as React from 'react';
 import { Pressable, View } from 'react-native';
+import Animated, {
+  ReduceMotion,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { ISSUED_BY } from '../constants';
 import type { CarePlanTab, Encounter } from '../types';
 import { formatDate, isOrderable, plural } from '../utils';
 import { MedicationRow, type MedicationHandlers } from './medication-row';
 import { SectionCard } from './section-card';
 import { TestRow, type TestHandlers } from './test-row';
+
+const TURN = { damping: 26, stiffness: 260, mass: 0.7, reduceMotion: ReduceMotion.System };
+
+function Chevron({ expanded }: { expanded: boolean }) {
+  const turn = useSharedValue(expanded ? 1 : 0);
+
+  React.useEffect(() => {
+    turn.set(withSpring(expanded ? 1 : 0, TURN));
+  }, [expanded, turn]);
+
+  const style = useAnimatedStyle(() => ({ transform: [{ rotate: `${turn.get() * 180}deg` }] }));
+
+  return (
+    <Animated.View style={style}>
+      <Icon as={ChevronDown} className="text-muted-foreground size-4" />
+    </Animated.View>
+  );
+}
 
 export type EncounterHandlers = MedicationHandlers &
   TestHandlers & {
@@ -55,7 +81,10 @@ export function EncounterAccordion({
         const expanded = open === encounter.id;
         const orderable = encounter.medications.filter(isOrderable);
         return (
-          <View key={encounter.id} className="bg-card overflow-hidden rounded-2xl">
+          <Animated.View
+            key={encounter.id}
+            layout={LIST_LAYOUT}
+            className="bg-card overflow-hidden rounded-2xl">
             <Pressable
               role="button"
               accessibilityState={{ expanded }}
@@ -63,8 +92,8 @@ export function EncounterAccordion({
               className="flex-row items-start gap-3 p-4 active:opacity-70">
               <View className="min-w-0 flex-1 gap-2">
                 <View className="flex-row items-center justify-between gap-3">
-                  <View className="flex-col items-start gap-1.5 flex-1 min-w-0">
-                    <Text className="text-[15px] font-bold leading-5">{encounter.title}</Text>
+                  <View className="min-w-0 flex-1 flex-col items-start gap-1.5">
+                    <Text className="text-[15px] leading-5 font-bold">{encounter.title}</Text>
                     <StatusPill tone={encounter.external ? 'pending' : 'active'}>
                       {encounter.external
                         ? 'External record · Added by you'
@@ -72,29 +101,26 @@ export function EncounterAccordion({
                     </StatusPill>
                   </View>
                   <View className="border-border size-7 items-center justify-center rounded-full border">
-                    <View style={{ transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}>
-                      <Icon as={ChevronDown} className="text-muted-foreground size-4" />
-                    </View>
+                    <Chevron expanded={expanded} />
                   </View>
                 </View>
                 <View className="gap-1.5">
                   {/* Encounter reference and doctor */}
-                  <View className="flex-row items-center justify-between w-full gap-3">
-                    <View className="flex-row items-center gap-1.5 flex-1 min-w-0">
+                  <View className="w-full flex-row items-center justify-between gap-3">
+                    <View className="min-w-0 flex-1 flex-row items-center gap-1.5">
                       <Icon as={CalendarDays} className="text-muted-foreground size-3.5 shrink-0" />
-                      <Text className="text-muted-foreground text-xs flex-1" numberOfLines={1}>
+                      <Text className="text-muted-foreground flex-1 text-xs" numberOfLines={1}>
                         {`#${encounter.ref} · ${formatDate(encounter.dateIso)}`}
                       </Text>
                     </View>
 
                     {/* Doctor/clinic */}
-                    <View className="flex-row items-center gap-1.5 flex-1 min-w-0 justify-end">
+                    <View className="min-w-0 flex-1 flex-row items-center justify-end gap-1.5">
                       <Icon as={UserRound} className="text-muted-foreground size-3.5 shrink-0" />
                       <Text
                         className="text-muted-foreground shrink text-xs"
                         numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
+                        ellipsizeMode="tail">
                         {encounter.external
                           ? encounter.clinic || 'External prescriber'
                           : encounter.doctor}
@@ -103,7 +129,7 @@ export function EncounterAccordion({
                   </View>
 
                   {/* Medications and tests */}
-                  <View className="flex-row justify-between items-center w-full">
+                  <View className="w-full flex-row items-center justify-between">
                     {encounter.medications.length > 0 ? (
                       <View className="flex-row items-center gap-1.5">
                         <Icon as={Pill} className="text-muted-foreground size-3.5" />
@@ -111,7 +137,9 @@ export function EncounterAccordion({
                           {plural(encounter.medications.length, 'medication')}
                         </Text>
                       </View>
-                    ) : <View />}
+                    ) : (
+                      <View />
+                    )}
 
                     {encounter.tests.length > 0 ? (
                       <View className="flex-row items-center gap-1.5">
@@ -127,7 +155,10 @@ export function EncounterAccordion({
             </Pressable>
 
             {expanded ? (
-              <View className="border-border border-t">
+              <Animated.View
+                entering={ITEM_ENTER}
+                exiting={ITEM_EXIT}
+                className="border-border border-t">
                 {tab !== 'test' && encounter.medications.length ? (
                   <SectionCard
                     title="Prescription"
@@ -204,9 +235,9 @@ export function EncounterAccordion({
                       : `${ISSUED_BY[tab]} ${encounter.doctor} · Consultation #${encounter.ref}`}
                   </Text>
                 </View>
-              </View>
+              </Animated.View>
             ) : null}
-          </View>
+          </Animated.View>
         );
       })}
     </View>

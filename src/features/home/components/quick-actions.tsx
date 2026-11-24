@@ -1,9 +1,9 @@
+import { PressableScale } from '@/components/patterns/pressable-scale';
 import { HScroll } from '@/components/patterns/h-scroll';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import { FileHeart, Pill, Stethoscope, type LucideIcon } from 'lucide-react-native';
-import { Pressable } from 'react-native';
 
 type Action = { label: string; icon: LucideIcon; primary?: boolean; onPress?: () => void };
 
@@ -23,12 +23,13 @@ export function QuickActions({ onBook, onRecords, onOrder }: QuickActionsProps) 
   return (
     <HScroll>
       {actions.map(({ label, icon, primary, onPress }) => (
-        <Pressable
+        <PressableScale
+          scaleTo={0.96}
           key={label}
           role="button"
           onPress={onPress}
           className={cn(
-            'flex-row items-center gap-2 rounded-full px-4 py-2.5 active:opacity-80',
+            'flex-row items-center gap-2 rounded-full px-4 py-2.5',
             primary ? 'bg-primary' : 'bg-card'
           )}>
           <Icon
@@ -36,10 +37,13 @@ export function QuickActions({ onBook, onRecords, onOrder }: QuickActionsProps) 
             className={cn('size-4', primary ? 'text-primary-foreground' : 'text-primary')}
           />
           <Text
-            className={cn('text-[13px] font-bold', primary ? 'text-primary-foreground' : undefined)}>
+            className={cn(
+              'text-[13px] font-bold',
+              primary ? 'text-primary-foreground' : undefined
+            )}>
             {label}
           </Text>
-        </Pressable>
+        </PressableScale>
       ))}
     </HScroll>
   );

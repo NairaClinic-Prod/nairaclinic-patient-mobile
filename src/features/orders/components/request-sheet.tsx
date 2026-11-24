@@ -21,7 +21,9 @@ export function RequestSheet({ request, onClose }: RequestSheetProps) {
       open={Boolean(request)}
       onClose={onClose}
       title="Request details"
-      subtitle={request ? `${request.reference} · Requested ${formatWhen(request.createdAt)}` : undefined}>
+      subtitle={
+        request ? `${request.reference} · Requested ${formatWhen(request.createdAt)}` : undefined
+      }>
       {request && status ? (
         <>
           <View className="gap-2">
@@ -30,7 +32,7 @@ export function RequestSheet({ request, onClose }: RequestSheetProps) {
                 ? plural(request.replies, 'offer')
                 : status.label}
             </StatusPill>
-            <Text className="text-muted-foreground text-xs leading-[18px]">
+            <Text className="text-muted-foreground text-xs leading-4.5">
               {request.status === 'open'
                 ? request.waiting
                   ? `${plural(request.waiting, 'pharmacy', 'pharmacies')} asked. They confirm current prices and availability.`

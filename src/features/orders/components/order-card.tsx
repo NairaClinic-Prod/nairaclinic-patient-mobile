@@ -31,11 +31,11 @@ export function OrderCard({ order, onOpen, onCancel }: OrderCardProps) {
         </View>
         <View className="min-w-0 flex-1 gap-1.5">
           <StatusPill tone={orderTone(order.status)}>{orderStatusLabel(order)}</StatusPill>
-          <Text className="text-[15px] font-bold leading-5">
+          <Text className="text-[15px] leading-5 font-bold">
             {order.items.map((item) => item.name).join(', ')}
           </Text>
           <Text className="text-[13px]">{statusLine(order)}</Text>
-          <Text className="text-muted-foreground text-xs leading-[18px]">
+          <Text className="text-muted-foreground text-xs leading-4.5">
             {`${order.reference} · ${order.pharmacyName} · ${formatWhen(order.createdAt)}`}
           </Text>
         </View>
@@ -59,12 +59,7 @@ export function OrderCard({ order, onOpen, onCancel }: OrderCardProps) {
         </View>
       </View>
       <View className="flex-row gap-2">
-        <ActionButton
-          size="md"
-          label={primaryLabel(order)}
-          onPress={onOpen}
-          className="flex-[3]"
-        />
+        <ActionButton size="md" label={primaryLabel(order)} onPress={onOpen} className="flex-[3]" />
         {order.cancellable ? (
           <ActionButton
             size="md"

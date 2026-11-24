@@ -1,3 +1,4 @@
+import { FadeIn } from '@/components/patterns/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
 import { SubScreenHeader } from '@/components/patterns/sub-screen-header';
 import { Text } from '@/components/ui/text';
@@ -25,10 +26,12 @@ export function AccountSectionScreen() {
   return (
     <BodyLayout scrollView className="gap-4 pt-2">
       <SubScreenHeader title={copy.title} />
-      <Text className="text-muted-foreground text-xs leading-[18px]">{copy.description}</Text>
-      {section === 'payment-methods' ? <PaymentMethodsView /> : null}
-      {section === 'transactions' ? <TransactionsView /> : null}
-      {section === 'security' ? <SecurityView /> : null}
+      <Text className="text-muted-foreground text-xs leading-4.5">{copy.description}</Text>
+      <FadeIn index={1}>
+        {section === 'payment-methods' ? <PaymentMethodsView /> : null}
+        {section === 'transactions' ? <TransactionsView /> : null}
+        {section === 'security' ? <SecurityView /> : null}
+      </FadeIn>
     </BodyLayout>
   );
 }

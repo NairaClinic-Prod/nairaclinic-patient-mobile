@@ -1,9 +1,9 @@
+import { PressableScale } from '@/components/patterns/pressable-scale';
 import { useButtonFill } from '@/components/patterns/button-row';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react-native';
-import { Pressable } from 'react-native';
 
 type Variant = 'primary' | 'outline' | 'ghost' | 'danger';
 
@@ -47,15 +47,17 @@ export function ActionButton({
   const small = size === 'sm';
   const fill = useButtonFill() && Boolean(label);
   return (
-    <Pressable
+    <PressableScale
+      scaleTo={0.96}
       role="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ disabled: Boolean(disabled) }}
       disabled={disabled}
+      hitSlop={label ? undefined : small ? 4 : 0}
       onPress={onPress}
       style={fill ? { flexGrow: 1, flexBasis: '45%' } : undefined}
       className={cn(
-        'flex-row items-center justify-center gap-1.5 rounded-full active:opacity-70',
+        'flex-row items-center justify-center gap-1.5 rounded-full',
         label
           ? small
             ? 'min-h-9 px-3.5 py-2'
@@ -67,7 +69,9 @@ export function ActionButton({
         disabled && 'opacity-45',
         className
       )}>
-      {icon ? <Icon as={icon} className={cn(small ? 'size-3.5' : 'size-4', TEXT[variant])} /> : null}
+      {icon ? (
+        <Icon as={icon} className={cn(small ? 'size-3.5' : 'size-4', TEXT[variant])} />
+      ) : null}
       {label ? (
         <Text
           numberOfLines={1}
@@ -82,6 +86,6 @@ export function ActionButton({
           {label}
         </Text>
       ) : null}
-    </Pressable>
+    </PressableScale>
   );
 }

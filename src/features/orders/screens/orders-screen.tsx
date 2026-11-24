@@ -1,3 +1,4 @@
+import { FadeIn } from '@/components/patterns/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
 import TabHeader from '@/components/common/header';
 import { SegmentedControl } from '@/components/patterns/segmented-control';
@@ -24,7 +25,7 @@ export function OrdersScreen() {
         subtitle="What to do next from your consultations, plus your pharmacy orders and test bookings."
       />
 
-      <View className="flex-row gap-2.5">
+      <FadeIn index={0} className="flex-row gap-2.5">
         <StatTile label="In progress" value={stats.inProgress} icon={ShoppingBag} tone="teal" />
         <StatTile
           label="To pay"
@@ -40,18 +41,22 @@ export function OrdersScreen() {
           icon={CircleCheck}
           tone="mint"
         />
-      </View>
+      </FadeIn>
 
-      <SegmentedControl
-        value={tab}
-        onChange={setTab}
-        options={[
-          { value: 'todo', label: 'To-do' },
-          { value: 'orders', label: 'Orders', count: stats.activeCount },
-        ]}
-      />
+      <FadeIn index={1}>
+        <SegmentedControl
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'todo', label: 'To-do' },
+            { value: 'orders', label: 'Orders', count: stats.activeCount },
+          ]}
+        />
+      </FadeIn>
 
-      {tab === 'todo' ? <TodoView /> : <OrdersView />}
+      <FadeIn key={tab} index={2}>
+        {tab === 'todo' ? <TodoView /> : <OrdersView />}
+      </FadeIn>
     </BodyLayout>
   );
 }

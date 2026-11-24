@@ -19,7 +19,7 @@ export function HealthTips({ tips }: { tips: string[] }) {
             <View className="bg-secondary mt-0.5 size-5 items-center justify-center rounded-full">
               <Icon as={Check} className="text-success size-3" />
             </View>
-            <Text className="flex-1 text-xs leading-[18px]">{tip}</Text>
+            <Text className="flex-1 text-xs leading-4.5">{tip}</Text>
           </View>
         ))}
       </View>

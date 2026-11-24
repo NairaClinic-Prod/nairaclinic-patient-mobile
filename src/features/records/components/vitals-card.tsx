@@ -1,3 +1,4 @@
+import { PressableScale } from '@/components/patterns/pressable-scale';
 import { ActionButton } from '@/components/patterns/action-button';
 import { ButtonRow } from '@/components/patterns/button-row';
 import { InlineSelect } from '@/components/patterns/inline-select';
@@ -14,7 +15,7 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 import * as React from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { COLORS, LIMITS, TIMING_LABEL } from '../constants';
 import type { BpReading, Reading, SugarReading, SugarTiming, SugarUnit, VitalView } from '../types';
 import { dayLabel, stampLabel, toUnit } from '../utils';
@@ -41,13 +42,14 @@ type TileProps = {
 
 function VitalTile({ selected, tint, grow, icon, title, stamp, onPress, children }: TileProps) {
   return (
-    <Pressable
+    <PressableScale
+      scaleTo={0.98}
       role="tab"
       accessibilityState={{ selected }}
       onPress={onPress}
       style={{ flexGrow: grow, flexBasis: 0 }}
       className={cn(
-        'min-w-0 gap-2 rounded-2xl border-2 p-3 active:opacity-80',
+        'min-w-0 gap-2 rounded-2xl border-2 p-3',
         selected ? 'border-primary' : 'border-transparent',
         tint ? 'bg-secondary/70' : selected ? 'bg-secondary/50' : 'bg-muted/60'
       )}>
@@ -64,7 +66,7 @@ function VitalTile({ selected, tint, grow, icon, title, stamp, onPress, children
       <Text className="text-muted-foreground text-xs" numberOfLines={1}>
         {stamp}
       </Text>
-    </Pressable>
+    </PressableScale>
   );
 }
 

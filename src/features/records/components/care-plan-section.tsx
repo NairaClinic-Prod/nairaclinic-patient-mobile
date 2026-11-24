@@ -38,7 +38,13 @@ export function CarePlanSection({ handlers, onSummary }: CarePlanSectionProps) {
   };
 
   const visible =
-    tab === 'medication' ? withMeds : tab === 'test' ? withTests : tab === 'referral' ? [] : encounters;
+    tab === 'medication'
+      ? withMeds
+      : tab === 'test'
+        ? withTests
+        : tab === 'referral'
+          ? []
+          : encounters;
   const openId = open === undefined ? defaultOpenEncounter(visible) : open;
   const showReferrals = (tab === 'all' || tab === 'referral') && referrals.length > 0;
 
@@ -53,7 +59,8 @@ export function CarePlanSection({ handlers, onSummary }: CarePlanSectionProps) {
         options={CARE_PLAN_TABS.map(({ value, label }) => ({
           value,
           label,
-          count: value === 'all' ? counts.medication + counts.test + counts.referral : counts[value],
+          count:
+            value === 'all' ? counts.medication + counts.test + counts.referral : counts[value],
         }))}
       />
 

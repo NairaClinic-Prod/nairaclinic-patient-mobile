@@ -18,7 +18,7 @@ export function EmptyState({ icon, title, text, action }: EmptyStateProps) {
         <Icon as={icon} className="text-primary size-4" />
       </View>
       {title ? <Text className="text-center text-[13px] font-bold">{title}</Text> : null}
-      <Text className="text-muted-foreground text-center text-xs leading-[18px]">{text}</Text>
+      <Text className="text-muted-foreground text-center text-xs leading-4.5">{text}</Text>
       {action}
     </View>
   );

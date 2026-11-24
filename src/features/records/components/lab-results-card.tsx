@@ -13,7 +13,11 @@ export function LabResultsCard({ onViewAll }: LabResultsCardProps) {
   const { labBookings } = useOrdersData();
   const results = labBookings
     .flatMap((booking) =>
-      booking.results.map((result) => ({ ...result, labName: booking.labName, reference: booking.reference }))
+      booking.results.map((result) => ({
+        ...result,
+        labName: booking.labName,
+        reference: booking.reference,
+      }))
     )
     .sort((a, b) => (b.releasedAt ?? '').localeCompare(a.releasedAt ?? ''));
 

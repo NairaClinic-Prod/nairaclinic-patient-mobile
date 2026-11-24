@@ -60,7 +60,7 @@ export function ProfileForm({ section }: { section: FormSection }) {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         contentContainerClassName="gap-4 pb-4">
-        <Text className="text-muted-foreground text-xs leading-[18px]">{copy.description}</Text>
+        <Text className="text-muted-foreground text-xs leading-4.5">{copy.description}</Text>
 
         {message ? (
           <View
@@ -71,7 +71,10 @@ export function ProfileForm({ section }: { section: FormSection }) {
             )}>
             <Icon
               as={Check}
-              className={cn('size-4', message.kind === 'success' ? 'text-success' : 'text-destructive')}
+              className={cn(
+                'size-4',
+                message.kind === 'success' ? 'text-success' : 'text-destructive'
+              )}
             />
             <Text
               className={cn(
@@ -114,7 +117,11 @@ export function ProfileForm({ section }: { section: FormSection }) {
               <View className="gap-1.5">
                 <Text className="text-muted-foreground text-xs font-semibold">Date of birth</Text>
                 <View className="bg-card rounded-2xl px-4 py-3">
-                  <DateField label="Date of birth" value={draft.dob} onChange={(dob) => patch({ dob })} />
+                  <DateField
+                    label="Date of birth"
+                    value={draft.dob}
+                    onChange={(dob) => patch({ dob })}
+                  />
                 </View>
               </View>
             )}
@@ -126,7 +133,7 @@ export function ProfileForm({ section }: { section: FormSection }) {
               onChange={(sexAtBirth) => patch({ sexAtBirth })}
             />
             {locked.name || locked.dob || locked.sex ? (
-              <Text className="text-muted-foreground text-xs leading-[18px]">{LOCKED_NOTE}</Text>
+              <Text className="text-muted-foreground text-xs leading-4.5">{LOCKED_NOTE}</Text>
             ) : null}
           </View>
         ) : null}
@@ -196,7 +203,9 @@ export function ProfileForm({ section }: { section: FormSection }) {
 
       <View className="bg-card gap-2 rounded-3xl p-3">
         {missing.length ? (
-          <Text role="status" className="text-destructive text-xs">{`Still needed: ${missing.join(', ')}`}</Text>
+          <Text
+            role="status"
+            className="text-destructive text-xs">{`Still needed: ${missing.join(', ')}`}</Text>
         ) : null}
         <View className="flex-row gap-2">
           <ActionButton

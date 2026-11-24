@@ -97,13 +97,9 @@ export function Splash({ exit, onDone }: SplashProps) {
       withTiming(1, { duration: reduced ? 800 : TOTAL_MS, easing: Easing.linear }, (finished) => {
         if (!finished) return;
         exit.set(
-          withTiming(
-            1,
-            { duration: EXIT_MS, easing: Easing.bezier(0.7, 0, 0.2, 1) },
-            (done) => {
-              if (done) scheduleOnRN(onDone);
-            }
-          )
+          withTiming(1, { duration: EXIT_MS, easing: Easing.bezier(0.7, 0, 0.2, 1) }, (done) => {
+            if (done) scheduleOnRN(onDone);
+          })
         );
       })
     );
@@ -126,7 +122,9 @@ export function Splash({ exit, onDone }: SplashProps) {
 
   const mark = useAnimatedStyle(() => {
     const time = t.get();
-    const beat = Math.sin(Math.PI * win(time, 0.16, 0.3)) * 0.1 + Math.sin(Math.PI * win(time, 0.3, 0.42)) * 0.05;
+    const beat =
+      Math.sin(Math.PI * win(time, 0.16, 0.3)) * 0.1 +
+      Math.sin(Math.PI * win(time, 0.3, 0.42)) * 0.05;
     return { transform: [{ scale: 1 + beat }] };
   });
 
@@ -187,7 +185,13 @@ export function Splash({ exit, onDone }: SplashProps) {
 
           <View style={[styles.line, { top: height / 2 + LOGO_SIZE / 2 + 28 }]}>
             {WORD.map((char, index) => (
-              <Letter key={index} t={t} index={index} char={char} color={index < SPLIT ? palette.ink : palette.accent} />
+              <Letter
+                key={index}
+                t={t}
+                index={index}
+                char={char}
+                color={index < SPLIT ? palette.ink : palette.accent}
+              />
             ))}
           </View>
           <Animated.Text

@@ -72,7 +72,11 @@ export function FloatingTabBar({ state, emitter, navigateToTab }: BottomTabBarPr
         if (!tab) return null;
         const focused = index === state.index;
         const onPress = () => {
-          const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+          const event = emitter.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
           if (focused || event.defaultPrevented) return;
           Haptics.selectionAsync();
           navigateToTab(route.key);

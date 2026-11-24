@@ -84,12 +84,12 @@ const SlideLayer = React.memo(function SlideLayer({ slide, index, active }: Slid
         </Stage>
         <View className="items-center px-8" style={{ height: 156 }}>
           <Reveal distance={36}>
-            <Text className="text-center text-[28px] font-extrabold leading-[34px] tracking-tight">
+            <Text className="text-center text-[28px] leading-[34px] font-extrabold tracking-tight">
               {slide.title}
             </Text>
           </Reveal>
           <Reveal distance={56} style={{ marginTop: 12 }}>
-            <Text className="text-muted-foreground text-center text-[15px] leading-[22px]">
+            <Text className="text-muted-foreground text-center text-[15px] leading-5.5">
               {slide.body}
             </Text>
           </Reveal>
@@ -218,7 +218,7 @@ export function Onboarding({ onFinish, onSignIn }: OnboardingProps) {
           hitSlop={12}
           accessibilityRole="button"
           accessibilityLabel="Skip"
-          className='absolute top-10 right-8'>
+          className="absolute top-10 right-8">
           <Animated.View
             style={{
               opacity: current === LAST ? 0 : 1,
@@ -234,7 +234,12 @@ export function Onboarding({ onFinish, onSignIn }: OnboardingProps) {
         <GestureDetector gesture={pan}>
           <View className="flex-1">
             {SLIDES.map((slide, index) => (
-              <SlideLayer key={slide.title} slide={slide} index={index} active={index === current} />
+              <SlideLayer
+                key={slide.title}
+                slide={slide}
+                index={index}
+                active={index === current}
+              />
             ))}
           </View>
         </GestureDetector>
@@ -252,7 +257,8 @@ export function Onboarding({ onFinish, onSignIn }: OnboardingProps) {
         />
         <Pressable onPress={onSignIn} accessibilityRole="button" className="items-center pb-1">
           <Text className="text-[15px]">
-            Already have an account? <Text className="text-primary text-[15px] font-bold">Sign in</Text>
+            Already have an account?{' '}
+            <Text className="text-primary text-[15px] font-bold">Sign in</Text>
           </Text>
         </Pressable>
       </View>

@@ -1,8 +1,8 @@
+import { PressableScale } from '@/components/patterns/pressable-scale';
 import { ActionButton } from '@/components/patterns/action-button';
 import { Icon } from '@/components/ui/icon';
 import * as Haptics from 'expo-haptics';
 import { Check, RotateCcw } from 'lucide-react-native';
-import { Pressable } from 'react-native';
 
 type DoneButtonProps = { finished: boolean; onPress: () => void };
 
@@ -21,15 +21,17 @@ export function DoneButton({ finished, onPress }: DoneButtonProps) {
     );
   }
   return (
-    <Pressable
+    <PressableScale
+      scaleTo={0.92}
       role="button"
       accessibilityLabel="Mark as done"
+      hitSlop={4}
       onPress={() => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         onPress();
       }}
-      className="bg-secondary size-9 items-center justify-center rounded-full active:opacity-70">
+      className="bg-secondary size-9 items-center justify-center rounded-full">
       <Icon as={Check} className="text-success size-4" />
-    </Pressable>
+    </PressableScale>
   );
 }

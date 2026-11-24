@@ -3,7 +3,9 @@ import { Tabs } from 'expo-router/js-tabs';
 
 export default function EntryLayout() {
   return (
-    <Tabs tabBar={(props) => <FloatingTabBar {...props} />} screenOptions={{ headerShown: false }}>
+    <Tabs
+      tabBar={(props) => <FloatingTabBar {...props} />}
+      screenOptions={{ headerShown: false, animation: 'fade' }}>
       <Tabs.Screen name="home" />
       <Tabs.Screen name="records" />
       <Tabs.Screen name="orders" />

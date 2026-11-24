@@ -25,7 +25,12 @@ function Line({ label, value, bold }: { label: string; value: string; bold?: boo
   );
 }
 
-export function OrderDetailSheet({ order, startCancelling, onClose, onCancel }: OrderDetailSheetProps) {
+export function OrderDetailSheet({
+  order,
+  startCancelling,
+  onClose,
+  onCancel,
+}: OrderDetailSheetProps) {
   const [confirming, setConfirming] = React.useState(startCancelling);
 
   React.useEffect(() => {
@@ -68,7 +73,7 @@ export function OrderDetailSheet({ order, startCancelling, onClose, onCancel }: 
 
           {order.declineReason ? (
             <View className="bg-muted rounded-2xl p-3.5">
-              <Text className="text-muted-foreground text-xs leading-[18px]">
+              <Text className="text-muted-foreground text-xs leading-4.5">
                 {`The pharmacy could not fill this: ${order.declineReason}`}
               </Text>
             </View>
@@ -100,7 +105,7 @@ export function OrderDetailSheet({ order, startCancelling, onClose, onCancel }: 
             <Text className="text-sm font-bold">
               {order.fulfilment === 'delivery' ? 'Home delivery' : 'Pick up'}
             </Text>
-            <Text className="text-muted-foreground text-xs leading-[18px]">
+            <Text className="text-muted-foreground text-xs leading-4.5">
               {[order.pharmacyName, order.pharmacyAddress, order.pharmacyPhone]
                 .filter(Boolean)
                 .join(' · ')}

@@ -1,7 +1,8 @@
+import { PressableScale } from '@/components/patterns/pressable-scale';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { ArrowDownRight, ArrowUpRight, ChevronRight, Wallet } from 'lucide-react-native';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { formatNaira } from '@/features/orders/utils';
 import type { WalletInfo } from '../types';
 
@@ -23,14 +24,15 @@ export function WalletCard({ wallet, onPress }: WalletCardProps) {
   const up = wallet.monthNetKobo >= 0;
 
   return (
-    <Pressable
+    <PressableScale
+      scaleTo={0.98}
       role="button"
       accessibilityLabel="Open your wallet and payment methods"
       onPress={onPress}
-      className="bg-primary flex-row items-center gap-3.5 overflow-hidden rounded-3xl px-4 py-4 active:opacity-90">
+      className="bg-primary flex-row items-center gap-3.5 overflow-hidden rounded-3xl px-4 py-4">
       <View
         pointerEvents="none"
-        className="absolute -right-8 -top-10 size-36 rounded-full bg-white/10"
+        className="absolute -top-10 -right-8 size-36 rounded-full bg-white/10"
       />
       <View className="size-11 items-center justify-center rounded-full bg-white/15">
         <Icon as={Wallet} className="text-primary-foreground size-5" />
@@ -39,7 +41,7 @@ export function WalletCard({ wallet, onPress }: WalletCardProps) {
         <Text className="text-primary-foreground/80 text-xs font-semibold">Wallet balance</Text>
         <BigNaira
           kobo={wallet.balanceKobo}
-          className="text-primary-foreground text-[26px] font-extrabold leading-8"
+          className="text-primary-foreground text-[26px] leading-8 font-extrabold"
         />
         {wallet.monthNetKobo ? (
           <View className="flex-row items-center gap-1">
@@ -58,6 +60,6 @@ export function WalletCard({ wallet, onPress }: WalletCardProps) {
         )}
       </View>
       <Icon as={ChevronRight} className="text-primary-foreground size-5" />
-    </Pressable>
+    </PressableScale>
   );
 }

@@ -142,7 +142,7 @@ export function HeaderBar({ scrollY, info, fixed, gutter }: HeaderBarProps) {
         <Animated.View
           animatedProps={rightProps}
           style={[styles.row, { height: ROW, marginTop: top }, titleStyle]}>
-          <Text className="text-base font-extrabold" numberOfLines={1}>
+          <Text className="text-base font-extrabold tracking-tight" numberOfLines={1}>
             {info.title}
           </Text>
           {info.right ? <View style={styles.right}>{info.right}</View> : null}

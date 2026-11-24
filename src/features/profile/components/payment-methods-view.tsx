@@ -29,14 +29,18 @@ export function PaymentMethodsView({ onAddCard }: { onAddCard?: () => void }) {
       <View className="bg-primary gap-4 overflow-hidden rounded-3xl p-5">
         <View
           pointerEvents="none"
-          className="absolute -bottom-12 -right-10 size-44 rounded-full bg-white/10"
+          className="absolute -right-10 -bottom-12 size-44 rounded-full bg-white/10"
         />
         <View className="flex-row items-center gap-2">
           <Icon as={Landmark} className="text-primary-foreground/85 size-4" />
-          <Text className="text-primary-foreground/85 text-[13px] font-semibold">Wallet account</Text>
+          <Text className="text-primary-foreground/85 text-[13px] font-semibold">
+            Wallet account
+          </Text>
         </View>
         <View className="gap-1">
-          <Text selectable className="text-primary-foreground text-3xl font-extrabold tracking-[2px]">
+          <Text
+            selectable
+            className="text-primary-foreground text-3xl font-extrabold tracking-[2px]">
             {wallet.accountNumber}
           </Text>
           <Text className="text-primary-foreground/80 text-xs" numberOfLines={1}>
@@ -70,13 +74,15 @@ export function PaymentMethodsView({ onAddCard }: { onAddCard?: () => void }) {
               <View className="bg-primary aspect-[1.6] justify-between overflow-hidden rounded-3xl p-5">
                 <View
                   pointerEvents="none"
-                  className="absolute -right-10 -top-10 size-40 rounded-full bg-white/10"
+                  className="absolute -top-10 -right-10 size-40 rounded-full bg-white/10"
                 />
                 <View className="flex-row items-center justify-between">
                   <Icon as={CreditCard} className="text-primary-foreground/85 size-6" />
                   {card.isDefault ? (
                     <View className="rounded-full bg-white/20 px-2.5 py-1">
-                      <Text className="text-primary-foreground text-[11px] font-semibold">Used first</Text>
+                      <Text className="text-primary-foreground text-[11px] font-semibold">
+                        Used first
+                      </Text>
                     </View>
                   ) : null}
                 </View>
@@ -121,9 +127,9 @@ export function PaymentMethodsView({ onAddCard }: { onAddCard?: () => void }) {
         )}
       </View>
 
-      <Text className="text-muted-foreground text-xs leading-[18px]">
-        We never see or store your card number. Paystack keeps it, and we keep only a secure token and
-        the last four digits. Remove a card here any time and we stop using it.
+      <Text className="text-muted-foreground text-xs leading-4.5">
+        We never see or store your card number. Paystack keeps it, and we keep only a secure token
+        and the last four digits. Remove a card here any time and we stop using it.
       </Text>
 
       <Sheet
@@ -160,7 +166,7 @@ export function PaymentMethodsView({ onAddCard }: { onAddCard?: () => void }) {
           ].map((line) => (
             <View key={line} className="flex-row gap-2.5">
               <View className="bg-primary mt-2 size-1.5 rounded-full" />
-              <Text className="text-muted-foreground flex-1 text-xs leading-[18px]">{line}</Text>
+              <Text className="text-muted-foreground flex-1 text-xs leading-4.5">{line}</Text>
             </View>
           ))}
         </View>

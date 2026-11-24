@@ -4,7 +4,14 @@ import { TextField } from '@/components/patterns/text-field';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import * as Haptics from 'expo-haptics';
-import { Fingerprint, KeyRound, ShieldCheck, Smartphone, Trash2, type LucideIcon } from 'lucide-react-native';
+import {
+  Fingerprint,
+  KeyRound,
+  ShieldCheck,
+  Smartphone,
+  Trash2,
+  type LucideIcon,
+} from 'lucide-react-native';
 import * as React from 'react';
 import { Linking, View } from 'react-native';
 import { PIN_LENGTH, PRIVACY_URL, TERMS_URL } from '../constants';
@@ -31,7 +38,7 @@ function InfoCard({
       </View>
       <View className="gap-1">
         <Text className="text-[15px] font-bold">{title}</Text>
-        <Text className="text-muted-foreground text-xs leading-[18px]">{text}</Text>
+        <Text className="text-muted-foreground text-xs leading-4.5">{text}</Text>
       </View>
       {children}
     </View>
@@ -48,7 +55,9 @@ function PinCard() {
   const missing = [
     ...(current.length === PIN_LENGTH ? [] : ['Your current PIN']),
     ...(next.length === PIN_LENGTH ? [] : [`A new ${PIN_LENGTH}-digit PIN`]),
-    ...(next.length === PIN_LENGTH && current === next ? ['A PIN different from your current one'] : []),
+    ...(next.length === PIN_LENGTH && current === next
+      ? ['A PIN different from your current one']
+      : []),
     ...(next.length === PIN_LENGTH && confirm !== next ? ['The same new PIN again'] : []),
   ];
 
@@ -105,7 +114,13 @@ function PinCard() {
               <Text className="text-muted-foreground text-xs">{`Still needed: ${missing.join(', ')}.`}</Text>
             ) : null}
             <View className="flex-row gap-2">
-              <ActionButton size="md" label="Cancel" variant="outline" className="flex-1" onPress={close} />
+              <ActionButton
+                size="md"
+                label="Cancel"
+                variant="outline"
+                className="flex-1"
+                onPress={close}
+              />
               <ActionButton
                 size="md"
                 label="Change PIN"
@@ -185,13 +200,17 @@ export function SecurityView() {
         title="Medical record privacy"
         text="Subscriptions and family membership never grant automatic access to clinical records."
       />
-      <Text className="text-muted-foreground text-xs leading-[18px]">
+      <Text className="text-muted-foreground text-xs leading-4.5">
         {'Read how we handle your data in our '}
-        <Text className="text-primary text-xs font-semibold" onPress={() => Linking.openURL(PRIVACY_URL)}>
+        <Text
+          className="text-primary text-xs font-semibold"
+          onPress={() => Linking.openURL(PRIVACY_URL)}>
           Privacy Policy
         </Text>
         {' and the '}
-        <Text className="text-primary text-xs font-semibold" onPress={() => Linking.openURL(TERMS_URL)}>
+        <Text
+          className="text-primary text-xs font-semibold"
+          onPress={() => Linking.openURL(TERMS_URL)}>
           Terms of Service
         </Text>
         .

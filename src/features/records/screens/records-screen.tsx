@@ -1,3 +1,4 @@
+import { FadeIn } from '@/components/patterns/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
 import { ActionButton } from '@/components/patterns/action-button';
 import TabHeader from '@/components/common/header';
@@ -38,14 +39,14 @@ export function RecordsScreen() {
 
   return (
     <BodyLayout scrollView padding={false} tabBar className="gap-5">
+      <TabHeader gutter title="Health records" subtitle={RECORDS_SUBTITLE} />
       <View
         className="gap-5"
         onTouchStart={() => {
           if (chartTouch.current) chartTouch.current = false;
           else setDismiss((count) => count + 1);
         }}>
-        <TabHeader gutter title="Health records" subtitle={RECORDS_SUBTITLE} />
-        <View className="flex-row items-center gap-2" style={gutter}>
+        <FadeIn index={0} className="flex-row items-center gap-2" style={gutter}>
           <AddFromClinic className="flex-1" textClassName="text-[13px]" />
           <ActionButton
             size="md"
@@ -54,9 +55,9 @@ export function RecordsScreen() {
             variant="outline"
             accessibilityLabel="Download all records"
           />
-        </View>
+        </FadeIn>
 
-        <View style={gutter}>
+        <FadeIn index={1} style={gutter}>
           <VitalsCard
             readings={readings}
             dismissSignal={dismiss}
@@ -67,14 +68,16 @@ export function RecordsScreen() {
               setListOpen(true);
             }}
           />
-        </View>
+        </FadeIn>
 
-        <CareTeamStrip members={dashboard.careTeam} />
+        <FadeIn index={2}>
+          <CareTeamStrip members={dashboard.careTeam} />
+        </FadeIn>
 
-        <View className="gap-5" style={gutter}>
+        <FadeIn index={3} className="gap-5" style={gutter}>
           <LabResultsCard />
           <CarePlanSection />
-        </View>
+        </FadeIn>
       </View>
 
       <ReadingsListSheet

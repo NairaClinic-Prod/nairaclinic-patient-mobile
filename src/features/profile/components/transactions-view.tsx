@@ -71,7 +71,7 @@ export function TransactionsView() {
                     <Icon as={ICON[item.kind]} className="text-primary size-4" />
                   </View>
                   <View className="min-w-0 flex-1 gap-0.5">
-                    <Text className="text-[13px] font-bold leading-[18px]">{item.title}</Text>
+                    <Text className="text-[13px] leading-4.5 font-bold">{item.title}</Text>
                     <Text className="text-muted-foreground text-[11px]" numberOfLines={1}>
                       {`Ref ${item.reference}${item.detail && item.kind === 'pharmacy' ? ` · ${item.detail}` : ''}`}
                     </Text>
@@ -87,7 +87,11 @@ export function TransactionsView() {
                       )}>
                       {formatNaira(item.amountKobo)}
                     </Text>
-                    <View className={cn('rounded-full px-2 py-0.5', refunded ? 'bg-muted' : 'bg-secondary')}>
+                    <View
+                      className={cn(
+                        'rounded-full px-2 py-0.5',
+                        refunded ? 'bg-muted' : 'bg-secondary'
+                      )}>
                       <Text
                         className={cn(
                           'text-[10px] font-bold',

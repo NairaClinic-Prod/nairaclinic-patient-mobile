@@ -1,3 +1,4 @@
+import { PressableScale } from '@/components/patterns/pressable-scale';
 import { Sheet } from '@/components/patterns/sheet';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
@@ -31,14 +32,15 @@ export function InlineSelect<T extends string>({
   return (
     <View className="flex-row items-center gap-2">
       {label ? <Text className="text-muted-foreground text-[13px]">{label}</Text> : null}
-      <Pressable
+      <PressableScale
+        scaleTo={0.96}
         role="button"
         accessibilityLabel={`${label ?? title ?? 'Choose'}: ${current?.label ?? ''}`}
         onPress={() => setOpen(true)}
-        className="bg-card h-10 flex-row items-center gap-2 rounded-xl px-3 active:opacity-70">
+        className="bg-card h-10 flex-row items-center gap-2 rounded-xl px-3">
         <Text className="text-[14px] font-semibold">{current?.label}</Text>
         <Icon as={ChevronDown} className="text-muted-foreground size-4" />
-      </Pressable>
+      </PressableScale>
       <Sheet open={open} onClose={() => setOpen(false)} title={title ?? label ?? 'Choose'}>
         <View className="bg-muted overflow-hidden rounded-3xl">
           {options.map((option, index) => {

@@ -1,10 +1,17 @@
 import { ActionButton } from '@/components/patterns/action-button';
+import { AddButton } from '@/components/patterns/add-button';
+import { ChoiceSheet } from '@/components/patterns/choice-sheet';
 import { ChipTabs } from '@/components/patterns/chip-tabs';
 import { EmptyState } from '@/components/patterns/empty-state';
 import { Text } from '@/components/ui/text';
-import { AddFromClinic, type ClinicRecordKind } from '@/features/care-plan/components/add-from-clinic';
-import { Pill } from 'lucide-react-native';
+import {
+  AddFromClinicSheet,
+  type ClinicRecordKind,
+} from '@/features/care-plan/components/add-from-clinic';
+import { FileClock, Pill, ShoppingBag } from 'lucide-react-native';
+import { ITEM_ENTER } from '@/lib/motion';
 import * as React from 'react';
+import Animated from 'react-native-reanimated';
 import { View } from 'react-native';
 import { EMPTY, ORDERS_FOOTNOTE, VIEW_STATUSES, VIEWS } from '../constants';
 import { cancelOrder, cancelRequest, useOrdersData } from '../hooks/use-orders';
@@ -30,6 +37,8 @@ export function OrdersView({ onMakeOrder, onAddExternal, onBookLab }: OrdersView
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [askCancel, setAskCancel] = React.useState(false);
   const [requestId, setRequestId] = React.useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const [clinicOpen, setClinicOpen] = React.useState(false);
 
   const ordersIn = (value: OrderView) =>
     data.orders.filter((order) => VIEW_STATUSES[value].includes(order.status));
@@ -50,23 +59,22 @@ export function OrdersView({ onMakeOrder, onAddExternal, onBookLab }: OrdersView
     value === 'requests' ? openOnly.length : value === 'closed' ? closedOnly.length : 0;
   const orders = ordersIn(view);
   const selected = data.orders.find((order) => order.id === selectedId) ?? null;
-  const request: ShoppingRequest | null = data.requests.find((item) => item.id === requestId) ?? null;
+  const request: ShoppingRequest | null =
+    data.requests.find((item) => item.id === requestId) ?? null;
   const showEmpty =
-    !orders.length && !((view === 'requests' && openOnly.length) || (view === 'closed' && closedOnly.length));
+    !orders.length &&
+    !((view === 'requests' && openOnly.length) || (view === 'closed' && closedOnly.length));
 
   return (
     <View className="gap-4">
-      <View className="gap-3">
-        <View className="gap-0.5">
+      <View className="flex-row items-start justify-between gap-4">
+        <View className="min-w-0 flex-1 gap-0.5">
           <Text className="text-lg font-extrabold">Your medicines. Your choice.</Text>
-          <Text className="text-muted-foreground text-xs leading-[18px]">
+          <Text className="text-muted-foreground text-xs leading-4.5">
             Make an order, compare pharmacy offers and choose when you&apos;re ready.
           </Text>
         </View>
-        <View className="flex-row gap-2">
-          <AddFromClinic className="flex-1" onPick={onAddExternal} />
-          <ActionButton size="md" label="Make an order" onPress={onMakeOrder} />
-        </View>
+        <AddButton label="Add or make an order" onPress={() => setMenuOpen(true)} />
       </View>
 
       <ChipTabs
@@ -79,7 +87,7 @@ export function OrdersView({ onMakeOrder, onAddExternal, onBookLab }: OrdersView
         }))}
       />
 
-      <View className="gap-3">
+      <Animated.View key={view} entering={ITEM_ENTER} className="gap-3">
         {view === 'requests'
           ? openOnly.map((item) => (
               <OpenRequestCard
@@ -92,7 +100,11 @@ export function OrdersView({ onMakeOrder, onAddExternal, onBookLab }: OrdersView
           : null}
         {view === 'closed'
           ? closedOnly.map((item) => (
-              <ClosedRequestCard key={item.id} request={item} onOpen={() => setRequestId(item.id)} />
+              <ClosedRequestCard
+                key={item.id}
+                request={item}
+                onOpen={() => setRequestId(item.id)}
+              />
             ))
           : null}
         {orders.map((order) => (
@@ -123,12 +135,41 @@ export function OrdersView({ onMakeOrder, onAddExternal, onBookLab }: OrdersView
             />
           </View>
         ) : null}
-      </View>
+      </Animated.View>
 
-      <Text className="text-muted-foreground text-xs leading-[18px]">{ORDERS_FOOTNOTE}</Text>
+      <Text className="text-muted-foreground text-xs leading-4.5">{ORDERS_FOOTNOTE}</Text>
 
       <LabBookingsSection bookings={data.labBookings} onViewAll={onBookLab} />
 
+      <ChoiceSheet<'order' | 'clinic'>
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        title="Your medicines"
+        subtitle="What would you like to do?"
+        choices={[
+          {
+            key: 'order',
+            title: 'Make an order',
+            description: 'Ask nearby pharmacies for prices and compare their offers.',
+            icon: ShoppingBag,
+          },
+          {
+            key: 'clinic',
+            title: 'Add from another clinic',
+            description: 'Keep a prescription or test request from outside NairaClinic.',
+            icon: FileClock,
+          },
+        ]}
+        onPick={(key) => {
+          if (key === 'order') onMakeOrder?.();
+          else setTimeout(() => setClinicOpen(true), 300);
+        }}
+      />
+      <AddFromClinicSheet
+        open={clinicOpen}
+        onClose={() => setClinicOpen(false)}
+        onPick={onAddExternal}
+      />
       <OrderDetailSheet
         order={selected}
         startCancelling={askCancel}

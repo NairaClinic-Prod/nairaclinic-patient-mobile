@@ -1,3 +1,4 @@
+import { FadeIn } from '@/components/patterns/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
 import { router } from 'expo-router';
 import { AppointmentsSection } from '../components/appointments-section';
@@ -15,21 +16,33 @@ export function HomeScreen() {
   return (
     <BodyLayout scrollView padding={false} tabBar fixedHeader className="gap-5">
       <HomeHeader firstName={home.firstName} unreadCount={home.unreadCount} />
-      <ReferralCard referral={home.referral} />
-      <QuickActions
-        onRecords={() => router.navigate('/records')}
-        onOrder={() => router.navigate('/orders')}
-      />
-      <CareTeamStrip members={dashboard.careTeam} />
-      {dashboard.readyNow.length ? (
-        <AppointmentsSection
-          title="It's time — join your meeting"
-          appointments={dashboard.readyNow}
-          ready
+      <FadeIn index={0}>
+        <ReferralCard referral={home.referral} />
+      </FadeIn>
+      <FadeIn index={1}>
+        <QuickActions
+          onRecords={() => router.navigate('/records')}
+          onOrder={() => router.navigate('/orders')}
         />
+      </FadeIn>
+      <FadeIn index={2}>
+        <CareTeamStrip members={dashboard.careTeam} />
+      </FadeIn>
+      {dashboard.readyNow.length ? (
+        <FadeIn index={3}>
+          <AppointmentsSection
+            title="It's time — join your meeting"
+            appointments={dashboard.readyNow}
+            ready
+          />
+        </FadeIn>
       ) : null}
-      <AppointmentsSection title="Upcoming" appointments={dashboard.upcoming} />
-      <HealthTips tips={dashboard.healthTips} />
+      <FadeIn index={4}>
+        <AppointmentsSection title="Upcoming" appointments={dashboard.upcoming} />
+      </FadeIn>
+      <FadeIn index={5}>
+        <HealthTips tips={dashboard.healthTips} />
+      </FadeIn>
     </BodyLayout>
   );
 }

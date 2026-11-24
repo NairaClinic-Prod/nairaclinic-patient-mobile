@@ -1,7 +1,8 @@
+import { PressableScale } from '@/components/patterns/pressable-scale';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { Pencil, ShieldCheck } from 'lucide-react-native';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
 type ProfileHeroProps = {
   initials: string;
@@ -17,15 +18,19 @@ export function ProfileHero({ initials, firstName, contact, onEdit }: ProfileHer
         <View className="bg-secondary size-24 items-center justify-center rounded-full">
           <Text className="text-primary text-3xl font-extrabold">{initials}</Text>
         </View>
-        <Pressable
+        <PressableScale
+          scaleTo={0.9}
+          hitSlop={6}
           role="button"
           accessibilityLabel="Edit personal information"
           onPress={onEdit}
-          className="bg-card border-background absolute -bottom-1 -right-1 size-9 items-center justify-center rounded-full border-[3px] active:opacity-70">
+          className="bg-card border-background absolute -right-1 -bottom-1 size-9 items-center justify-center rounded-full border-[3px]">
           <Icon as={Pencil} className="text-foreground size-4" />
-        </Pressable>
+        </PressableScale>
       </View>
-      <Text className="mt-3 text-2xl font-extrabold">{firstName ? `Hello, ${firstName}` : 'Hello'}</Text>
+      <Text className="mt-3 text-2xl font-extrabold tracking-tight">
+        {firstName ? `Hello, ${firstName}` : 'Hello'}
+      </Text>
       <Text className="text-muted-foreground text-[13px]">{contact}</Text>
       <View className="bg-secondary mt-2 flex-row items-center gap-1.5 rounded-full px-3 py-1.5">
         <Icon as={ShieldCheck} className="text-success size-3.5" />

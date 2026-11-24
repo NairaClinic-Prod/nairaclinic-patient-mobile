@@ -1,9 +1,10 @@
+import { PressableScale } from '@/components/patterns/pressable-scale';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import * as Haptics from 'expo-haptics';
 import { Lock } from 'lucide-react-native';
 import * as React from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import Animated, {
   ReduceMotion,
   useAnimatedStyle,
@@ -63,18 +64,19 @@ export function ReadOnlyField({ label, value, hint }: ReadOnlyFieldProps) {
           <Text className="text-background text-[11px] leading-4 font-medium">{hint}</Text>
         </Animated.View>
       ) : null}
-      <Pressable
+      <PressableScale
+        scaleTo={0.98}
         role="button"
         accessibilityLabel={`${label}: ${value}. ${hint}`}
         accessibilityState={{ disabled: true }}
         onPress={show}
-        className="bg-muted gap-1 rounded-3xl p-3 active:opacity-80">
+        className="bg-muted gap-1 rounded-3xl p-3">
         <View className="flex-row items-center gap-1">
           <Text className="text-muted-foreground text-[11px]">{label}</Text>
           <Icon as={Lock} className="text-muted-foreground size-2.5" />
         </View>
         <Text className="text-[13px] font-bold">{value}</Text>
-      </Pressable>
+      </PressableScale>
     </View>
   );
 }

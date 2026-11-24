@@ -34,7 +34,7 @@ export function LoginScreen() {
   const handleSubmit = () => {
     formik.handleSubmit();
     router.replace('/home');
-  }
+  };
 
   return (
     <AuthLayout
