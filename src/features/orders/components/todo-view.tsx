@@ -1,4 +1,4 @@
-import { ActionButton } from '@/components/patterns/action-button';
+import { AddButton } from '@/components/patterns/add-button';
 import { SegmentedControl } from '@/components/patterns/segmented-control';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
@@ -12,16 +12,15 @@ import { SectionCard } from '@/features/care-plan/components/section-card';
 import { TestRow } from '@/features/care-plan/components/test-row';
 import { toggleDone, toggleTodo, useCarePlan } from '@/features/care-plan/store';
 import { buildTodo, formatDate, todoKey } from '@/features/care-plan/utils';
-import { ArrowRight, Bell, CheckCircle2, Plus } from 'lucide-react-native';
+import { Bell, CheckCircle2 } from 'lucide-react-native';
 import * as React from 'react';
 import { View } from 'react-native';
 
 type TodoViewProps = {
-  onReminders?: () => void;
   onAddExternal?: (kind: ClinicRecordKind) => void;
 };
 
-export function TodoView({ onReminders, onAddExternal }: TodoViewProps) {
+export function TodoView({ onAddExternal }: TodoViewProps) {
   const data = useCarePlan();
   const [tab, setTab] = React.useState<'now' | 'done'>('now');
   const [adding, setAdding] = React.useState(false);
@@ -33,23 +32,14 @@ export function TodoView({ onReminders, onAddExternal }: TodoViewProps) {
 
   return (
     <View className="gap-4">
-      <View className="gap-3">
-        <View className="gap-0.5">
+      <View className="flex-row items-start justify-between gap-4">
+        <View className="min-w-0 flex-1 gap-0.5">
           <Text className="text-lg font-extrabold">What needs your attention</Text>
-          <Text className="text-muted-foreground text-xs leading-[18px]">
-            Tick things off as you do them. Finished items stay in Completed.
+          <Text className="text-muted-foreground text-xs leading-4.5" numberOfLines={1}>
+            Tick off items as you finish them.
           </Text>
         </View>
-        <View className="flex-row items-center gap-2">
-          <ActionButton size="md" label="Add to my to-do" icon={Plus} onPress={() => setAdding(true)} />
-          <ActionButton
-            size="md"
-            label="My care reminders"
-            icon={ArrowRight}
-            variant="ghost"
-            onPress={onReminders}
-          />
-        </View>
+        <AddButton label="Add to my to-do" onPress={() => setAdding(true)} />
       </View>
 
       <SegmentedControl
@@ -79,8 +69,10 @@ export function TodoView({ onReminders, onAddExternal }: TodoViewProps) {
                   <View key={todo.id} className={index ? 'border-border/70 border-t' : ''}>
                     <RecordRow
                       icon={Bell}
-                      actions={<DoneButton finished={finished} onPress={() => toggleTodo(todo.id)} />}>
-                      <Text className="text-base font-bold leading-[22px]">{todo.title}</Text>
+                      actions={
+                        <DoneButton finished={finished} onPress={() => toggleTodo(todo.id)} />
+                      }>
+                      <Text className="text-base leading-[22px] font-bold">{todo.title}</Text>
                       <RecordNote>{todo.note || todo.title}</RecordNote>
                     </RecordRow>
                   </View>
@@ -96,7 +88,9 @@ export function TodoView({ onReminders, onAddExternal }: TodoViewProps) {
                   {`${encounter.title} · ${formatDate(encounter.dateIso)}`}
                 </Text>
                 <Text className="text-muted-foreground text-xs">
-                  {encounter.external ? encounter.clinic || 'External prescriber' : encounter.doctor}
+                  {encounter.external
+                    ? encounter.clinic || 'External prescriber'
+                    : encounter.doctor}
                 </Text>
               </View>
               {meds.length ? (

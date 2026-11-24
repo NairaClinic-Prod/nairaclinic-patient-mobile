@@ -2,7 +2,6 @@ import { BodyLayout } from '@/components/common/body-layout';
 import TabHeader from '@/components/common/header';
 import { SegmentedControl } from '@/components/patterns/segmented-control';
 import { StatTile } from '@/components/patterns/stat-tile';
-import { router } from 'expo-router';
 import { CircleCheck, ShoppingBag, Wallet } from 'lucide-react-native';
 import * as React from 'react';
 import { View } from 'react-native';
@@ -34,7 +33,13 @@ export function OrdersScreen() {
           icon={Wallet}
           tone="warm"
         />
-        <StatTile label="Ready" value={stats.ready} unit="to collect" icon={CircleCheck} tone="mint" />
+        <StatTile
+          label="Ready"
+          value={stats.ready}
+          unit="to collect"
+          icon={CircleCheck}
+          tone="mint"
+        />
       </View>
 
       <SegmentedControl
@@ -46,11 +51,7 @@ export function OrdersScreen() {
         ]}
       />
 
-      {tab === 'todo' ? (
-        <TodoView onReminders={() => router.navigate('/reminders')} />
-      ) : (
-        <OrdersView />
-      )}
+      {tab === 'todo' ? <TodoView /> : <OrdersView />}
     </BodyLayout>
   );
 }

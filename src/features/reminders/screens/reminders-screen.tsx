@@ -1,5 +1,6 @@
 import { BodyLayout } from '@/components/common/body-layout';
 import TabHeader from '@/components/common/header';
+import { AddButton } from '@/components/patterns/add-button';
 import { SegmentedControl } from '@/components/patterns/segmented-control';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { CalendarClock, Plus, Search } from 'lucide-react-native';
 import * as React from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { NextUpCard } from '../components/next-up-card';
 import { ReminderFormSheet } from '../components/reminder-form-sheet';
 import { ReminderRow } from '../components/reminder-row';
@@ -54,15 +55,7 @@ export function RemindersScreen() {
       <TabHeader
         title="Reminders"
         subtitle={active.length === 1 ? '1 active reminder' : `${active.length} active reminders`}
-        right={
-          <Pressable
-            role="button"
-            accessibilityLabel="Add reminder"
-            onPress={addReminder}
-            className="bg-primary size-11 items-center justify-center rounded-full active:opacity-80">
-            <Icon as={Plus} className="text-primary-foreground size-5" />
-          </Pressable>
-        }
+        right={<AddButton label="Add reminder" onPress={addReminder} />}
       />
 
       {next ? (

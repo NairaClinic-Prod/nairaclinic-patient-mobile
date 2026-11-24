@@ -41,15 +41,17 @@ type StatTileProps = {
 export function StatTile({ label, value, unit, icon, tone }: StatTileProps) {
   const style = TONE[tone];
   return (
-    <View className={cn('min-h-[104px] flex-1 justify-between gap-2 rounded-2xl p-3', style.box)}>
-      <View className={cn('size-8 items-center justify-center rounded-full', style.badge)}>
-        <Icon as={icon} className={cn('size-4', style.icon)} />
-      </View>
-      <View>
+    <View className={cn('min-h-22.5 flex-1 justify-between gap-2 rounded-2xl p-3', style.box)}>
+      <View className="flex-row items-center gap-3">
+        <View className={cn('size-8 items-center justify-center rounded-full', style.badge)}>
+          <Icon as={icon} className={cn('size-4', style.icon)} />
+        </View>
         <Text className={cn('text-xl font-extrabold leading-6', style.text)} numberOfLines={1}>
           {value}
         </Text>
-        <Text className={cn('text-[11px] font-semibold', style.sub)} numberOfLines={1}>
+      </View>
+      <View>
+        <Text className={cn('text-[11px] font-semibold', style.sub)} numberOfLines={2}>
           {unit ? `${label} · ${unit}` : label}
         </Text>
       </View>
