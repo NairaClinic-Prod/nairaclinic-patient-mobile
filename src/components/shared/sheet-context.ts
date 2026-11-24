@@ -1,7 +1,9 @@
 import * as React from 'react';
 import type { HostInstance } from 'react-native';
 
-type SheetScroll = { reveal: (field: React.RefObject<HostInstance | null>) => void };
+type SheetScroll = {
+  reveal: (field: React.RefObject<HostInstance | null>, toTop?: boolean) => void;
+};
 
 export const SheetScrollContext = React.createContext<SheetScroll | null>(null);
 

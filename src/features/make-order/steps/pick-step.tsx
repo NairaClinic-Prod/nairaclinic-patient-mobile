@@ -1,10 +1,8 @@
 import { CheckBox } from '@/components/shared/check-box';
 import { PressableScale } from '@/components/shared/pressable-scale';
 import { Stepper } from '@/components/shared/stepper';
-import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
-import { Lock } from 'lucide-react-native';
 import { View } from 'react-native';
 import type { OrderKind, OrderSource } from '../types';
 
@@ -29,6 +27,8 @@ const COPY = {
     note: 'No payment yet. You pick a laboratory next.',
   },
 } as const;
+
+export const pickNote = (kind: OrderKind) => COPY[kind].note;
 
 export function PickStep({ kind, sources, source, picked, onPickSource, onPacks }: PickStepProps) {
   const copy = COPY[kind];
@@ -119,10 +119,6 @@ export function PickStep({ kind, sources, source, picked, onPickSource, onPacks 
             </View>
           );
         })}
-      </View>
-      <View className="bg-secondary/50 border-primary/15 flex-row items-start gap-3 rounded-2xl border p-3.5">
-        <Icon as={Lock} className="text-muted-foreground mt-0.5 size-4" />
-        <Text className="text-muted-foreground flex-1 text-[13px] leading-5">{copy.note}</Text>
       </View>
     </View>
   );

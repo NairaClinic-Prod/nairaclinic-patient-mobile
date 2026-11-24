@@ -9,7 +9,7 @@ import { X } from 'lucide-react-native';
 import { SCREEN_PADDING_X, SHEET_FOOTER_GAP } from '@/constants/ui';
 import { useSheetBottom } from '@/hooks/use-screen-insets';
 import * as React from 'react';
-import { View, type HostInstance } from 'react-native';
+import { Dimensions, Keyboard, View, type HostInstance } from 'react-native';
 
 type SheetProps = {
   open: boolean;
@@ -19,6 +19,7 @@ type SheetProps = {
   eyebrow?: string;
   showClose?: boolean;
   divided?: boolean;
+  hideFooterWithKeyboard?: boolean;
   snapPoints?: (string | number)[];
   footer?: React.ReactNode;
   children?: React.ReactNode;
@@ -32,23 +33,39 @@ export function Sheet({
   eyebrow,
   showClose = false,
   divided = false,
+  hideFooterWithKeyboard = false,
   snapPoints,
   footer,
   children,
 }: SheetProps) {
   const bottom = useSheetBottom();
+  const [keyboard, setKeyboard] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!hideFooterWithKeyboard) return;
+    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboard(true));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboard(false));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, [hideFooterWithKeyboard]);
+
+  // While typing, the footer steps aside so nothing sits between the field and its suggestions.
+  const pinned = hideFooterWithKeyboard && keyboard ? undefined : footer;
   const frame = React.useRef<HostInstance>(null);
   const scroll = React.useRef<BottomSheetScrollViewMethods>(null);
   const offset = React.useRef(0);
 
-  // Waits for the keyboard to settle, then scrolls the field up if it is hidden behind it or the pinned footer.
-  const reveal = React.useCallback((field: React.RefObject<HostInstance | null>) => {
+  // Waits for the keyboard to settle, then scrolls the field into view. With toTop it always moves to the top edge, to leave room for suggestions.
+  const reveal = React.useCallback((field: React.RefObject<HostInstance | null>, toTop = false) => {
     setTimeout(() => {
       field.current?.measureInWindow((_x, fieldY, _w, fieldH) => {
         frame.current?.measureInWindow((_fx, frameY, _fw, frameH) => {
           const top = fieldY - frameY;
-          if (top >= 0 && top + fieldH <= frameH - 16) return;
-          scroll.current?.scrollTo({ y: Math.max(0, top + offset.current - 24), animated: true });
+          if (!toTop && top >= 0 && top + fieldH <= frameH - 16) return;
+          const gap = toTop ? 8 : 24;
+          scroll.current?.scrollTo({ y: Math.max(0, top + offset.current - gap), animated: true });
         });
       });
     }, 350);
@@ -121,18 +138,23 @@ export function Sheet({
               }}
               style={{ flex: 1 }}
               keyboardShouldPersistTaps="handled"
+              keyboardDismissMode={hideFooterWithKeyboard ? 'on-drag' : undefined}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{
                 paddingHorizontal: SCREEN_PADDING_X,
                 paddingTop: 8,
-                paddingBottom: footer ? SHEET_FOOTER_GAP : bottom,
+                paddingBottom: pinned
+                  ? SHEET_FOOTER_GAP
+                  : keyboard
+                    ? Dimensions.get('window').height * 0.55
+                    : bottom,
                 gap: 16,
               }}>
               {heading}
               {children}
             </BottomSheetScrollView>
           </View>
-          {footer ? (
+          {pinned ? (
             <View
               className={divided ? 'border-border border-t' : undefined}
               style={{
@@ -140,7 +162,7 @@ export function Sheet({
                 paddingTop: 12,
                 paddingBottom: bottom,
               }}>
-              {footer}
+              {pinned}
             </View>
           ) : null}
         </View>

@@ -93,6 +93,7 @@ export function AddressField({ label, value, onChange }: AddressFieldProps) {
     <View className="gap-2.5">
       <TextField
         sheet
+        revealTop
         tone="muted"
         label={label}
         required

@@ -1,6 +1,8 @@
 import { ActionButton } from '@/components/shared/action-button';
 import { Sheet } from '@/components/shared/sheet';
+import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
+import { Lock } from 'lucide-react-native';
 import { useCarePlan } from '@/features/care-plan/store';
 import { formatNaira } from '@/features/orders/utils';
 import * as Haptics from 'expo-haptics';
@@ -10,7 +12,7 @@ import { isLocationComplete } from '../location';
 import { combine, findLabs, findPharmacies, labSources, medicationSources } from '../search';
 import { closeMakeOrder, useMakeOrderRequest } from '../store';
 import { ChooseStep } from '../steps/choose-step';
-import { PickStep } from '../steps/pick-step';
+import { PickStep, pickNote } from '../steps/pick-step';
 import { LabResults, PharmacyResults, labTotalKobo, type Selection } from '../steps/results-step';
 import { SentStep } from '../steps/sent-step';
 import { WhereStep } from '../steps/where-step';
@@ -90,6 +92,7 @@ export function MakeOrderSheet() {
   const [consent, setConsent] = React.useState(false);
   const [problem, setProblem] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
+  const [leaving, setLeaving] = React.useState(false);
   const [offers, setOffers] = React.useState<PharmacyResult[]>([]);
   const [combination, setCombination] = React.useState<PharmacyCombination | null>(null);
   const [labs, setLabs] = React.useState<LabResult[]>([]);
@@ -173,10 +176,15 @@ export function MakeOrderSheet() {
     ...(!lab && !consent ? ['Your consent'] : []),
   ];
 
+  // The small chooser slides away first, then the full-height sheet opens.
   function chooseKind(next: OrderKind) {
     setKind(next);
     setCollection(next === 'medication' ? 'delivery' : 'lab_visit');
-    setStage('pick');
+    setLeaving(true);
+    setTimeout(() => {
+      setStage('pick');
+      setLeaving(false);
+    }, 300);
   }
 
   function find() {
@@ -232,10 +240,17 @@ export function MakeOrderSheet() {
     footer = (
       <View className="gap-3">
         {wanted.length === 0 ? (
-          <Text className="text-muted-foreground text-xs">
-            {`Still needed: At least one ${lab ? 'test' : 'medicine'}.`}
+          <Text className="text-destructive text-xs">
+            {`Choose at least one ${lab ? 'test' : 'medicine'} to continue.`}
           </Text>
-        ) : null}
+        ) : (
+          <View className="flex-row items-center gap-2">
+            <Icon as={Lock} className="text-muted-foreground size-3.5" />
+            <Text className="text-muted-foreground flex-1 text-xs leading-4.5">
+              {pickNote(kind ?? 'medication')}
+            </Text>
+          </View>
+        )}
         <View className="flex-row gap-2">
           <ActionButton
             size="md"
@@ -376,101 +391,114 @@ export function MakeOrderSheet() {
     );
   }
 
+  const choosing = request.open && stage === 'type' && !leaving;
+
   return (
-    <Sheet
-      open={request.open}
-      onClose={closeMakeOrder}
-      showClose
-      divided={Boolean(footer)}
-      snapPoints={['94%']}
-      eyebrow={stage === 'sent' ? undefined : copy.eyebrow}
-      title={stage === 'sent' ? (lab ? 'Laboratory order' : 'Medicine order') : copy.title}
-      subtitle={stage === 'sent' ? undefined : copy.text}
-      footer={footer}>
-      {kind && step > 0 ? <StepTabs labels={STEP_LABELS[kind]} step={step} /> : null}
+    <>
+      <Sheet
+        open={choosing}
+        onClose={() => {
+          if (choosing) closeMakeOrder();
+        }}
+        showClose
+        eyebrow={headingFor(null, 'type').eyebrow}
+        title={headingFor(null, 'type').title}>
+        <ChooseStep onChoose={chooseKind} />
+      </Sheet>
+      <Sheet
+        open={request.open && stage !== 'type'}
+        onClose={closeMakeOrder}
+        hideFooterWithKeyboard
+        showClose
+        divided={Boolean(footer)}
+        snapPoints={['94%']}
+        eyebrow={stage === 'sent' ? undefined : copy.eyebrow}
+        title={stage === 'sent' ? (lab ? 'Laboratory order' : 'Medicine order') : copy.title}
+        subtitle={stage === 'sent' ? undefined : copy.text}
+        footer={footer}>
+        {kind && step > 0 ? <StepTabs labels={STEP_LABELS[kind]} step={step} /> : null}
 
-      {stage === 'type' ? <ChooseStep onChoose={chooseKind} /> : null}
+        {kind && (stage === 'pick' || stage === 'items') ? (
+          <PickStep
+            kind={kind}
+            sources={sourcesFor(kind)}
+            source={stage === 'items' ? source : null}
+            picked={picked}
+            onPickSource={(entry) => chooseSource(entry)}
+            onPacks={setPacks}
+          />
+        ) : null}
 
-      {kind && (stage === 'pick' || stage === 'items') ? (
-        <PickStep
-          kind={kind}
-          sources={sourcesFor(kind)}
-          source={stage === 'items' ? source : null}
-          picked={picked}
-          onPickSource={(entry) => chooseSource(entry)}
-          onPacks={setPacks}
-        />
-      ) : null}
+        {kind && stage === 'where' ? (
+          <WhereStep
+            kind={kind}
+            collection={collection}
+            location={location}
+            consent={consent}
+            problem={problem}
+            onCollection={setCollection}
+            onLocation={(next) => {
+              setProblem(null);
+              setLocation(next);
+            }}
+            onConsent={setConsent}
+          />
+        ) : null}
 
-      {kind && stage === 'where' ? (
-        <WhereStep
-          kind={kind}
-          collection={collection}
-          location={location}
-          consent={consent}
-          problem={problem}
-          onCollection={setCollection}
-          onLocation={(next) => {
-            setProblem(null);
-            setLocation(next);
-          }}
-          onConsent={setConsent}
-        />
-      ) : null}
+        {stage === 'results' && !lab ? (
+          <PharmacyResults
+            offers={offers}
+            combination={combination}
+            collection={collection}
+            selection={selection}
+            requestFrom={requestFrom}
+            sendToAll={sendAll}
+            onSelection={(next) => {
+              setSelection(next);
+              if (next) {
+                setSendAll(false);
+                setRequestFrom(null);
+              }
+            }}
+            onRequestFrom={(next) => {
+              setRequestFrom(next);
+              if (next) {
+                setSelection(null);
+                setSendAll(false);
+              }
+            }}
+            onSendToAll={(next) => {
+              setSendAll(next);
+              if (next) {
+                setSelection(null);
+                setRequestFrom(null);
+              }
+            }}
+          />
+        ) : null}
 
-      {stage === 'results' && !lab ? (
-        <PharmacyResults
-          offers={offers}
-          combination={combination}
-          collection={collection}
-          selection={selection}
-          requestFrom={requestFrom}
-          sendToAll={sendAll}
-          onSelection={(next) => {
-            setSelection(next);
-            if (next) {
-              setSendAll(false);
-              setRequestFrom(null);
-            }
-          }}
-          onRequestFrom={(next) => {
-            setRequestFrom(next);
-            if (next) {
-              setSelection(null);
-              setSendAll(false);
-            }
-          }}
-          onSendToAll={(next) => {
-            setSendAll(next);
-            if (next) {
-              setSelection(null);
-              setRequestFrom(null);
-            }
-          }}
-        />
-      ) : null}
+        {stage === 'results' && lab ? (
+          <LabResults
+            labs={labs}
+            total={wanted.length}
+            collection={collection}
+            selected={labPicked}
+            askAll={sendAll}
+            onSelect={(next) => {
+              setLabPicked(next);
+              if (next) setSendAll(false);
+            }}
+            onAskAll={(next) => {
+              setSendAll(next);
+              if (next) setLabPicked(null);
+            }}
+          />
+        ) : null}
 
-      {stage === 'results' && lab ? (
-        <LabResults
-          labs={labs}
-          total={wanted.length}
-          collection={collection}
-          selected={labPicked}
-          askAll={sendAll}
-          onSelect={(next) => {
-            setLabPicked(next);
-            if (next) setSendAll(false);
-          }}
-          onAskAll={(next) => {
-            setSendAll(next);
-            if (next) setLabPicked(null);
-          }}
-        />
-      ) : null}
-
-      {stage === 'sent' && kind && sent ? (
-        <SentStep kind={kind} mode={sent.mode} name={sent.name} reference={sent.reference} />
-      ) : null}
-    </Sheet>
+        {stage === 'sent' && kind && sent ? (
+          <SentStep kind={kind} mode={sent.mode} name={sent.name} reference={sent.reference} />
+        ) : null}
+      </Sheet>
+    </>
   );
 }

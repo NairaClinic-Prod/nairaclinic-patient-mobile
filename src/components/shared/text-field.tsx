@@ -12,6 +12,7 @@ type TextFieldProps = Omit<TextInputProps, 'style'> & {
   disabled?: boolean;
   hint?: string;
   sheet?: boolean;
+  revealTop?: boolean;
   tone?: 'card' | 'muted';
   multiline?: boolean;
 };
@@ -22,6 +23,7 @@ export function TextField({
   disabled,
   hint,
   sheet = false,
+  revealTop = false,
   tone = 'card',
   multiline,
   ...props
@@ -41,7 +43,7 @@ export function TextField({
         {...props}
         onFocus={(event) => {
           props.onFocus?.(event);
-          if (sheet) sheetScroll?.reveal(frame);
+          if (sheet) sheetScroll?.reveal(frame, revealTop);
         }}
         multiline={multiline}
         editable={!disabled}
