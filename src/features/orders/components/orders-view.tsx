@@ -158,19 +158,19 @@ export function OrdersView({ onAddExternal, onBookLab }: OrdersViewProps) {
           {
             key: 'medication',
             title: 'Order medicines',
-            description: 'Compare pharmacy prices for the medicines on a prescription.',
+            description: 'Compare pharmacy prices',
             icon: Pill,
           },
           {
             key: 'lab',
             title: 'Book a lab test',
-            description: 'Find laboratories for the tests or procedures your doctor requested.',
+            description: 'Find laboratories near you',
             icon: FlaskConical,
           },
           {
             key: 'clinic',
             title: 'Add from another clinic',
-            description: 'Keep a prescription or test request from outside NairaClinic.',
+            description: 'Keep a record from outside NairaClinic',
             icon: FileClock,
           },
         ]}

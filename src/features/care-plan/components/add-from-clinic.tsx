@@ -29,13 +29,13 @@ export function AddFromClinicSheet({ open, onClose, onPick }: AddFromClinicSheet
         {
           key: 'test',
           title: 'Lab test / procedure request',
-          description: 'Add lab tests or procedures requested outside NairaClinic.',
+          description: 'Tests requested outside NairaClinic',
           icon: FlaskConical,
         },
         {
           key: 'medication',
           title: 'Prescription · Medicines',
-          description: 'Add medicines prescribed outside NairaClinic.',
+          description: 'Medicines prescribed outside NairaClinic',
           icon: Pill,
         },
       ]}

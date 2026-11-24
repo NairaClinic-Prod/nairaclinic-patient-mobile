@@ -1,10 +1,9 @@
-import { CheckBox } from '@/components/shared/check-box';
 import { PressableScale } from '@/components/shared/pressable-scale';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import { Building2, House, Store, Truck, type LucideIcon } from 'lucide-react-native';
-import { Linking, View } from 'react-native';
+import { View } from 'react-native';
 import { AddressField } from '../components/address-field';
 import { LocationMap } from '../components/location-map';
 import type { Collection, LocationDraft, OrderKind } from '../types';
@@ -63,22 +62,18 @@ type WhereStepProps = {
   kind: OrderKind;
   collection: Collection;
   location: LocationDraft;
-  consent: boolean;
   problem: string | null;
   onCollection: (value: Collection) => void;
   onLocation: (next: LocationDraft) => void;
-  onConsent: (next: boolean) => void;
 };
 
 export function WhereStep({
   kind,
   collection,
   location,
-  consent,
   problem,
   onCollection,
   onLocation,
-  onConsent,
 }: WhereStepProps) {
   const withStreet = collection === 'delivery' || collection === 'home';
   const [first, second] = OPTIONS[kind];
@@ -109,26 +104,6 @@ export function WhereStep({
       />
 
       {withStreet ? <LocationMap value={location} onChange={onLocation} /> : null}
-
-      {lab ? null : (
-        <PressableScale
-          scaleTo={0.99}
-          role="checkbox"
-          accessibilityState={{ checked: consent }}
-          onPress={() => onConsent(!consent)}
-          className="flex-row items-start gap-3">
-          <CheckBox checked={consent} />
-          <Text className="text-muted-foreground flex-1 text-[13px] leading-5">
-            {'I agree to the '}
-            <Text
-              className="text-primary text-[13px] font-semibold"
-              onPress={() => Linking.openURL('https://nairaclinic.com/terms')}>
-              terms and conditions
-            </Text>
-            .
-          </Text>
-        </PressableScale>
-      )}
 
       {problem ? <Text className="text-destructive text-[13px]">{problem}</Text> : null}
     </View>

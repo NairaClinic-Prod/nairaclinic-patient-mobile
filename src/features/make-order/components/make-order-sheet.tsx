@@ -1,4 +1,6 @@
 import { ActionButton } from '@/components/shared/action-button';
+import { CheckBox } from '@/components/shared/check-box';
+import { PressableScale } from '@/components/shared/pressable-scale';
 import { Sheet } from '@/components/shared/sheet';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
@@ -7,7 +9,7 @@ import { useCarePlan } from '@/features/care-plan/store';
 import { formatNaira } from '@/features/orders/utils';
 import * as Haptics from 'expo-haptics';
 import * as React from 'react';
-import { View } from 'react-native';
+import { Linking, View } from 'react-native';
 import { isLocationComplete } from '../location';
 import { combine, findLabs, findPharmacies, labSources, medicationSources } from '../search';
 import { closeMakeOrder, useMakeOrderRequest } from '../store';
@@ -77,6 +79,8 @@ function headingFor(kind: OrderKind | null, stage: Stage) {
   return { eyebrow: 'Lab tests', title: 'Who can do your tests?', text: undefined };
 }
 
+const TERMS_URL = 'https://nairaclinic.com/terms';
+
 const newReference = () => `RQ-${Math.random().toString(36).slice(2, 10).toUpperCase()}`;
 
 export function MakeOrderSheet() {
@@ -126,6 +130,14 @@ export function MakeOrderSheet() {
   }, []);
 
   React.useEffect(() => {
+    if (request.open) return;
+    setStage('type');
+    setKind(null);
+    setSourceId(null);
+    setLeaving(false);
+  }, [request.open]);
+
+  React.useEffect(() => {
     if (!request.open) return;
     setStage('type');
     setKind(null);
@@ -173,7 +185,7 @@ export function MakeOrderSheet() {
               : 'Your location',
         ]
       : []),
-    ...(!lab && !consent ? ['Your consent'] : []),
+    ...(!consent ? ['Your consent'] : []),
   ];
 
   // The small chooser slides away first, then the full-height sheet opens.
@@ -275,6 +287,23 @@ export function MakeOrderSheet() {
   } else if (stage === 'where') {
     footer = (
       <View className="gap-3">
+        <PressableScale
+          scaleTo={0.99}
+          role="checkbox"
+          accessibilityState={{ checked: consent }}
+          onPress={() => setConsent((current) => !current)}
+          className="flex-row items-center gap-3">
+          <CheckBox checked={consent} />
+          <Text className="text-muted-foreground flex-1 text-[13px] leading-5">
+            {'I agree to the '}
+            <Text
+              className="text-primary text-[13px] font-semibold"
+              onPress={() => Linking.openURL(TERMS_URL)}>
+              terms and conditions
+            </Text>
+            .
+          </Text>
+        </PressableScale>
         {missing.length ? (
           <Text className="text-muted-foreground text-xs">{`Still needed: ${missing.join(', ')}.`}</Text>
         ) : null}
@@ -391,14 +420,18 @@ export function MakeOrderSheet() {
     );
   }
 
-  const choosing = request.open && stage === 'type' && !leaving;
+  const choosing = request.open && stage === 'type' && !leaving && !request.kind;
+
+  // The sheet keeps the close handler it was opened with, so it must read the current state through a ref.
+  const choosingNow = React.useRef(choosing);
+  choosingNow.current = choosing;
 
   return (
     <>
       <Sheet
         open={choosing}
         onClose={() => {
-          if (choosing) closeMakeOrder();
+          if (choosingNow.current) closeMakeOrder();
         }}
         showClose
         eyebrow={headingFor(null, 'type').eyebrow}
@@ -434,14 +467,12 @@ export function MakeOrderSheet() {
             kind={kind}
             collection={collection}
             location={location}
-            consent={consent}
             problem={problem}
             onCollection={setCollection}
             onLocation={(next) => {
               setProblem(null);
               setLocation(next);
             }}
-            onConsent={setConsent}
           />
         ) : null}
 

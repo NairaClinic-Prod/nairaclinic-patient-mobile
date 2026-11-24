@@ -28,20 +28,30 @@ export function BottomSheet({ open, onClose, snapPoints, children }: BottomSheet
   const ref = React.useRef<BottomSheetModal>(null);
 
   const presented = React.useRef(false);
+  const closedByCode = React.useRef(false);
+  const latestOnClose = React.useRef(onClose);
+  latestOnClose.current = onClose;
 
   React.useEffect(() => {
     if (open && !presented.current) {
       presented.current = true;
+      closedByCode.current = false;
       ref.current?.present();
     } else if (!open && presented.current) {
       presented.current = false;
+      closedByCode.current = true;
       ref.current?.dismiss();
     }
   }, [open]);
 
+  // onClose is for the user closing the sheet (swipe or backdrop). When the parent closes it, the parent already knows.
   function handleDismiss() {
     presented.current = false;
-    onClose();
+    if (closedByCode.current) {
+      closedByCode.current = false;
+      return;
+    }
+    latestOnClose.current();
   }
 
   const backdrop = React.useCallback(
