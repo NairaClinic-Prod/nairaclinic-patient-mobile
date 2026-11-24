@@ -68,7 +68,7 @@ export function ForgotPinScreen() {
     validationSchema: step === 'done' ? undefined : forgotPinSchemas[step],
     onSubmit: async (_values, helpers) => {
       if (step === 'done') {
-        router.replace('/login');
+        router.replace('/auth/login');
         return;
       }
       if (step === 'phone') setStep('code');
@@ -114,7 +114,7 @@ export function ForgotPinScreen() {
       }
       footerText="Remembered your PIN?"
       footerAction="Log In"
-      onFooterPress={() => router.replace('/login')}>
+      onFooterPress={() => router.replace('/auth/login')}>
       <Stack.Screen options={SCREEN_OPTIONS} />
 
       {step === 'phone' ? (

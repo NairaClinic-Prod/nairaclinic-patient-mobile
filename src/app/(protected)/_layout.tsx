@@ -1,9 +1,5 @@
-import { Stack } from "expo-router";
+import { Stack } from 'expo-router';
 
-export function RootLayout() {
-    return(
-        <Stack screenOptions={{
-            headerShown: false
-        }}/>
-    )
+export default function ProtectedLayout() {
+  return <Stack screenOptions={{ headerShown: false }} />;
 }

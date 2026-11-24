@@ -1,0 +1,92 @@
+import type { ReminderGroup } from './types';
+import { addDays, todayKey } from './utils';
+
+const today = todayKey();
+
+export const DUMMY_REMINDERS: ReminderGroup[] = [
+  {
+    id: 'rem-1',
+    paused: false,
+    meta: {
+      kind: 'medication',
+      title: 'Amoxicillin',
+      dose: '500mg',
+      frequency: 'Three times a day',
+      sourceLine: 'Dr. Adebayo Okonkwo',
+      times: ['08:00', '14:00', '20:00'],
+      repeat: 'daily',
+      weekdays: [],
+      startDate: addDays(today, -2),
+      endDate: addDays(today, 4),
+      note: '',
+    },
+  },
+  {
+    id: 'rem-2',
+    paused: false,
+    meta: {
+      kind: 'lab',
+      title: 'Malaria parasite test',
+      dose: '',
+      frequency: '',
+      sourceLine: 'Dr. Ngozi Eze',
+      times: ['09:00'],
+      repeat: 'once',
+      weekdays: [],
+      startDate: addDays(today, 2),
+      endDate: addDays(today, 2),
+      note: '',
+    },
+  },
+  {
+    id: 'rem-3',
+    paused: false,
+    meta: {
+      kind: 'general',
+      title: 'Drink water',
+      dose: '',
+      frequency: '',
+      sourceLine: 'Personal reminder',
+      times: ['10:00', '15:00'],
+      repeat: 'daily',
+      weekdays: [],
+      startDate: today,
+      endDate: addDays(today, 30),
+      note: 'Aim for a full glass each time.',
+    },
+  },
+  {
+    id: 'rem-4',
+    paused: true,
+    meta: {
+      kind: 'medication',
+      title: 'Vitamin D',
+      dose: '1000 IU',
+      frequency: 'Once a day',
+      sourceLine: 'External prescription',
+      times: ['07:30'],
+      repeat: 'daily',
+      weekdays: [],
+      startDate: addDays(today, -5),
+      endDate: addDays(today, 20),
+      note: '',
+    },
+  },
+  {
+    id: 'rem-5',
+    paused: false,
+    meta: {
+      kind: 'medication',
+      title: 'Ibuprofen',
+      dose: '400mg',
+      frequency: 'Twice a day',
+      sourceLine: 'Dr. Ibrahim Musa',
+      times: ['08:00', '20:00'],
+      repeat: 'daily',
+      weekdays: [],
+      startDate: addDays(today, -10),
+      endDate: addDays(today, -4),
+      note: '',
+    },
+  },
+];

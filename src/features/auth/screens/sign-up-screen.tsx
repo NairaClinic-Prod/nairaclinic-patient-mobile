@@ -119,7 +119,7 @@ export function SignUpScreen() {
       }
       footerText="Already have an account?"
       footerAction="Log In"
-      onFooterPress={() => router.replace('/login')}>
+      onFooterPress={() => router.replace('/auth/login')}>
       <Stack.Screen options={SCREEN_OPTIONS} />
 
       {step === 'phone' ? (

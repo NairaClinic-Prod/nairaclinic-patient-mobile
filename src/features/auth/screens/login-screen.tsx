@@ -31,18 +31,23 @@ export function LoginScreen() {
   });
   const error = (name: 'phone' | 'pin') => (formik.touched[name] ? formik.errors[name] : undefined);
 
+  const handleSubmit = () => {
+    formik.handleSubmit();
+    router.replace('/home');
+  }
+
   return (
     <AuthLayout
       title="Welcome back"
       subtitle="Log in with your phone number and PIN to continue."
       actions={
-        <Button size="lg" loading={formik.isSubmitting} onPress={() => formik.handleSubmit()}>
+        <Button size="lg" loading={formik.isSubmitting} onPress={handleSubmit}>
           <Text className="text-base">Log In</Text>
         </Button>
       }
       footerText="Don't have an account?"
       footerAction="Sign up"
-      onFooterPress={() => router.replace('/sign-up')}>
+      onFooterPress={() => router.replace('/auth/sign-up')}>
       <Stack.Screen options={SCREEN_OPTIONS} />
       <PhoneField
         countryCode={formik.values.countryCode}
@@ -78,7 +83,7 @@ export function LoginScreen() {
           variant="link"
           size="sm"
           className="px-0"
-          onPress={() => router.push('/forgot-pin')}>
+          onPress={() => router.push('/auth/forgot-pin')}>
           <Text className="text-[14px] font-bold">Forgot PIN?</Text>
         </Button>
       </View>

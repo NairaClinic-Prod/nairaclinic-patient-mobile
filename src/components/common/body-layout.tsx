@@ -8,6 +8,7 @@ type BodyLayoutProps = {
   inset?: boolean;
   padding?: boolean;
   scrollView?: boolean;
+  tabBar?: boolean;
   className?: string;
   children?: React.ReactNode;
 };
@@ -16,14 +17,15 @@ export function BodyLayout({
   inset = true,
   padding = true,
   scrollView = false,
+  tabBar = false,
   className,
   children,
 }: BodyLayoutProps) {
-  const { top, bottom } = useScreenInsets();
+  const { top, bottom, tabBar: tabBarSpace } = useScreenInsets();
 
   const spacing = {
     paddingTop: inset ? top : 0,
-    paddingBottom: inset ? bottom : 0,
+    paddingBottom: tabBar ? tabBarSpace : inset ? bottom : 0,
     paddingHorizontal: padding ? SCREEN_PADDING_X : 0,
   };
 
