@@ -1,0 +1,129 @@
+import { CheckBox } from '@/components/shared/check-box';
+import { PressableScale } from '@/components/shared/pressable-scale';
+import { Stepper } from '@/components/shared/stepper';
+import { Icon } from '@/components/ui/icon';
+import { Text } from '@/components/ui/text';
+import { cn } from '@/lib/utils';
+import { Lock } from 'lucide-react-native';
+import { View } from 'react-native';
+import type { OrderKind, OrderSource } from '../types';
+
+type PickStepProps = {
+  kind: OrderKind;
+  sources: OrderSource[];
+  source: OrderSource | null;
+  picked: Record<string, number>;
+  onPickSource: (source: OrderSource) => void;
+  onPacks: (name: string, packs: number) => void;
+};
+
+const COPY = {
+  medication: {
+    list: 'Your prescriptions',
+    empty: 'No prescriptions to order from yet. Add one from another clinic first.',
+    note: 'No catalogue prices or payment at this stage. Each pharmacy checks availability and prices for this request.',
+  },
+  lab: {
+    list: 'Your test orders',
+    empty: 'No test orders from your doctor yet. Add one from another clinic first.',
+    note: 'No payment yet. You choose a laboratory first, then pay to confirm.',
+  },
+} as const;
+
+export function PickStep({ kind, sources, source, picked, onPickSource, onPacks }: PickStepProps) {
+  const copy = COPY[kind];
+
+  if (!source) {
+    return (
+      <View className="gap-3">
+        <Text className="text-base font-extrabold">{copy.list}</Text>
+        {sources.length ? (
+          sources.map((entry) => (
+            <PressableScale
+              key={entry.id}
+              scaleTo={0.985}
+              role="button"
+              onPress={() => onPickSource(entry)}
+              className="bg-card border-border gap-1.5 rounded-2xl border p-4">
+              <View className="flex-row items-start gap-3">
+                <Text className="min-w-0 flex-1 text-[15px] leading-5 font-bold">
+                  {entry.title}
+                </Text>
+                {entry.external ? (
+                  <View className="bg-warning-soft rounded-full px-2.5 py-1">
+                    <Text className="text-warning text-[11px] font-bold">Added by you</Text>
+                  </View>
+                ) : null}
+              </View>
+              <Text className="text-muted-foreground text-xs leading-4.5">{entry.meta}</Text>
+              <Text className="text-[13px] leading-5 font-medium">
+                {entry.items.map((item) => item.name).join(', ')}
+              </Text>
+            </PressableScale>
+          ))
+        ) : (
+          <View className="border-border rounded-2xl border border-dashed px-4 py-6">
+            <Text className="text-muted-foreground text-center text-[13px] leading-5">
+              {copy.empty}
+            </Text>
+          </View>
+        )}
+      </View>
+    );
+  }
+
+  return (
+    <View className="gap-5">
+      <View>
+        {source.items.map((item, index) => {
+          const packs = picked[item.name] ?? 0;
+          const on = packs > 0;
+          return (
+            <View
+              key={item.name}
+              className={cn(
+                'flex-row items-center gap-3 py-3.5',
+                index > 0 && 'border-border border-t'
+              )}>
+              <PressableScale
+                scaleTo={0.98}
+                role="checkbox"
+                accessibilityState={{ checked: on }}
+                accessibilityLabel={item.name}
+                onPress={() => onPacks(item.name, on ? 0 : 1)}
+                className="min-w-0 flex-1 flex-row items-start gap-3">
+                <CheckBox checked={on} />
+                <View className="min-w-0 flex-1">
+                  <Text
+                    className={cn(
+                      'text-[15px] leading-5 font-semibold',
+                      !on && 'text-muted-foreground'
+                    )}>
+                    {item.name}
+                  </Text>
+                  {item.detail ? (
+                    <Text className="text-muted-foreground mt-0.5 text-xs leading-4.5">
+                      {item.detail}
+                    </Text>
+                  ) : null}
+                </View>
+              </PressableScale>
+              {kind === 'medication' ? (
+                <Stepper
+                  label={`packs of ${item.name}`}
+                  value={Math.max(1, packs)}
+                  disabled={!on}
+                  onChange={(next) => onPacks(item.name, next)}
+                />
+              ) : null}
+            </View>
+          );
+        })}
+      </View>
+      <View className="bg-secondary/50 border-primary/15 flex-row items-start gap-3 rounded-2xl border p-3.5">
+        <Icon as={Lock} className="text-muted-foreground mt-0.5 size-4" />
+        <Text className="text-muted-foreground flex-1 text-[13px] leading-5">{copy.note}</Text>
+      </View>
+    </View>
+  );
+}

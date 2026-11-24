@@ -1,3 +1,4 @@
+import { openMakeOrder } from '@/features/make-order/store';
 import { ActionButton } from '@/components/shared/action-button';
 import { StatusPill } from '@/components/shared/status-pill';
 import { Text } from '@/components/ui/text';
@@ -59,7 +60,15 @@ export function MedicationRow({ med, handlers, compact = false, extra }: Medicat
           <ActionButton
             label="Order"
             icon={ShoppingBag}
-            onPress={() => handlers?.onOrder?.([med])}
+            onPress={() =>
+              handlers?.onOrder
+                ? handlers.onOrder([med])
+                : openMakeOrder({
+                    kind: 'medication',
+                    sourceId: med.encounterId,
+                    names: [[med.name, med.strength].filter(Boolean).join(' ')],
+                  })
+            }
           />
         ) : null}
         <ActionButton

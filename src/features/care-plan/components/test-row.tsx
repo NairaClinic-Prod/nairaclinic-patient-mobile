@@ -1,3 +1,4 @@
+import { openMakeOrder } from '@/features/make-order/store';
 import { ActionButton } from '@/components/shared/action-button';
 import { StatusPill } from '@/components/shared/status-pill';
 import { Text } from '@/components/ui/text';
@@ -46,7 +47,11 @@ export function TestRow({ test, handlers, compact = false, extra }: TestRowProps
               <ActionButton
                 label="Order"
                 icon={ShoppingBag}
-                onPress={() => handlers?.onOrder?.(test)}
+                onPress={() =>
+                  handlers?.onOrder
+                    ? handlers.onOrder(test)
+                    : openMakeOrder({ kind: 'lab', sourceId: test.encounterId, names: [test.name] })
+                }
               />
               <ActionButton
                 label="Upload result"

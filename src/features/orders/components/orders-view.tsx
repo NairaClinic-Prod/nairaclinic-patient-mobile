@@ -8,7 +8,8 @@ import {
   AddFromClinicSheet,
   type ClinicRecordKind,
 } from '@/features/care-plan/components/add-from-clinic';
-import { FileClock, Pill, ShoppingBag } from 'lucide-react-native';
+import { FileClock, FlaskConical, Pill } from 'lucide-react-native';
+import { openMakeOrder } from '@/features/make-order/store';
 import { ITEM_ENTER } from '@/lib/motion';
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
@@ -26,12 +27,11 @@ import { OffersSheet } from './offers-sheet';
 const OPEN_ITEM = ['open', 'available', 'pending'];
 
 type OrdersViewProps = {
-  onMakeOrder?: () => void;
   onAddExternal?: (kind: ClinicRecordKind) => void;
   onBookLab?: () => void;
 };
 
-export function OrdersView({ onMakeOrder, onAddExternal, onBookLab }: OrdersViewProps) {
+export function OrdersView({ onAddExternal, onBookLab }: OrdersViewProps) {
   const data = useOrdersData();
   const [view, setView] = React.useState<OrderView>('requests');
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
@@ -137,7 +137,7 @@ export function OrdersView({ onMakeOrder, onAddExternal, onBookLab }: OrdersView
               text={EMPTY[view].description}
               action={
                 view === 'requests' ? (
-                  <ActionButton size="md" label="Make an order" onPress={onMakeOrder} />
+                  <ActionButton size="md" label="Make an order" onPress={() => openMakeOrder()} />
                 ) : undefined
               }
             />
@@ -149,17 +149,23 @@ export function OrdersView({ onMakeOrder, onAddExternal, onBookLab }: OrdersView
 
       <LabBookingsSection bookings={data.labBookings} onViewAll={onBookLab} />
 
-      <ChoiceSheet<'order' | 'clinic'>
+      <ChoiceSheet<'medication' | 'lab' | 'clinic'>
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
-        title="Your medicines"
+        title="Your medicines and tests"
         subtitle="What would you like to do?"
         choices={[
           {
-            key: 'order',
-            title: 'Make an order',
-            description: 'Ask nearby pharmacies for prices and compare their offers.',
-            icon: ShoppingBag,
+            key: 'medication',
+            title: 'Order medicines',
+            description: 'Compare pharmacy prices for the medicines on a prescription.',
+            icon: Pill,
+          },
+          {
+            key: 'lab',
+            title: 'Book a lab test',
+            description: 'Find laboratories for the tests or procedures your doctor requested.',
+            icon: FlaskConical,
           },
           {
             key: 'clinic',
@@ -169,8 +175,8 @@ export function OrdersView({ onMakeOrder, onAddExternal, onBookLab }: OrdersView
           },
         ]}
         onPick={(key) => {
-          if (key === 'order') onMakeOrder?.();
-          else setTimeout(() => setClinicOpen(true), 300);
+          if (key === 'clinic') setTimeout(() => setClinicOpen(true), 300);
+          else setTimeout(() => openMakeOrder({ kind: key }), 300);
         }}
       />
       <AddFromClinicSheet

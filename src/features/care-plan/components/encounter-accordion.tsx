@@ -1,3 +1,4 @@
+import { openMakeOrder } from '@/features/make-order/store';
 import { ActionButton } from '@/components/shared/action-button';
 import { StatusPill } from '@/components/shared/status-pill';
 import { Icon } from '@/components/ui/icon';
@@ -32,7 +33,13 @@ import { MedicationRow, type MedicationHandlers } from './medication-row';
 import { SectionCard } from './section-card';
 import { TestRow, type TestHandlers } from './test-row';
 
-const TURN = { damping: 30, stiffness: 260, mass: 0.7, overshootClamping: true, reduceMotion: ReduceMotion.System };
+const TURN = {
+  damping: 30,
+  stiffness: 260,
+  mass: 0.7,
+  overshootClamping: true,
+  reduceMotion: ReduceMotion.System,
+};
 
 function Chevron({ expanded }: { expanded: boolean }) {
   const turn = useSharedValue(expanded ? 1 : 0);
@@ -169,7 +176,17 @@ export function EncounterAccordion({
                           label="Order medicines"
                           icon={ShoppingBag}
                           disabled={!orderable.length}
-                          onPress={() => handlers?.onOrder?.(orderable)}
+                          onPress={() =>
+                            handlers?.onOrder
+                              ? handlers.onOrder(orderable)
+                              : openMakeOrder({
+                                  kind: 'medication',
+                                  sourceId: encounter.id,
+                                  names: orderable.map((med) =>
+                                    [med.name, med.strength].filter(Boolean).join(' ')
+                                  ),
+                                })
+                          }
                         />
                         <ActionButton
                           label="Prescription"
@@ -200,7 +217,11 @@ export function EncounterAccordion({
                         <ActionButton
                           label="Order tests"
                           icon={ShoppingBag}
-                          onPress={() => handlers?.onOrderTests?.(encounter)}
+                          onPress={() =>
+                            handlers?.onOrderTests
+                              ? handlers.onOrderTests(encounter)
+                              : openMakeOrder({ kind: 'lab', sourceId: encounter.id })
+                          }
                         />
                         <ActionButton
                           label="Download test form"

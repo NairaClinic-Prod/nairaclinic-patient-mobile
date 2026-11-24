@@ -1,5 +1,6 @@
 import { FadeIn } from '@/components/shared/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
+import { openMakeOrder } from '@/features/make-order/store';
 import { router } from 'expo-router';
 import { AppointmentsSection } from '../components/appointments-section';
 import { CareTeamStrip } from '../components/care-team-strip';
@@ -22,7 +23,7 @@ export function HomeScreen() {
       <FadeIn index={1}>
         <QuickActions
           onRecords={() => router.navigate('/records')}
-          onOrder={() => router.navigate('/orders')}
+          onOrder={() => openMakeOrder()}
         />
       </FadeIn>
       <FadeIn index={2}>
