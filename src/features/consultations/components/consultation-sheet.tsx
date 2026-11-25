@@ -20,7 +20,7 @@ import {
   longDay,
 } from '@/features/booking/utils';
 import { drName } from '@/features/home/utils';
-import { SITE_URL } from '@/lib/env';
+import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { CalendarClock, MapPin, Video } from 'lucide-react-native';
 import * as React from 'react';
@@ -195,11 +195,10 @@ export function ConsultationSheet() {
             label={window === 'open' ? 'Join consultation' : 'Join opens 5 minutes before'}
             icon={Video}
             disabled={window !== 'open'}
-            onPress={() =>
-              Linking.openURL(
-                `${SITE_URL}/patients/call?consultationId=${encodeURIComponent(consultation.id)}`
-              )
-            }
+            onPress={() => {
+              closeConsultation();
+              router.push(`/call/${encodeURIComponent(consultation.id)}`);
+            }}
           />
         ) : null}
         {scheduled && info?.eligible ? (

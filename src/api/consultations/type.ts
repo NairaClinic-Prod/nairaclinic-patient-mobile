@@ -15,6 +15,12 @@ export type ConsultationDetail = {
     metaJson?: {
       source?: { kind?: string } | null;
       latestRescheduleReason?: string | null;
+      presence?: {
+        doctorJoinedAtUtc?: string | null;
+        doctorLeftAtUtc?: string | null;
+        doctorLastJoinedAtUtc?: string | null;
+        doctorLastLeftAtUtc?: string | null;
+      } | null;
     } | null;
   };
   doctor: {

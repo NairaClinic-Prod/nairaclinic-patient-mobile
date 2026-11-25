@@ -21,8 +21,18 @@ export default function ProtectedLayout() {
           freezeOnBlur: true,
           gestureEnabled: true,
           fullScreenGestureEnabled: true,
-        }}
-      />
+        }}>
+        <Stack.Screen
+          name="call/[id]"
+          options={{
+            presentation: 'fullScreenModal',
+            animation: 'fade',
+            gestureEnabled: false,
+            fullScreenGestureEnabled: false,
+            freezeOnBlur: false,
+          }}
+        />
+      </Stack>
       <MakeOrderSheet />
       <ExternalRecordSheet />
       <ConsultationSheet />
