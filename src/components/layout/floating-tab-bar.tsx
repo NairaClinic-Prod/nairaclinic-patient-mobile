@@ -3,7 +3,7 @@ import { useColor } from '@/hooks/use-color';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import * as Haptics from 'expo-haptics';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
-import { AlarmClock, FileHeart, House, Settings2, ShoppingBag } from 'lucide-react-native';
+import { FileHeart, FlaskConical, House, Settings2, ShoppingBag } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import * as React from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
@@ -14,7 +14,7 @@ const TABS: Record<string, { label: string; icon: LucideIcon }> = {
   home: { label: 'Home', icon: House },
   records: { label: 'Health records', icon: FileHeart },
   orders: { label: 'To-do and orders', icon: ShoppingBag },
-  reminders: { label: 'Reminders', icon: AlarmClock },
+  lab: { label: 'Lab tests', icon: FlaskConical },
   profile: { label: 'Profile', icon: Settings2 },
 };
 

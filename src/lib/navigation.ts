@@ -1,6 +1,6 @@
 import { router, type Href } from 'expo-router';
 
-const MAIN_PATHS = ['/home', '/records', '/orders', '/reminders', '/profile'] as const;
+const MAIN_PATHS = ['/home', '/records', '/orders', '/lab', '/profile'] as const;
 export type MainPath = (typeof MAIN_PATHS)[number];
 
 export const isMainPath = (path: string): path is MainPath =>

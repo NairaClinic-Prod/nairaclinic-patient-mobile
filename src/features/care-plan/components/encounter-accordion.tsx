@@ -85,7 +85,7 @@ export function EncounterAccordion({
   handlers,
 }: EncounterAccordionProps) {
   return (
-    <View className="gap-3">
+    <View className="gap-4">
       {encounters.map((encounter) => {
         const expanded = open === encounter.id;
         const orderable = encounter.medications.filter(isOrderable);
@@ -93,12 +93,12 @@ export function EncounterAccordion({
           <Animated.View
             key={encounter.id}
             layout={LIST_LAYOUT}
-            className="overflow-hidden rounded-2xl bg-card">
+            className="overflow-hidden rounded-2xl border border-border bg-card">
             <Pressable
               role="button"
               accessibilityState={{ expanded }}
               onPress={() => onToggle(encounter.id)}
-              className="flex-row items-start gap-3 p-4 active:opacity-70">
+              className="flex-row items-start gap-3 p-5 active:opacity-70">
               <View className="min-w-0 flex-1 gap-2">
                 <View className="flex-row items-center justify-between gap-3">
                   <View className="min-w-0 flex-1 flex-col items-start gap-1.5">
@@ -124,7 +124,7 @@ export function EncounterAccordion({
                     </View>
 
                     {/* Doctor/clinic */}
-                    <View className="min-w-0 flex-1 flex-row items-center justify-end gap-1.5">
+                    <View className="min-w-0 flex-1 flex-row items-center gap-1.5">
                       <Icon as={UserRound} className="size-3.5 shrink-0 text-muted-foreground" />
                       <Text
                         className="shrink text-xs text-muted-foreground"
@@ -138,20 +138,18 @@ export function EncounterAccordion({
                   </View>
 
                   {/* Medications and tests */}
-                  <View className="w-full flex-row items-center justify-between">
+                  <View className="w-full flex-row items-center gap-3">
                     {encounter.medications.length > 0 ? (
-                      <View className="flex-row items-center gap-1.5">
+                      <View className="min-w-0 flex-1 flex-row items-center gap-1.5">
                         <Icon as={Pill} className="size-3.5 text-muted-foreground" />
                         <Text className="text-xs text-muted-foreground">
                           {plural(encounter.medications.length, 'medication')}
                         </Text>
                       </View>
-                    ) : (
-                      <View />
-                    )}
+                    ) : null}
 
                     {encounter.tests.length > 0 ? (
-                      <View className="flex-row items-center gap-1.5">
+                      <View className="min-w-0 flex-1 flex-row items-center gap-1.5">
                         <Icon as={FlaskConical} className="size-3.5 text-muted-foreground" />
                         <Text className="text-xs text-muted-foreground">
                           {plural(encounter.tests.length, 'test')}

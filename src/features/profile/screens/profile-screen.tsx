@@ -8,8 +8,8 @@ import { Text } from '@/components/ui/text';
 import { router, type Href } from 'expo-router';
 import {
   Bell,
+  AlarmClock,
   CreditCard,
-  FlaskConical,
   Gift,
   HeartHandshake,
   IdCard,
@@ -126,11 +126,11 @@ export function ProfileScreen() {
           <MenuList
             items={[
               {
-                key: 'lab-tests',
-                title: 'Lab tests',
-                text: 'Bookings, results and price requests',
-                icon: FlaskConical,
-                onPress: () => open('/lab-tests'),
+                key: 'reminders',
+                title: 'Reminders',
+                text: 'Medicine, test and care reminders',
+                icon: AlarmClock,
+                onPress: () => open('/reminders'),
               },
               {
                 key: 'membership',

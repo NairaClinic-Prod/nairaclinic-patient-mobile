@@ -9,7 +9,7 @@ export default function EntryLayout() {
       <Tabs.Screen name="home" />
       <Tabs.Screen name="records" />
       <Tabs.Screen name="orders" />
-      <Tabs.Screen name="reminders" />
+      <Tabs.Screen name="lab" />
       <Tabs.Screen name="profile" />
     </Tabs>
   );

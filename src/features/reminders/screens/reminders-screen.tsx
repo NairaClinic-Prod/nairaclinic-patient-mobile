@@ -1,6 +1,5 @@
 import { FadeIn } from '@/components/shared/fade-in';
-import { BodyLayout } from '@/components/common/body-layout';
-import TabHeader from '@/components/common/header';
+import { SubScreen } from '@/components/shared/sub-screen';
 import { AddButton } from '@/components/shared/add-button';
 import { SegmentedControl } from '@/components/shared/segmented-control';
 import { Button } from '@/components/ui/button';
@@ -68,103 +67,102 @@ export function RemindersScreen() {
   const addReminder = () => openEditor({ draft: blankDraft() });
 
   return (
-    <BodyLayout scrollView tabBar className="gap-3">
-      <TabHeader
-        title="Reminders"
-        subtitle={active.length === 1 ? '1 active reminder' : `${active.length} active reminders`}
-        right={<AddButton label="Add reminder" onPress={addReminder} />}
-      />
+    <SubScreen
+      title="Reminders"
+      description={active.length === 1 ? '1 active reminder' : `${active.length} active reminders`}
+      right={<AddButton label="Add reminder" onPress={addReminder} />}>
+      <View className="gap-3">
+        {next ? (
+          <FadeIn index={0}>
+            <NextUpCard
+              when={formatNext(next.at)}
+              title={next.group.meta.title}
+              detail={next.group.meta.dose}
+            />
+          </FadeIn>
+        ) : null}
 
-      {next ? (
-        <FadeIn index={0}>
-          <NextUpCard
-            when={formatNext(next.at)}
-            title={next.group.meta.title}
-            detail={next.group.meta.dose}
+        <CalendarRow connected={calendar.connected} onPress={() => setCalendarOpen(true)} />
+
+        <FadeIn index={1}>
+          <SegmentedControl
+            value={filter}
+            onChange={setFilter}
+            options={[
+              { value: 'active', label: 'Active', count: active.length },
+              { value: 'inactive', label: 'Paused or ended', count: inactive.length },
+            ]}
           />
         </FadeIn>
-      ) : null}
 
-      <CalendarRow connected={calendar.connected} onPress={() => setCalendarOpen(true)} />
-
-      <FadeIn index={1}>
-        <SegmentedControl
-          value={filter}
-          onChange={setFilter}
-          options={[
-            { value: 'active', label: 'Active', count: active.length },
-            { value: 'inactive', label: 'Paused or ended', count: inactive.length },
-          ]}
-        />
-      </FadeIn>
-
-      {groups.length >= SEARCH_FROM ? (
-        <View className="justify-center">
-          <Input
-            aria-label="Search your reminders"
-            placeholder="Search reminders"
-            value={query}
-            onChangeText={setQuery}
-            returnKeyType="search"
-            style={{ height: 40, fontSize: 14 }}
-            className="rounded-full bg-card pl-10"
-          />
-          <View className="absolute left-3.5" pointerEvents="none">
-            <Icon as={Search} className="size-4 text-muted-foreground" />
-          </View>
-        </View>
-      ) : null}
-
-      <FadeIn index={2} className="overflow-hidden rounded-2xl bg-card">
-        {shown.length ? (
-          shown.map(({ group, state }, index) => (
-            <ReminderRow
-              key={group.id}
-              group={group}
-              state={state}
-              last={index === shown.length - 1}
-              onToggle={() => toggle(group.id)}
-              onOpen={() => openEditor({ draft: group.meta, id: group.id })}
+        {groups.length >= SEARCH_FROM ? (
+          <View className="justify-center">
+            <Input
+              aria-label="Search your reminders"
+              placeholder="Search reminders"
+              value={query}
+              onChangeText={setQuery}
+              returnKeyType="search"
+              style={{ height: 40, fontSize: 14 }}
+              className="rounded-full bg-card pl-10"
             />
-          ))
-        ) : (
-          <View className="items-center gap-2.5 px-6 py-8">
-            <View className="size-10 items-center justify-center rounded-full bg-secondary">
-              <Icon as={CalendarClock} className="size-4 text-primary" />
+            <View className="absolute left-3.5" pointerEvents="none">
+              <Icon as={Search} className="size-4 text-muted-foreground" />
             </View>
-            <Text className="text-center text-xs text-muted-foreground">
-              {query
-                ? 'No reminders match your search.'
-                : filter === 'active'
-                  ? 'No reminders yet. Add one for a medicine, a test or your own routine.'
-                  : 'Paused and finished reminders will show up here.'}
-            </Text>
-            {!query && filter === 'active' ? (
-              <Button size="sm" variant="default" className="rounded-xl" onPress={addReminder}>
-                <Icon as={Plus} className="size-3.5 text-primary-foreground" />
-                <Text className="text-xs">Add reminder</Text>
-              </Button>
-            ) : null}
           </View>
-        )}
-      </FadeIn>
+        ) : null}
 
-      <ReminderFormSheet
-        open={sheetOpen}
-        draft={editing?.draft ?? fallbackDraft}
-        editing={Boolean(editing?.id)}
-        onClose={() => setSheetOpen(false)}
-        onSave={(draft) => {
-          const failure = save(draft, editing?.id);
-          if (!failure) {
-            setTimeout(() => {
-              if (shouldAskNow()) setCalendarOpen(true);
-            }, 900);
-          }
-          return failure;
-        }}
-      />
-      <CalendarPromptSheet open={calendarOpen} onClose={() => setCalendarOpen(false)} />
-    </BodyLayout>
+        <FadeIn index={2} className="overflow-hidden rounded-2xl bg-card">
+          {shown.length ? (
+            shown.map(({ group, state }, index) => (
+              <ReminderRow
+                key={group.id}
+                group={group}
+                state={state}
+                last={index === shown.length - 1}
+                onToggle={() => toggle(group.id)}
+                onOpen={() => openEditor({ draft: group.meta, id: group.id })}
+              />
+            ))
+          ) : (
+            <View className="items-center gap-2.5 px-6 py-8">
+              <View className="size-10 items-center justify-center rounded-full bg-secondary">
+                <Icon as={CalendarClock} className="size-4 text-primary" />
+              </View>
+              <Text className="text-center text-xs text-muted-foreground">
+                {query
+                  ? 'No reminders match your search.'
+                  : filter === 'active'
+                    ? 'No reminders yet. Add one for a medicine, a test or your own routine.'
+                    : 'Paused and finished reminders will show up here.'}
+              </Text>
+              {!query && filter === 'active' ? (
+                <Button size="sm" variant="default" className="rounded-xl" onPress={addReminder}>
+                  <Icon as={Plus} className="size-3.5 text-primary-foreground" />
+                  <Text className="text-xs">Add reminder</Text>
+                </Button>
+              ) : null}
+            </View>
+          )}
+        </FadeIn>
+
+        <ReminderFormSheet
+          open={sheetOpen}
+          draft={editing?.draft ?? fallbackDraft}
+          editing={Boolean(editing?.id)}
+          onClose={() => setSheetOpen(false)}
+          onSave={(draft) => {
+            const failure = save(draft, editing?.id);
+            if (!failure) {
+              setTimeout(() => {
+                if (shouldAskNow()) setCalendarOpen(true);
+              }, 900);
+            }
+            return failure;
+          }}
+        />
+        <CalendarPromptSheet open={calendarOpen} onClose={() => setCalendarOpen(false)} />
+      </View>
+    </SubScreen>
   );
 }
