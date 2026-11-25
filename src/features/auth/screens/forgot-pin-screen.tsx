@@ -169,10 +169,10 @@ export function ForgotPinScreen() {
 
       {step === 'done' ? (
         <View className="items-center gap-4 py-8">
-          <View className="bg-success/10 size-24 items-center justify-center rounded-full">
-            <Icon as={CircleCheck} className="text-success size-12" />
+          <View className="size-24 items-center justify-center rounded-full bg-success/10">
+            <Icon as={CircleCheck} className="size-12 text-success" />
           </View>
-          <Text className="text-muted-foreground text-center text-base leading-6">
+          <Text className="text-center text-base leading-6 text-muted-foreground">
             You can now log in to {formattedPhone} with your new PIN.
           </Text>
         </View>

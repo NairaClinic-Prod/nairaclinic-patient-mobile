@@ -30,7 +30,7 @@ export function NotificationsView() {
             ios_backgroundColor={color.border}
             style={{ transform: [{ scale: 0.8 }] }}
           />
-          <Text className="text-muted-foreground text-[13px]">Unread only</Text>
+          <Text className="text-[13px] text-muted-foreground">Unread only</Text>
         </View>
         <ActionButton
           label="Mark all read"
@@ -41,7 +41,7 @@ export function NotificationsView() {
         />
       </View>
 
-      <View className="bg-card overflow-hidden rounded-2xl">
+      <View className="overflow-hidden rounded-2xl bg-card">
         {shown.length ? (
           shown.map((row, index) => (
             <PressableScale
@@ -54,7 +54,7 @@ export function NotificationsView() {
               }}
               className={cn(
                 'flex-row gap-3 px-4 py-3.5',
-                index > 0 && 'border-border border-t',
+                index > 0 && 'border-t border-border',
                 !row.isRead && 'bg-secondary/50'
               )}>
               <View
@@ -65,8 +65,8 @@ export function NotificationsView() {
               />
               <View className="min-w-0 flex-1 gap-0.5">
                 <Text className="text-[14px] leading-5 font-bold">{row.title}</Text>
-                <Text className="text-muted-foreground text-[13px] leading-5">{row.message}</Text>
-                <Text className="text-muted-foreground mt-0.5 text-xs">{`${formatWhen(row.createdAt)} · ${row.type}`}</Text>
+                <Text className="text-[13px] leading-5 text-muted-foreground">{row.message}</Text>
+                <Text className="mt-0.5 text-xs text-muted-foreground">{`${formatWhen(row.createdAt)} · ${row.type}`}</Text>
               </View>
             </PressableScale>
           ))

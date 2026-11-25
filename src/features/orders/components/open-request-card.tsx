@@ -35,12 +35,12 @@ export function OpenRequestCard({ request, onOpen, onCancel }: OpenRequestCardPr
         : 'Pharmacies confirm current prices and availability.';
 
   return (
-    <View className="bg-card gap-3 rounded-2xl p-4">
+    <View className="gap-3 rounded-2xl bg-card p-4">
       <View className="gap-1">
         <Text className="text-base leading-5.5 font-bold">
           {`${request.reference} · ${plural(left.length, 'medicine')}`}
         </Text>
-        <Text className="text-muted-foreground text-xs">
+        <Text className="text-xs text-muted-foreground">
           {`Requested ${formatWhen(request.createdAt)}`}
         </Text>
       </View>
@@ -61,11 +61,11 @@ export function OpenRequestCard({ request, onOpen, onCancel }: OpenRequestCardPr
             accessibilityState={{ expanded }}
             onPress={() => setExpanded((current) => !current)}
             className="flex-row items-center gap-1 self-start active:opacity-60">
-            <Text className="text-primary text-[13px] font-semibold">
+            <Text className="text-[13px] font-semibold text-primary">
               {expanded ? 'Show less' : `Show all ${names.length} medicines`}
             </Text>
             <View style={{ transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}>
-              <Icon as={ChevronDown} className="text-primary size-3.5" />
+              <Icon as={ChevronDown} className="size-3.5 text-primary" />
             </View>
           </Pressable>
         ) : null}
@@ -73,25 +73,25 @@ export function OpenRequestCard({ request, onOpen, onCancel }: OpenRequestCardPr
       <View className="flex-row items-center gap-x-4">
         {request.area ? (
           <View className="min-w-0 shrink flex-row items-center gap-1">
-            <Icon as={Building2} className="text-muted-foreground size-3.5" />
-            <Text className="text-muted-foreground shrink text-[11px]" numberOfLines={1}>
+            <Icon as={Building2} className="size-3.5 text-muted-foreground" />
+            <Text className="shrink text-[11px] text-muted-foreground" numberOfLines={1}>
               {request.area}
             </Text>
           </View>
         ) : null}
         <View className="flex-row items-center gap-1">
-          <Icon as={Package} className="text-muted-foreground size-3.5" />
-          <Text className="text-muted-foreground text-[11px]">
+          <Icon as={Package} className="size-3.5 text-muted-foreground" />
+          <Text className="text-[11px] text-muted-foreground">
             {request.fulfilment === 'delivery' ? 'Home delivery' : 'Pick up'}
           </Text>
         </View>
         <View className="flex-row items-center gap-1">
-          <Icon as={Lock} className="text-muted-foreground size-3.5" />
-          <Text className="text-muted-foreground text-[11px]">No payment yet</Text>
+          <Icon as={Lock} className="size-3.5 text-muted-foreground" />
+          <Text className="text-[11px] text-muted-foreground">No payment yet</Text>
         </View>
       </View>
-      <View className="border-border gap-3 border-t pt-3">
-        <Text className="text-primary text-[13px] leading-5">{note}</Text>
+      <View className="gap-3 border-t border-border pt-3">
+        <Text className="text-[13px] leading-5 text-primary">{note}</Text>
         {confirming ? (
           <View className="gap-2.5">
             <Text className="text-[13px] font-semibold">Cancel this whole request?</Text>

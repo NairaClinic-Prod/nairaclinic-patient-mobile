@@ -90,7 +90,7 @@ export function MedicationRow({ med, handlers, compact = false, extra }: Medicat
         <Text className="text-base leading-5.5 font-bold">
           {med.name}
           {med.strength ? (
-            <Text className="text-muted-foreground text-base font-normal">{` ${med.strength}`}</Text>
+            <Text className="text-base font-normal text-muted-foreground">{` ${med.strength}`}</Text>
           ) : null}
         </Text>
       </View>

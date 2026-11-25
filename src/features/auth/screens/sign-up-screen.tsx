@@ -157,9 +157,9 @@ export function SignUpScreen() {
 
       {step === 'details' ? (
         <>
-          <View className="bg-success/10 flex-row items-center gap-2 self-start rounded-full px-3 py-1.5">
-            <Icon as={Check} className="text-success size-4" />
-            <Text className="text-success text-[13px] font-semibold">
+          <View className="flex-row items-center gap-2 self-start rounded-full bg-success/10 px-3 py-1.5">
+            <Icon as={Check} className="size-4 text-success" />
+            <Text className="text-[13px] font-semibold text-success">
               {formattedPhone} verified
             </Text>
             <Button variant="link" size="sm" className="h-auto px-1 py-0" onPress={changeNumber}>
@@ -186,7 +186,7 @@ export function SignUpScreen() {
               {SEXES.map((option) => (
                 <View
                   key={option}
-                  className={`bg-card h-14 flex-1 flex-row items-center gap-3 rounded-full border px-5 ${values.sex === option ? 'border-primary' : 'border-input'}`}>
+                  className={`h-14 flex-1 flex-row items-center gap-3 rounded-full border bg-card px-5 ${values.sex === option ? 'border-primary' : 'border-input'}`}>
                   <RadioGroupItem value={option} aria-labelledby={`sex-${option}`} />
                   <Label nativeID={`sex-${option}`} onPress={() => set('sex')(option)}>
                     {option}
@@ -195,7 +195,7 @@ export function SignUpScreen() {
               ))}
             </RadioGroup>
             {error('sex') ? (
-              <Text className="text-destructive pl-2 text-[13px]">{error('sex')}</Text>
+              <Text className="pl-2 text-[13px] text-destructive">{error('sex')}</Text>
             ) : null}
           </View>
 
@@ -248,7 +248,7 @@ export function SignUpScreen() {
               </Label>
             </View>
             {error('terms') ? (
-              <Text className="text-destructive pl-1 text-[13px]">{error('terms')}</Text>
+              <Text className="pl-1 text-[13px] text-destructive">{error('terms')}</Text>
             ) : null}
           </View>
         </>

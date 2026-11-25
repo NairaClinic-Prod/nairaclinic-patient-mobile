@@ -28,19 +28,19 @@ export function AppointmentRow({ appointment, ready, last, onPress }: Appointmen
       role="button"
       onPress={onPress}
       className={cn(
-        'border-border h-[68px] flex-row items-center gap-3 px-3.5 active:opacity-70',
+        'h-[68px] flex-row items-center gap-3 border-border px-3.5 active:opacity-70',
         last ? '' : 'border-b'
       )}>
-      <View className="bg-secondary size-11 items-center justify-center rounded-xl">
+      <View className="size-11 items-center justify-center rounded-xl bg-secondary">
         {parts ? (
           <>
-            <Text className="text-primary text-[9px] leading-3 font-bold tracking-wider">
+            <Text className="text-[9px] leading-3 font-bold tracking-wider text-primary">
               {parts.month}
             </Text>
-            <Text className="text-primary text-base leading-5 font-extrabold">{parts.day}</Text>
+            <Text className="text-base leading-5 font-extrabold text-primary">{parts.day}</Text>
           </>
         ) : (
-          <Text className="text-primary text-[11px] font-bold">TBC</Text>
+          <Text className="text-[11px] font-bold text-primary">TBC</Text>
         )}
       </View>
       <View className="flex-1 gap-0.5">
@@ -48,8 +48,8 @@ export function AppointmentRow({ appointment, ready, last, onPress }: Appointmen
           {appointment.isSmartRequest ? SMART_REQUEST_DOCTOR_LABEL : drName(appointment.doctorName)}
         </Text>
         <View className="flex-row items-center gap-1.5">
-          <Icon as={inPerson ? Building2 : Video} className="text-muted-foreground size-3" />
-          <Text className="text-muted-foreground flex-1 text-[11px]" numberOfLines={1}>
+          <Icon as={inPerson ? Building2 : Video} className="size-3 text-muted-foreground" />
+          <Text className="flex-1 text-[11px] text-muted-foreground" numberOfLines={1}>
             {detail}
           </Text>
         </View>
@@ -65,7 +65,7 @@ export function AppointmentRow({ appointment, ready, last, onPress }: Appointmen
           </Text>
         </View>
       ) : null}
-      {ready ? null : <Icon as={ChevronRight} className="text-muted-foreground size-4" />}
+      {ready ? null : <Icon as={ChevronRight} className="size-4 text-muted-foreground" />}
     </Pressable>
   );
 }

@@ -28,10 +28,10 @@ export function HomeHeader({ firstName, unreadCount, onBellPress }: HomeHeaderPr
           role="button"
           accessibilityLabel={`Notifications, ${unreadCount} unread`}
           onPress={onBellPress}
-          className="bg-card size-11 items-center justify-center rounded-full active:opacity-70">
-          <Icon as={Bell} className="text-foreground size-5" />
+          className="size-11 items-center justify-center rounded-full bg-card active:opacity-70">
+          <Icon as={Bell} className="size-5 text-foreground" />
           {unreadCount > 0 ? (
-            <View className="bg-destructive border-card absolute top-2.5 right-2.5 size-2.5 rounded-full border-2" />
+            <View className="absolute top-2.5 right-2.5 size-2.5 rounded-full border-2 border-card bg-destructive" />
           ) : null}
         </Pressable>
       }

@@ -20,7 +20,7 @@ type OptionListProps<T extends string> = {
 // One quiet grouped list for short "pick one" choices: small icon, title, one line of hint, thin dividers.
 export function OptionList<T extends string>({ options, onPick }: OptionListProps<T>) {
   return (
-    <View className="bg-muted overflow-hidden rounded-2xl">
+    <View className="overflow-hidden rounded-2xl bg-muted">
       {options.map((option, index) => (
         <PressableScale
           key={option.key}
@@ -29,18 +29,18 @@ export function OptionList<T extends string>({ options, onPick }: OptionListProp
           onPress={() => onPick(option.key)}
           className={cn(
             'flex-row items-center gap-3 px-3.5 py-3',
-            index > 0 && 'border-border/70 border-t'
+            index > 0 && 'border-t border-border/70'
           )}>
-          <View className="bg-card size-9 items-center justify-center rounded-full">
-            <Icon as={option.icon} className="text-primary size-4" />
+          <View className="size-9 items-center justify-center rounded-full bg-card">
+            <Icon as={option.icon} className="size-4 text-primary" />
           </View>
           <View className="min-w-0 flex-1">
             <Text className="text-[14px] leading-5 font-semibold">{option.title}</Text>
-            <Text className="text-muted-foreground text-xs leading-4" numberOfLines={1}>
+            <Text className="text-xs leading-4 text-muted-foreground" numberOfLines={1}>
               {option.description}
             </Text>
           </View>
-          <Icon as={ChevronRight} className="text-muted-foreground size-4" />
+          <Icon as={ChevronRight} className="size-4 text-muted-foreground" />
         </PressableScale>
       ))}
     </View>

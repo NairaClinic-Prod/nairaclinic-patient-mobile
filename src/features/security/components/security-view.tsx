@@ -30,13 +30,13 @@ function InfoCard({
   children?: React.ReactNode;
 }) {
   return (
-    <View className="bg-card gap-3 rounded-3xl p-4">
-      <View className="bg-secondary size-10 items-center justify-center rounded-full">
-        <Icon as={icon} className="text-primary size-5" />
+    <View className="gap-3 rounded-3xl bg-card p-4">
+      <View className="size-10 items-center justify-center rounded-full bg-secondary">
+        <Icon as={icon} className="size-5 text-primary" />
       </View>
       <View className="gap-1">
         <Text className="text-[15px] font-bold">{title}</Text>
-        <Text className="text-muted-foreground text-xs leading-4.5">{text}</Text>
+        <Text className="text-xs leading-4.5 text-muted-foreground">{text}</Text>
       </View>
       {children}
     </View>
@@ -53,7 +53,7 @@ function PinCard() {
       title="Sign-in PIN"
       text={`Your ${PIN_LENGTH}-digit PIN signs you in. Change it any time; this signs out your other devices.`}>
       {done ? (
-        <Text className="text-success text-xs font-medium">
+        <Text className="text-xs font-medium text-success">
           PIN changed. Other devices have been signed out.
         </Text>
       ) : null}
@@ -81,13 +81,13 @@ function BiometricCard() {
       title="Fingerprint or Face ID"
       text="Sign in with your fingerprint or face instead of typing your PIN. It works on the devices you turn it on for.">
       {devices.map((device) => (
-        <View key={device.id} className="bg-muted flex-row items-center gap-3 rounded-2xl p-3">
-          <Icon as={Smartphone} className="text-primary size-5" />
+        <View key={device.id} className="flex-row items-center gap-3 rounded-2xl bg-muted p-3">
+          <Icon as={Smartphone} className="size-5 text-primary" />
           <View className="min-w-0 flex-1">
             <Text className="text-[13px] font-semibold" numberOfLines={1}>
               {device.deviceName}
             </Text>
-            <Text className="text-muted-foreground text-[11px]">
+            <Text className="text-[11px] text-muted-foreground">
               {`Added ${DATE.format(new Date(device.createdAt))}${
                 device.lastUsedAt ? ` · Last used ${DATE.format(new Date(device.lastUsedAt))}` : ''
               }`}
@@ -127,16 +127,16 @@ export function SecurityView() {
         title="Medical record privacy"
         text="Subscriptions and family membership never grant automatic access to clinical records."
       />
-      <Text className="text-muted-foreground text-xs leading-4.5">
+      <Text className="text-xs leading-4.5 text-muted-foreground">
         {'Read how we handle your data in our '}
         <Text
-          className="text-primary text-xs font-semibold"
+          className="text-xs font-semibold text-primary"
           onPress={() => Linking.openURL(PRIVACY_URL)}>
           Privacy Policy
         </Text>
         {' and the '}
         <Text
-          className="text-primary text-xs font-semibold"
+          className="text-xs font-semibold text-primary"
           onPress={() => Linking.openURL(TERMS_URL)}>
           Terms of Service
         </Text>

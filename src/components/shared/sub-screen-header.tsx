@@ -20,8 +20,8 @@ export function SubScreenHeader({ title, right }: SubScreenHeaderProps) {
         role="button"
         accessibilityLabel="Go back"
         onPress={() => router.back()}
-        className="bg-card size-11 items-center justify-center rounded-full active:opacity-70">
-        <Icon as={ChevronLeft} className="text-foreground size-5" />
+        className="size-11 items-center justify-center rounded-full bg-card active:opacity-70">
+        <Icon as={ChevronLeft} className="size-5 text-foreground" />
       </Pressable>
       <Text className="text-base font-extrabold">{title}</Text>
       <View className="size-11 items-center justify-center">{right}</View>

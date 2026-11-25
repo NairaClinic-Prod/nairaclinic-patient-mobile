@@ -30,8 +30,8 @@ export function DoneButton({ finished, onPress }: DoneButtonProps) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         onPress();
       }}
-      className="bg-secondary size-9 items-center justify-center rounded-full">
-      <Icon as={Check} className="text-success size-4" />
+      className="size-9 items-center justify-center rounded-full bg-secondary">
+      <Icon as={Check} className="size-4 text-success" />
     </PressableScale>
   );
 }

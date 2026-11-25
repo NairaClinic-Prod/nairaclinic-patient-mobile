@@ -226,7 +226,7 @@ function DoctorIllustration() {
               justifyContent: 'center',
               backgroundColor: color.card,
             }}>
-            <Icon as={Stethoscope} className="text-primary size-14" />
+            <Icon as={Stethoscope} className="size-14 text-primary" />
           </View>
           <View
             style={{
@@ -250,7 +250,7 @@ function DoctorIllustration() {
       </Reveal>
       <Reveal distance={90} style={{ position: 'absolute', left: 4, top: 238 }}>
         <Chip>
-          <Icon as={BadgeCheck} className="text-primary size-4" />
+          <Icon as={BadgeCheck} className="size-4 text-primary" />
           <Text className="text-[13px] font-semibold">Verified doctors</Text>
         </Chip>
       </Reveal>
@@ -306,11 +306,11 @@ function DeliveryIllustration() {
                 justifyContent: 'center',
                 backgroundColor: color.secondary,
               }}>
-              <Icon as={step.icon} className="text-primary size-5" />
+              <Icon as={step.icon} className="size-5 text-primary" />
             </View>
             <View style={{ flex: 1 }}>
               <Text className="text-[15px] font-bold">{step.title}</Text>
-              <Text className="text-muted-foreground text-[12px]">{step.body}</Text>
+              <Text className="text-[12px] text-muted-foreground">{step.body}</Text>
             </View>
           </Card>
         </Reveal>
@@ -332,10 +332,10 @@ function VitalsIllustration() {
         <Card style={{ width: 300, height: 124, borderRadius: 24, padding: 16 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Icon as={HeartPulse} className="text-destructive size-4" />
+              <Icon as={HeartPulse} className="size-4 text-destructive" />
               <Text className="text-[14px] font-bold">Heart rate</Text>
             </View>
-            <Text className="text-primary text-[13px] font-bold">72 bpm</Text>
+            <Text className="text-[13px] font-bold text-primary">72 bpm</Text>
           </View>
           <Svg width={268} height={60} viewBox="0 0 268 60" style={{ marginTop: 12 }}>
             <Path
@@ -353,22 +353,22 @@ function VitalsIllustration() {
         <Card style={{ width: 146, height: 112, borderRadius: 24, padding: 14 }}>
           <View
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text className="text-muted-foreground text-[12px] font-medium">Resting</Text>
-            <Icon as={Activity} className="text-primary size-4" />
+            <Text className="text-[12px] font-medium text-muted-foreground">Resting</Text>
+            <Icon as={Activity} className="size-4 text-primary" />
           </View>
           <Text className="mt-4 text-[26px] font-extrabold tracking-tight">64</Text>
-          <Text className="text-muted-foreground text-[12px]">bpm</Text>
+          <Text className="text-[12px] text-muted-foreground">bpm</Text>
         </Card>
       </Reveal>
       <Reveal distance={110} style={{ position: 'absolute', left: 164, top: 150 }}>
         <Card style={{ width: 146, height: 112, borderRadius: 24, padding: 14 }}>
           <View
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text className="text-muted-foreground text-[12px] font-medium">This week</Text>
-            <Icon as={HeartPulse} className="text-primary size-4" />
+            <Text className="text-[12px] font-medium text-muted-foreground">This week</Text>
+            <Icon as={HeartPulse} className="size-4 text-primary" />
           </View>
           <Text className="mt-2 text-[22px] font-extrabold tracking-tight">
-            71 <Text className="text-muted-foreground text-[12px] font-medium">avg bpm</Text>
+            71 <Text className="text-[12px] font-medium text-muted-foreground">avg bpm</Text>
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 6, marginTop: 6 }}>
             {BEAT_BARS.map((height, i) => (

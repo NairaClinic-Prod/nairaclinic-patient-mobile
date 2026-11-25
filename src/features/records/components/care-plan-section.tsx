@@ -67,8 +67,8 @@ export function CarePlanSection({ handlers, onSummary }: CarePlanSectionProps) {
       {visible.length ? (
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-1.5">
-            <Icon as={Layers} className="text-muted-foreground size-3.5" />
-            <Text className="text-muted-foreground text-xs">By consultation</Text>
+            <Icon as={Layers} className="size-3.5 text-muted-foreground" />
+            <Text className="text-xs text-muted-foreground">By consultation</Text>
           </View>
           <View className="flex-row items-center gap-1">
             <ActionButton label="Summary" icon={Download} variant="ghost" onPress={onSummary} />
@@ -112,8 +112,8 @@ export function CarePlanSection({ handlers, onSummary }: CarePlanSectionProps) {
 
 function Empty({ text }: { text: string }) {
   return (
-    <View className="border-border items-center rounded-2xl border border-dashed px-4 py-10">
-      <Text className="text-muted-foreground text-center text-sm">{text}</Text>
+    <View className="items-center rounded-2xl border border-dashed border-border px-4 py-10">
+      <Text className="text-center text-sm text-muted-foreground">{text}</Text>
     </View>
   );
 }

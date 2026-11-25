@@ -7,7 +7,7 @@ type AvatarProps = { uri: string | null; initials: string; size?: number };
 export function Avatar({ uri, initials, size = 96 }: AvatarProps) {
   return (
     <View
-      className="bg-secondary items-center justify-center overflow-hidden rounded-full"
+      className="items-center justify-center overflow-hidden rounded-full bg-secondary"
       style={{ width: size, height: size }}>
       {uri ? (
         <Image
@@ -16,7 +16,7 @@ export function Avatar({ uri, initials, size = 96 }: AvatarProps) {
           style={{ width: size, height: size }}
         />
       ) : (
-        <Text className="text-primary font-extrabold" style={{ fontSize: size * 0.32 }}>
+        <Text className="font-extrabold text-primary" style={{ fontSize: size * 0.32 }}>
           {initials}
         </Text>
       )}

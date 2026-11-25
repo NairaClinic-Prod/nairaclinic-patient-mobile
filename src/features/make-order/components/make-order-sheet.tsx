@@ -252,13 +252,13 @@ export function MakeOrderSheet() {
     footer = (
       <View className="gap-3">
         {wanted.length === 0 ? (
-          <Text className="text-destructive text-xs">
+          <Text className="text-xs text-destructive">
             {`Choose at least one ${lab ? 'test' : 'medicine'} to continue.`}
           </Text>
         ) : (
           <View className="flex-row items-center gap-2">
-            <Icon as={Lock} className="text-muted-foreground size-3.5" />
-            <Text className="text-muted-foreground flex-1 text-xs leading-4.5">
+            <Icon as={Lock} className="size-3.5 text-muted-foreground" />
+            <Text className="flex-1 text-xs leading-4.5 text-muted-foreground">
               {pickNote(kind ?? 'medication')}
             </Text>
           </View>
@@ -294,10 +294,10 @@ export function MakeOrderSheet() {
           onPress={() => setConsent((current) => !current)}
           className="flex-row items-center gap-3">
           <CheckBox checked={consent} />
-          <Text className="text-muted-foreground flex-1 text-[13px] leading-5">
+          <Text className="flex-1 text-[13px] leading-5 text-muted-foreground">
             {'I agree to the '}
             <Text
-              className="text-primary text-[13px] font-semibold"
+              className="text-[13px] font-semibold text-primary"
               onPress={() => Linking.openURL(TERMS_URL)}>
               terms and conditions
             </Text>
@@ -305,7 +305,7 @@ export function MakeOrderSheet() {
           </Text>
         </PressableScale>
         {missing.length ? (
-          <Text className="text-muted-foreground text-xs">{`Still needed: ${missing.join(', ')}.`}</Text>
+          <Text className="text-xs text-muted-foreground">{`Still needed: ${missing.join(', ')}.`}</Text>
         ) : null}
         <View className="flex-row gap-2">
           <ActionButton
@@ -399,7 +399,7 @@ export function MakeOrderSheet() {
 
     footer = (
       <View className="gap-3">
-        <Text className="text-muted-foreground text-xs leading-4.5">{hint}</Text>
+        <Text className="text-xs leading-4.5 text-muted-foreground">{hint}</Text>
         <View className="flex-row gap-2">
           <ActionButton
             size="md"

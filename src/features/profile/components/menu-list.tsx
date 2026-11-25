@@ -16,14 +16,14 @@ export type MenuItem = {
 
 export function MenuList({ items }: { items: MenuItem[] }) {
   return (
-    <View className="bg-card overflow-hidden rounded-3xl">
+    <View className="overflow-hidden rounded-3xl bg-card">
       {items.map((item, index) => (
         <Pressable
           key={item.key}
           role="button"
           onPress={item.onPress}
           className={cn(
-            'border-border h-[68px] flex-row items-center gap-3.5 px-4 active:opacity-70',
+            'h-[68px] flex-row items-center gap-3.5 border-border px-4 active:opacity-70',
             index < items.length - 1 ? 'border-b' : ''
           )}>
           <Icon
@@ -35,16 +35,16 @@ export function MenuList({ items }: { items: MenuItem[] }) {
               className={cn('text-[13px] font-bold', item.danger ? 'text-destructive' : undefined)}>
               {item.title}
             </Text>
-            <Text className="text-muted-foreground text-[11px]" numberOfLines={1}>
+            <Text className="text-[11px] text-muted-foreground" numberOfLines={1}>
               {item.text}
             </Text>
           </View>
           {item.badge ? (
-            <View className="bg-destructive min-w-5 items-center rounded-full px-1.5 py-0.5">
+            <View className="min-w-5 items-center rounded-full bg-destructive px-1.5 py-0.5">
               <Text className="text-[11px] font-bold text-white">{item.badge}</Text>
             </View>
           ) : null}
-          <Icon as={ChevronRight} className="text-muted-foreground size-4" />
+          <Icon as={ChevronRight} className="size-4 text-muted-foreground" />
         </Pressable>
       ))}
     </View>

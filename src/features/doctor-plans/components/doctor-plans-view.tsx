@@ -10,7 +10,7 @@ import { turnOffAutoRenew, useDoctorPlans } from '../store';
 function Fact({ label, value }: { label: string; value: string }) {
   return (
     <View className="flex-row justify-between gap-3">
-      <Text className="text-muted-foreground text-[13px]">{label}</Text>
+      <Text className="text-[13px] text-muted-foreground">{label}</Text>
       <Text className="min-w-0 flex-1 text-right text-[13px] font-medium">{value}</Text>
     </View>
   );
@@ -21,7 +21,7 @@ export function DoctorPlansView() {
 
   if (!plans.length) {
     return (
-      <View className="bg-card rounded-2xl">
+      <View className="rounded-2xl bg-card">
         <EmptyState
           icon={Stethoscope}
           title="You don’t have any doctor plans."
@@ -34,10 +34,10 @@ export function DoctorPlansView() {
   return (
     <View className="gap-4">
       {plans.map((plan) => (
-        <View key={plan.id} className="bg-card gap-4 rounded-2xl p-4">
+        <View key={plan.id} className="gap-4 rounded-2xl bg-card p-4">
           <View className="flex-row items-start justify-between gap-3">
             <View className="min-w-0 flex-1 gap-0.5">
-              <Text className="text-muted-foreground text-xs">{plan.doctor}</Text>
+              <Text className="text-xs text-muted-foreground">{plan.doctor}</Text>
               <Text className="text-[17px] leading-6 font-extrabold">{plan.name}</Text>
             </View>
             <StatusPill tone={plan.status === 'active' ? 'active' : 'pending'}>
@@ -51,10 +51,10 @@ export function DoctorPlansView() {
 
           <View className="gap-2">
             {plan.remaining.map((row) => (
-              <View key={row.label} className="bg-muted rounded-xl px-3.5 py-2.5">
+              <View key={row.label} className="rounded-xl bg-muted px-3.5 py-2.5">
                 <Text className="text-[13px]">{row.label}</Text>
-                <Text className="text-muted-foreground text-xs">
-                  <Text className="text-foreground text-xs font-bold">{row.remaining}</Text>
+                <Text className="text-xs text-muted-foreground">
+                  <Text className="text-xs font-bold text-foreground">{row.remaining}</Text>
                   {` of ${row.count} left this period`}
                 </Text>
               </View>

@@ -31,18 +31,18 @@ export function InlineSelect<T extends string>({
 
   return (
     <View className="flex-row items-center gap-2">
-      {label ? <Text className="text-muted-foreground text-[13px]">{label}</Text> : null}
+      {label ? <Text className="text-[13px] text-muted-foreground">{label}</Text> : null}
       <PressableScale
         scaleTo={0.96}
         role="button"
         accessibilityLabel={`${label ?? title ?? 'Choose'}: ${current?.label ?? ''}`}
         onPress={() => setOpen(true)}
-        className="bg-card h-10 flex-row items-center gap-2 rounded-xl px-3">
+        className="h-10 flex-row items-center gap-2 rounded-xl bg-card px-3">
         <Text className="text-[14px] font-semibold">{current?.label}</Text>
-        <Icon as={ChevronDown} className="text-muted-foreground size-4" />
+        <Icon as={ChevronDown} className="size-4 text-muted-foreground" />
       </PressableScale>
       <Sheet open={open} onClose={() => setOpen(false)} title={title ?? label ?? 'Choose'}>
-        <View className="bg-muted overflow-hidden rounded-3xl">
+        <View className="overflow-hidden rounded-3xl bg-muted">
           {options.map((option, index) => {
             const selected = option.value === value;
             return (
@@ -56,17 +56,17 @@ export function InlineSelect<T extends string>({
                   setOpen(false);
                 }}
                 className={cn(
-                  'border-border/70 h-12 flex-row items-center justify-between px-4 active:opacity-70',
+                  'h-12 flex-row items-center justify-between border-border/70 px-4 active:opacity-70',
                   index < options.length - 1 ? 'border-b' : ''
                 )}>
                 <Text
                   className={cn(
                     'text-[14px]',
-                    selected ? 'text-primary font-bold' : 'font-medium'
+                    selected ? 'font-bold text-primary' : 'font-medium'
                   )}>
                   {option.label}
                 </Text>
-                {selected ? <Icon as={Check} className="text-primary size-4" /> : null}
+                {selected ? <Icon as={Check} className="size-4 text-primary" /> : null}
               </Pressable>
             );
           })}

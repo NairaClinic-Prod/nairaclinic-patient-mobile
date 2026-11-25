@@ -43,8 +43,8 @@ const REPEAT_COPY: Record<ReminderRepeat, { subtitle: string; icon: LucideIcon }
 
 function IconBadge({ icon, className }: { icon: LucideIcon; className?: string }) {
   return (
-    <View className={cn('bg-card size-9 items-center justify-center rounded-full', className)}>
-      <Icon as={icon} className="text-foreground size-[17px]" />
+    <View className={cn('size-9 items-center justify-center rounded-full bg-card', className)}>
+      <Icon as={icon} className="size-[17px] text-foreground" />
     </View>
   );
 }
@@ -139,15 +139,15 @@ export function ReminderFormSheet({
             <Text className="text-xl font-extrabold">
               {personal && !editing ? 'New reminder' : draft.title || 'New reminder'}
             </Text>
-            <Text className="text-muted-foreground text-xs">
+            <Text className="text-xs text-muted-foreground">
               {personal ? 'Personal reminder' : draft.sourceLine}
             </Text>
           </View>
 
           {personal ? (
             <View className="gap-2.5">
-              <View className="bg-muted gap-1 rounded-3xl px-4 py-3">
-                <Text className="text-muted-foreground text-[11px]">Title</Text>
+              <View className="gap-1 rounded-3xl bg-muted px-4 py-3">
+                <Text className="text-[11px] text-muted-foreground">Title</Text>
                 <FieldInput
                   maxLength={120}
                   placeholder="e.g. Drink water"
@@ -155,8 +155,8 @@ export function ReminderFormSheet({
                   onChangeText={(title) => patch({ title })}
                 />
               </View>
-              <View className="bg-muted gap-1 rounded-3xl px-4 py-3">
-                <Text className="text-muted-foreground text-[11px]">Note · optional</Text>
+              <View className="gap-1 rounded-3xl bg-muted px-4 py-3">
+                <Text className="text-[11px] text-muted-foreground">Note · optional</Text>
                 <FieldInput
                   multiline
                   maxLength={300}
@@ -173,10 +173,10 @@ export function ReminderFormSheet({
           ) : (
             <View className="flex-row gap-2.5">
               {facts.map((fact) => (
-                <View key={fact.label} className="bg-muted flex-1 gap-2 rounded-3xl p-3">
+                <View key={fact.label} className="flex-1 gap-2 rounded-3xl bg-muted p-3">
                   <IconBadge icon={fact.icon} />
                   <View>
-                    <Text className="text-muted-foreground text-[11px]">{fact.label}</Text>
+                    <Text className="text-[11px] text-muted-foreground">{fact.label}</Text>
                     <Text className="mt-0.5 text-xs leading-4 font-bold" numberOfLines={2}>
                       {fact.value}
                     </Text>
@@ -189,11 +189,11 @@ export function ReminderFormSheet({
           <View className="gap-2.5">
             <View className="flex-row items-baseline justify-between">
               <Text className="text-sm font-bold">Remind me at</Text>
-              <Text className="text-muted-foreground text-[11px]">West Africa Time</Text>
+              <Text className="text-[11px] text-muted-foreground">West Africa Time</Text>
             </View>
             <View className="flex-row flex-wrap gap-2.5">
               {draft.times.map((time, index) => (
-                <View key={index} className="bg-muted w-[48.4%] gap-2 rounded-3xl p-3">
+                <View key={index} className="w-[48.4%] gap-2 rounded-3xl bg-muted p-3">
                   <View className="flex-row items-center justify-between">
                     <IconBadge icon={Clock} />
                     {draft.times.length > 1 ? (
@@ -201,8 +201,8 @@ export function ReminderFormSheet({
                         hitSlop={10}
                         accessibilityLabel={`Remove time ${index + 1}`}
                         onPress={() => patch({ times: draft.times.filter((_, i) => i !== index) })}
-                        className="bg-card size-7 items-center justify-center rounded-full active:opacity-60">
-                        <Icon as={X} className="text-destructive size-3.5" />
+                        className="size-7 items-center justify-center rounded-full bg-card active:opacity-60">
+                        <Icon as={X} className="size-3.5 text-destructive" />
                       </Pressable>
                     ) : null}
                   </View>
@@ -220,9 +220,9 @@ export function ReminderFormSheet({
               {!test && draft.times.length < MAX_TIMES ? (
                 <Pressable
                   onPress={() => patch({ times: [...draft.times, '12:00'] })}
-                  className="border-border w-[48.4%] items-center justify-center gap-1.5 rounded-3xl border border-dashed p-3 active:opacity-70">
-                  <Icon as={Plus} className="text-primary size-5" />
-                  <Text className="text-primary text-xs font-bold">Add time</Text>
+                  className="w-[48.4%] items-center justify-center gap-1.5 rounded-3xl border border-dashed border-border p-3 active:opacity-70">
+                  <Icon as={Plus} className="size-5 text-primary" />
+                  <Text className="text-xs font-bold text-primary">Add time</Text>
                 </Pressable>
               ) : null}
             </View>
@@ -231,7 +231,7 @@ export function ReminderFormSheet({
           {personal ? (
             <View className="gap-2.5">
               <Text className="text-sm font-bold">Repeat</Text>
-              <View className="bg-muted overflow-hidden rounded-3xl">
+              <View className="overflow-hidden rounded-3xl bg-muted">
                 {REPEAT_OPTIONS.map((option, index) => {
                   const selected = draft.repeat === option.value;
                   const copy = REPEAT_COPY[option.value];
@@ -245,19 +245,19 @@ export function ReminderFormSheet({
                         patch({ repeat: option.value });
                       }}
                       className={cn(
-                        'border-border/70 flex-row items-center gap-3 px-3 py-3 active:opacity-70',
+                        'flex-row items-center gap-3 border-border/70 px-3 py-3 active:opacity-70',
                         index < REPEAT_OPTIONS.length - 1 ? 'border-b' : ''
                       )}>
                       <IconBadge icon={copy.icon} />
                       <View className="flex-1">
                         <Text className="text-[13px] font-bold">{option.label}</Text>
-                        <Text className="text-muted-foreground mt-0.5 text-[11px]">
+                        <Text className="mt-0.5 text-[11px] text-muted-foreground">
                           {copy.subtitle}
                         </Text>
                       </View>
                       {selected ? (
-                        <View className="bg-primary size-5 items-center justify-center rounded-full">
-                          <Icon as={Check} className="text-primary-foreground size-3" />
+                        <View className="size-5 items-center justify-center rounded-full bg-primary">
+                          <Icon as={Check} className="size-3 text-primary-foreground" />
                         </View>
                       ) : null}
                     </Pressable>
@@ -283,7 +283,7 @@ export function ReminderFormSheet({
                         }}
                         className={cn(
                           'h-11 flex-1 items-center justify-center rounded-full border active:opacity-70',
-                          selected ? 'bg-primary border-primary' : 'bg-muted border-transparent'
+                          selected ? 'border-primary bg-primary' : 'border-transparent bg-muted'
                         )}>
                         <Text
                           className={cn(
@@ -301,10 +301,10 @@ export function ReminderFormSheet({
           ) : null}
 
           <View className="flex-row gap-2.5">
-            <View className="bg-muted flex-1 gap-2 rounded-3xl p-3">
+            <View className="flex-1 gap-2 rounded-3xl bg-muted p-3">
               <View className="flex-row items-center gap-2.5">
                 <IconBadge icon={CalendarDays} />
-                <Text className="text-muted-foreground text-[11px]">{test ? 'Date' : 'From'}</Text>
+                <Text className="text-[11px] text-muted-foreground">{test ? 'Date' : 'From'}</Text>
               </View>
               <View>
                 <DateField
@@ -324,10 +324,10 @@ export function ReminderFormSheet({
               </View>
             </View>
             {!test && draft.repeat !== 'once' ? (
-              <View className="bg-muted flex-1 gap-2 rounded-3xl p-3">
+              <View className="flex-1 gap-2 rounded-3xl bg-muted p-3">
                 <View className="flex-row items-center gap-2.5">
                   <IconBadge icon={CalendarClock} />
-                  <Text className="text-muted-foreground text-[11px]">Until</Text>
+                  <Text className="text-[11px] text-muted-foreground">Until</Text>
                 </View>
                 <View>
                   <DateField
@@ -344,14 +344,14 @@ export function ReminderFormSheet({
           {error ? (
             <Text
               role="alert"
-              className="bg-warning-soft text-warning rounded-2xl px-4 py-3 text-xs">
+              className="rounded-2xl bg-warning-soft px-4 py-3 text-xs text-warning">
               {error}
             </Text>
           ) : null}
         </BottomSheetScrollView>
 
         <View
-          className="border-border/70 gap-2.5 border-t px-6 pt-3"
+          className="gap-2.5 border-t border-border/70 px-6 pt-3"
           style={{ paddingBottom: sheetBottom }}>
           <Text
             className={cn(

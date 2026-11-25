@@ -60,8 +60,8 @@ export function ReadOnlyField({ label, value, hint }: ReadOnlyFieldProps) {
         <Animated.View
           pointerEvents="none"
           style={style}
-          className="bg-foreground absolute right-0 bottom-full left-0 mb-1.5 rounded-xl px-3 py-2">
-          <Text className="text-background text-[11px] leading-4 font-medium">{hint}</Text>
+          className="absolute right-0 bottom-full left-0 mb-1.5 rounded-xl bg-foreground px-3 py-2">
+          <Text className="text-[11px] leading-4 font-medium text-background">{hint}</Text>
         </Animated.View>
       ) : null}
       <PressableScale
@@ -70,10 +70,10 @@ export function ReadOnlyField({ label, value, hint }: ReadOnlyFieldProps) {
         accessibilityLabel={`${label}: ${value}. ${hint}`}
         accessibilityState={{ disabled: true }}
         onPress={show}
-        className="bg-muted gap-1 rounded-3xl p-3">
+        className="gap-1 rounded-3xl bg-muted p-3">
         <View className="flex-row items-center gap-1">
-          <Text className="text-muted-foreground text-[11px]">{label}</Text>
-          <Icon as={Lock} className="text-muted-foreground size-2.5" />
+          <Text className="text-[11px] text-muted-foreground">{label}</Text>
+          <Icon as={Lock} className="size-2.5 text-muted-foreground" />
         </View>
         <Text className="text-[13px] font-bold">{value}</Text>
       </PressableScale>

@@ -47,12 +47,12 @@ export function SegmentedControl<T extends string>({
   return (
     <View
       role="tablist"
-      className="bg-muted h-10 flex-row rounded-full"
+      className="h-10 flex-row rounded-full bg-muted"
       style={{ padding: PADDING }}
       onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
       <Animated.View
         pointerEvents="none"
-        className="bg-card absolute rounded-full"
+        className="absolute rounded-full bg-card"
         style={[{ top: PADDING, bottom: PADDING, left: 0 }, indicator]}
       />
       {options.map((option) => {

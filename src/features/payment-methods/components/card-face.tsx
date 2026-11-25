@@ -60,7 +60,7 @@ export function CardFace({ card, name, onMakeDefault, onRemove }: CardFaceProps)
   const brand = detectBrand(card.brand);
 
   return (
-    <View className="w-full max-w-[320px] self-center overflow-hidden rounded-2xl">
+    <View className="w-full overflow-hidden rounded-2xl">
       <LinearGradient
         colors={BRAND_COLORS[brand]}
         start={{ x: 0, y: 0 }}

@@ -28,8 +28,8 @@ export function Choosable({ selected, disabled, label, onPress, children }: Choo
         disabled && 'opacity-60'
       )}>
       {selected ? (
-        <View className="bg-primary absolute top-3 right-3 size-5 items-center justify-center rounded-full">
-          <Icon as={Check} strokeWidth={3} className="text-primary-foreground size-3.5" />
+        <View className="absolute top-3 right-3 size-5 items-center justify-center rounded-full bg-primary">
+          <Icon as={Check} strokeWidth={3} className="size-3.5 text-primary-foreground" />
         </View>
       ) : null}
       {children}

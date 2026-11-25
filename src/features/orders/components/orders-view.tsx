@@ -73,7 +73,7 @@ export function OrdersView({ onAddExternal, onBookLab }: OrdersViewProps) {
       <View className="flex-row items-start justify-between gap-4">
         <View className="min-w-0 flex-1 gap-0.5">
           <Text className="text-lg font-extrabold">Your medicines. Your choice.</Text>
-          <Text className="text-muted-foreground text-xs leading-4.5">
+          <Text className="text-xs leading-4.5 text-muted-foreground">
             Make an order, compare pharmacy offers and choose when you&apos;re ready.
           </Text>
         </View>
@@ -81,10 +81,10 @@ export function OrdersView({ onAddExternal, onBookLab }: OrdersViewProps) {
       </View>
 
       <View className="flex-row items-center justify-between gap-3">
-        <Text className="text-muted-foreground text-xs">
-          <Text className="text-foreground text-xs font-bold">{activeTotal}</Text>
+        <Text className="text-xs text-muted-foreground">
+          <Text className="text-xs font-bold text-foreground">{activeTotal}</Text>
           {' active · '}
-          <Text className="text-foreground text-xs font-bold">{pastTotal}</Text>
+          <Text className="text-xs font-bold text-foreground">{pastTotal}</Text>
           {' past'}
         </Text>
         <InlineSelect<OrderView>
@@ -130,7 +130,7 @@ export function OrdersView({ onAddExternal, onBookLab }: OrdersViewProps) {
           />
         ))}
         {showEmpty ? (
-          <View className="bg-card rounded-2xl">
+          <View className="rounded-2xl bg-card">
             <EmptyState
               icon={Pill}
               title={EMPTY[view].title}
@@ -145,7 +145,7 @@ export function OrdersView({ onAddExternal, onBookLab }: OrdersViewProps) {
         ) : null}
       </Animated.View>
 
-      <Text className="text-muted-foreground text-xs leading-4.5">{ORDERS_FOOTNOTE}</Text>
+      <Text className="text-xs leading-4.5 text-muted-foreground">{ORDERS_FOOTNOTE}</Text>
 
       <LabBookingsSection bookings={data.labBookings} onViewAll={onBookLab} />
 

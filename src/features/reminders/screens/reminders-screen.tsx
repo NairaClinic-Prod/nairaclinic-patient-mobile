@@ -107,15 +107,15 @@ export function RemindersScreen() {
             onChangeText={setQuery}
             returnKeyType="search"
             style={{ height: 40, fontSize: 14 }}
-            className="bg-card rounded-full pl-10"
+            className="rounded-full bg-card pl-10"
           />
           <View className="absolute left-3.5" pointerEvents="none">
-            <Icon as={Search} className="text-muted-foreground size-4" />
+            <Icon as={Search} className="size-4 text-muted-foreground" />
           </View>
         </View>
       ) : null}
 
-      <FadeIn index={2} className="bg-card overflow-hidden rounded-2xl">
+      <FadeIn index={2} className="overflow-hidden rounded-2xl bg-card">
         {shown.length ? (
           shown.map(({ group, state }, index) => (
             <ReminderRow
@@ -129,10 +129,10 @@ export function RemindersScreen() {
           ))
         ) : (
           <View className="items-center gap-2.5 px-6 py-8">
-            <View className="bg-secondary size-10 items-center justify-center rounded-full">
-              <Icon as={CalendarClock} className="text-primary size-4" />
+            <View className="size-10 items-center justify-center rounded-full bg-secondary">
+              <Icon as={CalendarClock} className="size-4 text-primary" />
             </View>
-            <Text className="text-muted-foreground text-center text-xs">
+            <Text className="text-center text-xs text-muted-foreground">
               {query
                 ? 'No reminders match your search.'
                 : filter === 'active'
@@ -141,7 +141,7 @@ export function RemindersScreen() {
             </Text>
             {!query && filter === 'active' ? (
               <Button size="sm" variant="default" className="rounded-xl" onPress={addReminder}>
-                <Icon as={Plus} className="text-primary-foreground size-3.5" />
+                <Icon as={Plus} className="size-3.5 text-primary-foreground" />
                 <Text className="text-xs">Add reminder</Text>
               </Button>
             ) : null}

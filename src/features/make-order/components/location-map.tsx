@@ -55,7 +55,7 @@ export function LocationMap({ value, onChange }: LocationMapProps) {
 
   return (
     <View className="gap-2">
-      <View className="bg-muted border-border h-56 overflow-hidden rounded-2xl border">
+      <View className="h-56 overflow-hidden rounded-2xl border border-border bg-muted">
         <MapView
           ref={map}
           provider={PROVIDER}
@@ -84,7 +84,7 @@ export function LocationMap({ value, onChange }: LocationMapProps) {
           />
         </MapView>
       </View>
-      <Text className="text-muted-foreground text-xs">Drag the pin or tap the map to adjust.</Text>
+      <Text className="text-xs text-muted-foreground">Drag the pin or tap the map to adjust.</Text>
     </View>
   );
 }

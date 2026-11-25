@@ -23,26 +23,26 @@ function TierCard({
   onChoose: (tier: MembershipTier) => void;
 }) {
   return (
-    <View className="bg-card gap-3 rounded-2xl p-4">
+    <View className="gap-3 rounded-2xl bg-card p-4">
       <View className="flex-row items-center justify-between">
-        <View className="bg-secondary size-9 items-center justify-center rounded-lg">
-          <Icon as={HeartPulse} className="text-primary size-4.5" />
+        <View className="size-9 items-center justify-center rounded-lg bg-secondary">
+          <Icon as={HeartPulse} className="size-4.5 text-primary" />
         </View>
         {featured ? (
-          <View className="bg-primary rounded-full px-2.5 py-1">
-            <Text className="text-primary-foreground text-[11px] font-bold">Recommended</Text>
+          <View className="rounded-full bg-primary px-2.5 py-1">
+            <Text className="text-[11px] font-bold text-primary-foreground">Recommended</Text>
           </View>
         ) : null}
       </View>
       <View className="gap-1">
         <Text className="text-lg font-extrabold">{tier.name}</Text>
-        <Text className="text-muted-foreground text-[13px] leading-5">{tier.description}</Text>
+        <Text className="text-[13px] leading-5 text-muted-foreground">{tier.description}</Text>
       </View>
       <Text className="text-2xl font-extrabold tracking-tight">{tier.priceLabel}</Text>
       <View className="gap-2">
         {tier.benefits.map((benefit) => (
           <View key={benefit} className="flex-row items-start gap-2.5">
-            <Icon as={Check} className="text-success mt-0.5 size-4" />
+            <Icon as={Check} className="mt-0.5 size-4 text-success" />
             <Text className="flex-1 text-[13px] leading-5">{benefit}</Text>
           </View>
         ))}
@@ -83,30 +83,30 @@ export function MembershipView() {
   return (
     <View className="gap-5">
       {current && plan ? (
-        <View className="bg-primary gap-3 rounded-3xl p-5">
+        <View className="gap-3 rounded-3xl bg-primary p-5">
           <View className="flex-row items-center justify-between">
-            <Text className="text-primary-foreground/80 text-xs font-semibold">Your plan</Text>
+            <Text className="text-xs font-semibold text-primary-foreground/80">Your plan</Text>
             {current.renewalCancelled ? (
               <View className="rounded-full bg-white/20 px-2.5 py-1">
-                <Text className="text-primary-foreground text-[11px] font-bold">
+                <Text className="text-[11px] font-bold text-primary-foreground">
                   Renewal cancelled
                 </Text>
               </View>
             ) : null}
           </View>
-          <Text className="text-primary-foreground text-[28px] leading-8 font-extrabold">
+          <Text className="text-[28px] leading-8 font-extrabold text-primary-foreground">
             {plan.name}
           </Text>
           <View className="gap-1.5">
             <View className="h-2 overflow-hidden rounded-full bg-white/20">
               <View
-                className="bg-primary-foreground h-2 rounded-full"
+                className="h-2 rounded-full bg-primary-foreground"
                 style={{
                   width: `${Math.round((left / Math.max(current.includedVisits, 1)) * 100)}%`,
                 }}
               />
             </View>
-            <Text className="text-primary-foreground/85 text-[13px]">
+            <Text className="text-[13px] text-primary-foreground/85">
               {`${left} of ${current.includedVisits} consultations remain · Active until ${formatDay(current.activeUntil)}`}
             </Text>
           </View>
@@ -150,8 +150,8 @@ export function MembershipView() {
             />
           ))
         ) : (
-          <View className="bg-card rounded-2xl p-5">
-            <Text className="text-muted-foreground text-center text-[13px] leading-5">
+          <View className="rounded-2xl bg-card p-5">
+            <Text className="text-center text-[13px] leading-5 text-muted-foreground">
               You’re on the best plan for this group. Switch groups above to see other plans.
             </Text>
           </View>
@@ -165,15 +165,15 @@ export function MembershipView() {
         subtitle={paying ? `${paying.name} · ${paying.priceLabel}` : undefined}>
         {paying ? (
           <>
-            <View className="bg-muted gap-2.5 rounded-2xl p-4">
+            <View className="gap-2.5 rounded-2xl bg-muted p-4">
               <View className="flex-row items-center gap-2.5">
-                <Icon as={Wallet} className="text-primary size-4.5" />
+                <Icon as={Wallet} className="size-4.5 text-primary" />
                 <Text className="flex-1 text-[13px] leading-5">
                   Your wallet pays first. A saved card covers anything left.
                 </Text>
               </View>
               <View className="flex-row items-baseline justify-between">
-                <Text className="text-muted-foreground text-[13px]">Due today</Text>
+                <Text className="text-[13px] text-muted-foreground">Due today</Text>
                 <Text className={cn('text-xl font-extrabold')}>
                   {formatNaira((paying.priceNgn ?? 0) * 100)}
                 </Text>

@@ -24,17 +24,17 @@ export function CareTeamStrip({ members, onSelect, onSeeAll, onBook }: CareTeamS
         {members.map((member) => (
           <View
             key={member.doctorUserId}
-            className="bg-card h-[188px] w-32 gap-1.5 rounded-2xl p-2.5">
+            className="h-[188px] w-32 gap-1.5 rounded-2xl bg-card p-2.5">
             <PressableScale
               scaleTo={0.98}
               role="button"
               onPress={() => onSelect?.(member)}
-              className="bg-secondary/40 flex-1 items-center justify-center gap-2 rounded-xl p-2.5">
+              className="flex-1 items-center justify-center gap-2 rounded-xl bg-secondary/40 p-2.5">
               {member.photoUrl ? (
                 <Image source={{ uri: member.photoUrl }} className="size-12 rounded-full" />
               ) : (
-                <View className="bg-secondary size-12 items-center justify-center rounded-full">
-                  <Text className="text-secondary-foreground text-base font-bold">
+                <View className="size-12 items-center justify-center rounded-full bg-secondary">
+                  <Text className="text-base font-bold text-secondary-foreground">
                     {initials(member.name)}
                   </Text>
                 </View>
@@ -45,7 +45,7 @@ export function CareTeamStrip({ members, onSelect, onSeeAll, onBook }: CareTeamS
                 </Text>
               </View>
               <View className="h-4 justify-center">
-                <Text className="text-muted-foreground text-center text-[11px]" numberOfLines={1}>
+                <Text className="text-center text-[11px] text-muted-foreground" numberOfLines={1}>
                   {member.specialty ?? ' '}
                 </Text>
               </View>
@@ -58,8 +58,8 @@ export function CareTeamStrip({ members, onSelect, onSeeAll, onBook }: CareTeamS
                   className="rounded-xl"
                   accessibilityLabel={`Book ${drName(member.name)} again`}
                   onPress={() => onSelect?.(member)}>
-                  <Icon as={CalendarPlus} className="text-primary size-3.5" />
-                  <Text className="text-primary text-xs">Book again</Text>
+                  <Icon as={CalendarPlus} className="size-3.5 text-primary" />
+                  <Text className="text-xs text-primary">Book again</Text>
                 </Button>
               ) : null}
             </View>
@@ -69,13 +69,13 @@ export function CareTeamStrip({ members, onSelect, onSeeAll, onBook }: CareTeamS
           scaleTo={0.98}
           role="button"
           onPress={onBook}
-          className="border-primary/40 bg-secondary/40 h-[188px] w-32 items-center justify-center gap-1.5 rounded-2xl border border-dashed p-3">
-          <View className="bg-card size-10 items-center justify-center rounded-full">
-            <Icon as={Plus} className="text-primary size-4" />
+          className="h-[188px] w-32 items-center justify-center gap-1.5 rounded-2xl border border-dashed border-primary/40 bg-secondary/40 p-3">
+          <View className="size-10 items-center justify-center rounded-full bg-card">
+            <Icon as={Plus} className="size-4 text-primary" />
           </View>
           <Text className="text-xs font-bold">Add a doctor</Text>
           {members.length ? null : (
-            <Text className="text-muted-foreground text-center text-[11px]">
+            <Text className="text-center text-[11px] text-muted-foreground">
               Your doctors appear here after a consultation
             </Text>
           )}

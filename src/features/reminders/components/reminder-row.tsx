@@ -28,7 +28,7 @@ export function ReminderRow({ group, state, last, onOpen, onToggle }: ReminderRo
   const summary = `${meta.times.join(' · ')} · ${REPEAT_LABEL[meta.repeat]}`;
 
   return (
-    <View className={cn('border-border h-16 flex-row items-center', last ? '' : 'border-b')}>
+    <View className={cn('h-16 flex-row items-center border-border', last ? '' : 'border-b')}>
       <Pressable
         role="button"
         accessibilityLabel={`View or edit ${meta.title}`}
@@ -56,7 +56,7 @@ export function ReminderRow({ group, state, last, onOpen, onToggle }: ReminderRo
             numberOfLines={1}>
             {meta.title}
           </Text>
-          <Text className="text-muted-foreground text-[11px]" numberOfLines={1}>
+          <Text className="text-[11px] text-muted-foreground" numberOfLines={1}>
             {state === 'ended' ? `Ended · ${summary}` : summary}
           </Text>
         </View>

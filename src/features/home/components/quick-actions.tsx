@@ -19,8 +19,8 @@ function ActionCard({ label, text, icon, onPress }: CardProps) {
       role="button"
       accessibilityLabel={`${label}. ${text}`}
       onPress={onPress}
-      className="bg-card border-border flex-1 items-center justify-center gap-1.5 rounded-2xl border px-3 py-3.5">
-      <Icon as={icon} className="text-primary size-[18px]" />
+      className="flex-1 items-center justify-center gap-1.5 rounded-2xl border border-border bg-card px-3 py-3.5">
+      <Icon as={icon} className="size-[18px] text-primary" />
       <View className="items-center gap-px self-stretch">
         <Text
           numberOfLines={1}
@@ -29,7 +29,7 @@ function ActionCard({ label, text, icon, onPress }: CardProps) {
           className="text-center text-sm leading-5 font-semibold tracking-tight">
           {label}
         </Text>
-        <Text className="text-muted-foreground text-center text-[11px] leading-4" numberOfLines={1}>
+        <Text className="text-center text-[11px] leading-4 text-muted-foreground" numberOfLines={1}>
           {text}
         </Text>
       </View>

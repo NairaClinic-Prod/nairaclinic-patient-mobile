@@ -18,7 +18,7 @@ export function SectionHeader({ title, action, onActionPress, className }: Secti
       <Text className="text-base font-bold">{title}</Text>
       {action ? (
         <Pressable hitSlop={12} onPress={onActionPress} className="active:opacity-60">
-          <Text className="text-muted-foreground text-xs font-medium">{action}</Text>
+          <Text className="text-xs font-medium text-muted-foreground">{action}</Text>
         </Pressable>
       ) : null}
     </View>

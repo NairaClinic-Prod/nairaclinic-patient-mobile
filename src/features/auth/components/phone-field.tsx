@@ -41,12 +41,12 @@ export function PhoneField({
       <View className="flex-row gap-3">
         <Button
           variant="outline"
-          className="bg-card h-14 gap-2 rounded-full px-4"
+          className="h-14 gap-2 rounded-full bg-card px-4"
           onPress={() => setOpen(true)}
           accessibilityLabel="Choose country code">
           <Text className="text-xl">{getEmojiFlag(countryCode)}</Text>
           <Text className="text-base">+{callingCode}</Text>
-          <Icon as={ChevronDown} className="text-muted-foreground size-4" />
+          <Icon as={ChevronDown} className="size-4 text-muted-foreground" />
         </Button>
         <Input
           aria-labelledby="phone-label"
@@ -66,10 +66,10 @@ export function PhoneField({
           autoComplete="tel"
           maxLength={14}
           style={{ height: 56, paddingHorizontal: 20, fontSize: 16 }}
-          className={`bg-card flex-1 rounded-full ${error ? 'border-destructive' : focused ? 'border-primary' : ''}`}
+          className={`flex-1 rounded-full bg-card ${error ? 'border-destructive' : focused ? 'border-primary' : ''}`}
         />
       </View>
-      {error ? <Text className="text-destructive pl-2 text-[13px]">{error}</Text> : null}
+      {error ? <Text className="pl-2 text-[13px] text-destructive">{error}</Text> : null}
 
       <CountrySheet
         open={open}

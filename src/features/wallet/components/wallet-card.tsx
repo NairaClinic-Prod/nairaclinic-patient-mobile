@@ -27,18 +27,18 @@ export function WalletCard({ wallet, onPress }: WalletCardProps) {
       role="button"
       accessibilityLabel={`Wallet balance ${formatNaira(wallet.balanceKobo)}. Open your wallet.`}
       onPress={onPress}
-      className="bg-primary flex-row items-center gap-3 overflow-hidden rounded-2xl px-3.5 py-3">
+      className="flex-row items-center gap-3 overflow-hidden rounded-2xl bg-primary px-3.5 py-3">
       <View className="size-9 items-center justify-center rounded-full bg-white/15">
-        <Icon as={Wallet} className="text-primary-foreground size-4.5" />
+        <Icon as={Wallet} className="size-4.5 text-primary-foreground" />
       </View>
       <View className="flex-1">
-        <Text className="text-primary-foreground/80 text-[11px] font-semibold">Wallet balance</Text>
+        <Text className="text-[11px] font-semibold text-primary-foreground/80">Wallet balance</Text>
         <BigNaira
           kobo={wallet.balanceKobo}
-          className="text-primary-foreground text-xl leading-6 font-extrabold"
+          className="text-xl leading-6 font-extrabold text-primary-foreground"
         />
       </View>
-      <Icon as={ChevronRight} className="text-primary-foreground size-4.5" />
+      <Icon as={ChevronRight} className="size-4.5 text-primary-foreground" />
     </PressableScale>
   );
 }

@@ -24,24 +24,24 @@ export function LabResultsCard({ onViewAll }: LabResultsCardProps) {
   if (!results.length) return null;
 
   return (
-    <View className="bg-card gap-3 rounded-2xl p-4">
+    <View className="gap-3 rounded-2xl bg-card p-4">
       <View className="flex-row items-center justify-between">
         <Text className="text-base font-bold">Lab results</Text>
         <Pressable hitSlop={12} onPress={onViewAll} className="active:opacity-60">
-          <Text className="text-primary text-xs font-semibold">All lab tests</Text>
+          <Text className="text-xs font-semibold text-primary">All lab tests</Text>
         </Pressable>
       </View>
       <View className="gap-2">
         {results.slice(0, LAB_RESULTS_SHOWN).map((result) => (
           <View
             key={result.id}
-            className="border-border flex-row items-center gap-3 rounded-2xl border p-3">
-            <Icon as={FileText} className="text-muted-foreground size-4" />
+            className="flex-row items-center gap-3 rounded-2xl border border-border p-3">
+            <Icon as={FileText} className="size-4 text-muted-foreground" />
             <View className="min-w-0 flex-1">
               <Text className="text-[13px] font-semibold" numberOfLines={1}>
                 {result.testNames.join(', ')}
               </Text>
-              <Text className="text-muted-foreground text-[11px]" numberOfLines={1}>
+              <Text className="text-[11px] text-muted-foreground" numberOfLines={1}>
                 {`${result.labName} · ${result.reference}${
                   result.releasedAt ? ` · ${formatDay(result.releasedAt)}` : ''
                 }`}

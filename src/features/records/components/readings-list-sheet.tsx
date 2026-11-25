@@ -46,20 +46,20 @@ export function ReadingsListSheet({
       title={`${kind === 'bp' ? 'Blood pressure & pulse' : 'Blood sugar'} readings`}
       subtitle="Your readings stay separate from consultation notes. Times are shown in your own time zone.">
       <View className="flex-row items-center justify-between">
-        <Text className="text-muted-foreground text-xs">
+        <Text className="text-xs text-muted-foreground">
           {`${list.length} ${list.length === 1 ? 'reading' : 'readings'}`}
         </Text>
         <ActionButton label="Add reading" icon={Plus} onPress={onAdd} />
       </View>
-      <View className="bg-muted overflow-hidden rounded-3xl">
+      <View className="overflow-hidden rounded-3xl bg-muted">
         {list.map((reading, index) => (
           <View
             key={reading.id}
-            className={`border-border/70 flex-row items-start gap-3 p-3.5 ${index ? 'border-t' : ''}`}>
-            <View className="bg-card size-9 items-center justify-center rounded-full">
+            className={`flex-row items-start gap-3 border-border/70 p-3.5 ${index ? 'border-t' : ''}`}>
+            <View className="size-9 items-center justify-center rounded-full bg-card">
               <Icon
                 as={reading.kind === 'bp' ? Gauge : Droplet}
-                className="text-primary size-4.5"
+                className="size-4.5 text-primary"
               />
             </View>
             <View className="min-w-0 flex-1 gap-0.5">
@@ -68,9 +68,9 @@ export function ReadingsListSheet({
                   ? `${reading.systolic}/${reading.diastolic} mmHg${reading.pulse ? ` · ${reading.pulse} bpm` : ''}`
                   : `${toUnit(reading.sugar, 'mg/dL')} mg/dL · ${TIMING_LABEL[reading.timing]}`}
               </Text>
-              <Text className="text-muted-foreground text-[11px]">{stampLabel(reading.atUtc)}</Text>
+              <Text className="text-[11px] text-muted-foreground">{stampLabel(reading.atUtc)}</Text>
               {reading.note ? (
-                <Text className="text-muted-foreground text-xs leading-4.5">{reading.note}</Text>
+                <Text className="text-xs leading-4.5 text-muted-foreground">{reading.note}</Text>
               ) : null}
             </View>
             <ActionButton
@@ -88,7 +88,7 @@ export function ReadingsListSheet({
           </View>
         ))}
         {list.length ? null : (
-          <Text className="text-muted-foreground p-6 text-center text-xs">No readings yet.</Text>
+          <Text className="p-6 text-center text-xs text-muted-foreground">No readings yet.</Text>
         )}
       </View>
     </Sheet>

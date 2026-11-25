@@ -75,7 +75,7 @@ export function Sheet({
     <View className="flex-row items-start justify-between gap-3">
       <View className="min-w-0 flex-1 gap-1">
         {eyebrow ? (
-          <Text className="text-primary text-[11px] font-semibold tracking-[1.6px] uppercase">
+          <Text className="text-[11px] font-semibold tracking-[1.6px] text-primary uppercase">
             {eyebrow}
           </Text>
         ) : null}
@@ -87,7 +87,7 @@ export function Sheet({
           {title}
         </Text>
         {subtitle ? (
-          <Text className={cn('text-muted-foreground text-xs', eyebrow && 'mt-1 leading-4.5')}>
+          <Text className={cn('text-xs text-muted-foreground', eyebrow && 'mt-1 leading-4.5')}>
             {subtitle}
           </Text>
         ) : null}
@@ -99,8 +99,8 @@ export function Sheet({
           accessibilityLabel="Close"
           hitSlop={8}
           onPress={onClose}
-          className="bg-muted size-8 items-center justify-center rounded-full">
-          <Icon as={X} className="text-muted-foreground size-4" />
+          className="size-8 items-center justify-center rounded-full bg-muted">
+          <Icon as={X} className="size-4 text-muted-foreground" />
         </PressableScale>
       ) : null}
     </View>
@@ -156,7 +156,7 @@ export function Sheet({
           </View>
           {pinned ? (
             <View
-              className={divided ? 'border-border border-t' : undefined}
+              className={divided ? 'border-t border-border' : undefined}
               style={{
                 paddingHorizontal: SCREEN_PADDING_X,
                 paddingTop: 12,

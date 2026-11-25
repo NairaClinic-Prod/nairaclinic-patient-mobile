@@ -145,7 +145,7 @@ export function AuthLayout({
   }));
 
   return (
-    <View className="bg-background flex-1">
+    <View className="flex-1 bg-background">
       <LinearGradient
         colors={[color.gradientStart, color.background]}
         locations={[0, 0.55]}
@@ -183,16 +183,16 @@ export function AuthLayout({
         showsVerticalScrollIndicator={false}>
         <View className="flex-row items-center justify-between">
           <Button size="icon" onPress={goBack} accessibilityLabel="Go back">
-            <Icon as={ChevronLeft} className="text-foreground size-5" />
+            <Icon as={ChevronLeft} className="size-5 text-foreground" />
           </Button>
-          <View className="bg-card size-12 items-center justify-center rounded-2xl shadow-sm shadow-black/10">
+          <View className="size-12 items-center justify-center rounded-2xl bg-card shadow-sm shadow-black/10">
             <Image source={LOGO} style={{ width: 32, height: 32 }} resizeMode="contain" />
           </View>
         </View>
 
         <View className="mt-8 gap-2">
           <Text className="text-[32px] leading-[38px] font-extrabold tracking-tight">{title}</Text>
-          <Text className="text-muted-foreground text-base leading-6">{subtitle}</Text>
+          <Text className="text-base leading-6 text-muted-foreground">{subtitle}</Text>
         </View>
 
         <ScrollToFocusedContext.Provider value={scrollToFocused}>
@@ -207,7 +207,7 @@ export function AuthLayout({
       </ScrollView>
 
       <Animated.View
-        className="border-border bg-background absolute inset-x-0 bottom-0 gap-3 border-t pt-4"
+        className="absolute inset-x-0 bottom-0 gap-3 border-t border-border bg-background pt-4"
         style={[
           { paddingHorizontal: SCREEN_PADDING_X, paddingBottom: 8 + insets.bottom },
           barStyle,
@@ -216,7 +216,7 @@ export function AuthLayout({
         {actions}
         <Animated.View style={[{ height: FOOTER_HEIGHT }, footerStyle]}>
           <View className="flex-row items-center justify-center">
-            <Text className="text-muted-foreground text-[15px]">{footerText}</Text>
+            <Text className="text-[15px] text-muted-foreground">{footerText}</Text>
             <Button variant="link" size="sm" className="px-1.5" onPress={onFooterPress}>
               <Text className="text-[15px] font-bold">{footerAction}</Text>
             </Button>

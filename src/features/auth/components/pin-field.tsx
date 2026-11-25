@@ -35,8 +35,8 @@ export function PinField({ label = 'PIN', value, onChangeText, onBlur, error }: 
           className="h-8 gap-1.5 rounded-full px-3"
           onPress={() => setVisible((current) => !current)}
           accessibilityLabel={visible ? 'Hide PIN' : 'Show PIN'}>
-          <Icon as={visible ? EyeOff : Eye} className="text-muted-foreground size-4" />
-          <Text className="text-muted-foreground text-[13px] font-medium">
+          <Icon as={visible ? EyeOff : Eye} className="size-4 text-muted-foreground" />
+          <Text className="text-[13px] font-medium text-muted-foreground">
             {visible ? 'Hide' : 'Show'}
           </Text>
         </Button>
@@ -50,7 +50,7 @@ export function PinField({ label = 'PIN', value, onChangeText, onBlur, error }: 
             return (
               <View
                 key={index}
-                className={`bg-card h-14 flex-1 items-center justify-center rounded-2xl border ${error ? 'border-destructive' : isActive ? 'border-primary border-2' : 'border-input'}`}>
+                className={`h-14 flex-1 items-center justify-center rounded-2xl border bg-card ${error ? 'border-destructive' : isActive ? 'border-2 border-primary' : 'border-input'}`}>
                 {digit ? <Text className="text-xl font-bold">{visible ? digit : '•'}</Text> : null}
               </View>
             );
@@ -77,7 +77,7 @@ export function PinField({ label = 'PIN', value, onChangeText, onBlur, error }: 
           className="absolute h-px w-px opacity-0"
         />
       </Pressable>
-      {error ? <Text className="text-destructive pl-1 text-[13px]">{error}</Text> : null}
+      {error ? <Text className="pl-1 text-[13px] text-destructive">{error}</Text> : null}
     </View>
   );
 }

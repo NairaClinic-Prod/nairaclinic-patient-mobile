@@ -31,7 +31,7 @@ function Title({ name, branch }: { name: string; branch: string | null }) {
     <Text className="text-[15px] leading-5 font-bold" numberOfLines={1}>
       {name}
       {branch ? (
-        <Text className="text-muted-foreground text-[15px] font-normal">{`  ${branch}`}</Text>
+        <Text className="text-[15px] font-normal text-muted-foreground">{`  ${branch}`}</Text>
       ) : null}
     </Text>
   );
@@ -40,7 +40,7 @@ function Title({ name, branch }: { name: string; branch: string | null }) {
 function Total({ label = 'Total you pay', value }: { label?: string; value: number }) {
   return (
     <View className="mt-3 flex-row items-baseline justify-between">
-      <Text className="text-muted-foreground text-xs">{label}</Text>
+      <Text className="text-xs text-muted-foreground">{label}</Text>
       <Text className="text-xl font-extrabold">{formatNaira(value)}</Text>
     </View>
   );
@@ -49,7 +49,7 @@ function Total({ label = 'Total you pay', value }: { label?: string; value: numb
 function Money({ label, value }: { label: string; value: number }) {
   return (
     <View className="flex-row items-baseline justify-between">
-      <Text className="text-muted-foreground text-[13px]">{label}</Text>
+      <Text className="text-[13px] text-muted-foreground">{label}</Text>
       <Text className="text-[13px]">{formatNaira(value)}</Text>
     </View>
   );
@@ -72,10 +72,10 @@ function Details({
         hitSlop={8}
         onPress={() => setOpen((current) => !current)}
         className="flex-row items-center gap-1 self-start">
-        <Text className="text-primary text-xs font-semibold">{open ? 'Hide details' : label}</Text>
-        <Icon as={ChevronDown} className={cn('text-primary size-3.5', open && 'rotate-180')} />
+        <Text className="text-xs font-semibold text-primary">{open ? 'Hide details' : label}</Text>
+        <Icon as={ChevronDown} className={cn('size-3.5 text-primary', open && 'rotate-180')} />
       </PressableScale>
-      {open ? <View className="border-border mt-3 gap-3 border-t pt-3">{children}</View> : null}
+      {open ? <View className="mt-3 gap-3 border-t border-border pt-3">{children}</View> : null}
     </View>
   );
 }
@@ -118,7 +118,7 @@ function Section({
     <View className="gap-3">
       <View className="gap-0.5">
         <Text className="text-sm font-extrabold">{title}</Text>
-        {text ? <Text className="text-muted-foreground text-xs leading-4.5">{text}</Text> : null}
+        {text ? <Text className="text-xs leading-4.5 text-muted-foreground">{text}</Text> : null}
       </View>
       {children}
     </View>
@@ -143,11 +143,11 @@ function SendAll({
       accessibilityState={{ checked, disabled }}
       disabled={disabled}
       onPress={() => onChange(!checked)}
-      className="bg-muted flex-row items-center gap-3 rounded-2xl p-4">
+      className="flex-row items-center gap-3 rounded-2xl bg-muted p-4">
       <CheckBox checked={checked} disabled={disabled} />
       <View className="min-w-0 flex-1 gap-0.5">
         <Text className="text-[14px] leading-5 font-semibold">{title}</Text>
-        <Text className="text-muted-foreground text-xs leading-4.5">
+        <Text className="text-xs leading-4.5 text-muted-foreground">
           The first to accept sends you a price. You pay only then.
         </Text>
       </View>
@@ -165,7 +165,7 @@ function Others({
   const [open, setOpen] = React.useState(false);
   if (!rows.length) return null;
   return (
-    <View className="bg-muted overflow-hidden rounded-2xl">
+    <View className="overflow-hidden rounded-2xl bg-muted">
       <PressableScale
         scaleTo={0.99}
         role="button"
@@ -175,18 +175,18 @@ function Others({
         <Text className="text-[13px] font-bold">{`${title} (${rows.length})`}</Text>
         <Icon
           as={ChevronDown}
-          className={cn('text-muted-foreground size-4', open && 'rotate-180')}
+          className={cn('size-4 text-muted-foreground', open && 'rotate-180')}
         />
       </PressableScale>
       {open
         ? rows.map((row) => (
             <View
               key={row.id}
-              className="border-border/70 flex-row justify-between gap-3 border-t px-4 py-3">
+              className="flex-row justify-between gap-3 border-t border-border/70 px-4 py-3">
               <Text className="min-w-0 flex-1 text-[13px]" numberOfLines={1}>
                 {row.name}
               </Text>
-              <Text className="text-muted-foreground text-xs">{row.note}</Text>
+              <Text className="text-xs text-muted-foreground">{row.note}</Text>
             </View>
           ))
         : null}
@@ -236,15 +236,15 @@ export function PharmacyResults({
               onPress={() => onSelection(selection === offer.id ? null : offer.id)}>
               <View className="gap-1 pr-7">
                 <Title name={offer.name} branch={offer.branch} />
-                <Text className="text-muted-foreground text-xs">
+                <Text className="text-xs text-muted-foreground">
                   {`${kilometres(offer.distanceMeters)} away${delivery ? ` · about ${minutes(offer.etaMinutes)}` : ''}`}
                 </Text>
               </View>
               <Total value={offer.totalKobo} />
               <Details>
                 <View className="flex-row items-center gap-1.5">
-                  <Icon as={MapPin} className="text-muted-foreground size-3.5" />
-                  <Text className="text-muted-foreground flex-1 text-xs">{offer.address}</Text>
+                  <Icon as={MapPin} className="size-3.5 text-muted-foreground" />
+                  <Text className="flex-1 text-xs text-muted-foreground">{offer.address}</Text>
                 </View>
                 <Lines lines={offer.lines} />
                 <View className="gap-1">
@@ -292,7 +292,7 @@ export function PharmacyResults({
                 </View>
               ))}
               {delivery ? (
-                <Text className="text-muted-foreground text-xs leading-4.5">
+                <Text className="text-xs leading-4.5 text-muted-foreground">
                   Each pharmacy sends its own rider, so each has its own delivery fee.
                 </Text>
               ) : null}
@@ -302,8 +302,8 @@ export function PharmacyResults({
       ) : null}
 
       {!full.length && !showCombination ? (
-        <View className="bg-muted rounded-2xl px-4 py-5">
-          <Text className="text-muted-foreground text-center text-[13px] leading-5">
+        <View className="rounded-2xl bg-muted px-4 py-5">
+          <Text className="text-center text-[13px] leading-5 text-muted-foreground">
             No pharmacy near you lists all of these medicines yet. Send your request to everyone
             nearby below.
           </Text>
@@ -321,7 +321,7 @@ export function PharmacyResults({
               onPress={() => onRequestFrom(requestFrom === offer.id ? null : offer.id)}>
               <View className="gap-1 pr-7">
                 <Title name={offer.name} branch={offer.branch} />
-                <Text className="text-muted-foreground text-xs">{`${kilometres(offer.distanceMeters)} away · price on request`}</Text>
+                <Text className="text-xs text-muted-foreground">{`${kilometres(offer.distanceMeters)} away · price on request`}</Text>
               </View>
             </Choosable>
           ))}
@@ -389,15 +389,15 @@ export function LabResults({
                 onPress={() => onSelect(selected === lab.id ? null : lab.id)}>
                 <View className="gap-1 pr-7">
                   <Title name={lab.labName} branch={lab.branchName} />
-                  <Text className="text-muted-foreground text-xs">
+                  <Text className="text-xs text-muted-foreground">
                     {`${full ? `Offers all ${total}` : `Offers ${lab.matchedCount} of ${total}`} · ${lab.distanceKm.toFixed(1)} km${index === 0 ? ' · closest' : ''}`}
                   </Text>
                 </View>
                 <Total value={labTotalKobo(lab, collection)} />
                 <Details>
                   <View className="flex-row items-center gap-1.5">
-                    <Icon as={MapPin} className="text-muted-foreground size-3.5" />
-                    <Text className="text-muted-foreground flex-1 text-xs">{lab.address}</Text>
+                    <Icon as={MapPin} className="size-3.5 text-muted-foreground" />
+                    <Text className="flex-1 text-xs text-muted-foreground">{lab.address}</Text>
                   </View>
                   <View className="gap-1.5">
                     {lab.matched.map((entry) => (
@@ -426,7 +426,7 @@ export function LabResults({
                       <Money label="Home collection" value={lab.homeFeeKobo} />
                     ) : null}
                   </View>
-                  <Text className="text-muted-foreground text-xs">
+                  <Text className="text-xs text-muted-foreground">
                     {`Results in about ${lab.turnaroundHours} hours`}
                   </Text>
                 </Details>
@@ -435,8 +435,8 @@ export function LabResults({
           })}
         </Section>
       ) : (
-        <View className="bg-muted rounded-2xl px-4 py-5">
-          <Text className="text-muted-foreground text-center text-[13px] leading-5">
+        <View className="rounded-2xl bg-muted px-4 py-5">
+          <Text className="text-center text-[13px] leading-5 text-muted-foreground">
             {`No laboratory near you ${collection === 'home' ? 'collects at home' : 'lists'} for these tests yet. Ask everyone nearby below.`}
           </Text>
         </View>

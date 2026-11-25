@@ -1,0 +1,9 @@
+node_modules
+.expo
+dist
+ios
+android
+pnpm-lock.yaml
+expo-env.d.ts
+uniwind-types.d.ts
+*.lock

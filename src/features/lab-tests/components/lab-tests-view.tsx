@@ -37,13 +37,13 @@ export function LabTestsView() {
         <Text className="text-base font-extrabold">Price requests</Text>
         {LAB_REQUESTS.length ? (
           LAB_REQUESTS.map((request) => (
-            <View key={request.id} className="bg-card gap-3 rounded-2xl p-4">
+            <View key={request.id} className="gap-3 rounded-2xl bg-card p-4">
               <View className="flex-row items-start justify-between gap-3">
                 <View className="min-w-0 flex-1 gap-0.5">
                   <Text className="text-[14px] leading-5 font-bold">
                     {request.tests.join(', ')}
                   </Text>
-                  <Text className="text-muted-foreground text-xs leading-4.5">
+                  <Text className="text-xs leading-4.5 text-muted-foreground">
                     {`${request.reference} · ${request.area} · replies until ${formatDay(request.expiresAt)}`}
                   </Text>
                 </View>
@@ -54,13 +54,13 @@ export function LabTestsView() {
                 </StatusPill>
               </View>
               {request.replies.map((reply) => (
-                <View key={reply.id} className="border-border gap-2 border-t pt-3">
+                <View key={reply.id} className="gap-2 border-t border-border pt-3">
                   <View className="flex-row items-center justify-between gap-3">
                     <View className="min-w-0 flex-1">
                       <Text className="text-[13px] font-semibold" numberOfLines={1}>
                         {reply.lab}
                       </Text>
-                      <Text className="text-muted-foreground text-xs">{reply.note}</Text>
+                      <Text className="text-xs text-muted-foreground">{reply.note}</Text>
                     </View>
                     <Text className="text-[14px] font-extrabold">
                       {formatNaira(reply.totalKobo)}
@@ -73,7 +73,7 @@ export function LabTestsView() {
             </View>
           ))
         ) : (
-          <Text className="text-muted-foreground text-[13px] leading-5">
+          <Text className="text-[13px] leading-5 text-muted-foreground">
             Need a test no laboratory lists? Ask for a price and labs in your area will reply.
           </Text>
         )}

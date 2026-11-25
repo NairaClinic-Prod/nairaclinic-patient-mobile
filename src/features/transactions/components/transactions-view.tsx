@@ -54,9 +54,9 @@ export function TransactionsView() {
       <View className="gap-3">
         <Text className="text-base font-bold">
           {'History '}
-          <Text className="text-muted-foreground text-base font-normal">{transactions.length}</Text>
+          <Text className="text-base font-normal text-muted-foreground">{transactions.length}</Text>
         </Text>
-        <View className="bg-card overflow-hidden rounded-2xl">
+        <View className="overflow-hidden rounded-2xl bg-card">
           {transactions.length ? (
             transactions.map((item, index) => {
               const refunded = item.status === 'refunded';
@@ -64,18 +64,18 @@ export function TransactionsView() {
                 <View
                   key={item.id}
                   className={cn(
-                    'border-border flex-row items-center gap-3 px-3.5 py-3',
+                    'flex-row items-center gap-3 border-border px-3.5 py-3',
                     index < transactions.length - 1 ? 'border-b' : ''
                   )}>
-                  <View className="bg-secondary size-10 items-center justify-center rounded-xl">
-                    <Icon as={ICON[item.kind]} className="text-primary size-4" />
+                  <View className="size-10 items-center justify-center rounded-xl bg-secondary">
+                    <Icon as={ICON[item.kind]} className="size-4 text-primary" />
                   </View>
                   <View className="min-w-0 flex-1 gap-0.5">
                     <Text className="text-[13px] leading-4.5 font-bold">{item.title}</Text>
-                    <Text className="text-muted-foreground text-[11px]" numberOfLines={1}>
+                    <Text className="text-[11px] text-muted-foreground" numberOfLines={1}>
                       {`Ref ${item.reference}${item.detail && item.kind === 'pharmacy' ? ` · ${item.detail}` : ''}`}
                     </Text>
-                    <Text className="text-muted-foreground text-[11px]">
+                    <Text className="text-[11px] text-muted-foreground">
                       {`${KIND_LABEL[item.kind]} · ${STAMP.format(new Date(item.at))}`}
                     </Text>
                   </View>

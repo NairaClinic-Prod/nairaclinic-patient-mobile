@@ -38,8 +38,8 @@ export function AddButton({ label, onPress }: AddButtonProps) {
       onPress={onPress}>
       <Animated.View
         style={style}
-        className="bg-primary size-11 items-center justify-center rounded-full">
-        <Icon as={Plus} className="text-primary-foreground size-5" />
+        className="size-11 items-center justify-center rounded-full bg-primary">
+        <Icon as={Plus} className="size-5 text-primary-foreground" />
       </Animated.View>
     </Pressable>
   );

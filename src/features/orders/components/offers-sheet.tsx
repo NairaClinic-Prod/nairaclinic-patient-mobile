@@ -97,7 +97,7 @@ function Section({
     <View className="gap-3">
       <View className="gap-0.5">
         <Text className="text-base font-extrabold">{title}</Text>
-        {text ? <Text className="text-muted-foreground text-xs leading-4.5">{text}</Text> : null}
+        {text ? <Text className="text-xs leading-4.5 text-muted-foreground">{text}</Text> : null}
       </View>
       {children}
     </View>
@@ -116,20 +116,20 @@ function YourOrders({
       {orders.map((order) => {
         const pill = ORDER_PILL[order.status];
         return (
-          <View key={order.id} className="border-border gap-3 rounded-2xl border p-4">
+          <View key={order.id} className="gap-3 rounded-2xl border border-border p-4">
             <View className="flex-row items-center gap-3">
-              <View className="bg-secondary size-11 items-center justify-center rounded-xl">
-                <Icon as={Store} className="text-primary size-5" />
+              <View className="size-11 items-center justify-center rounded-xl bg-secondary">
+                <Icon as={Store} className="size-5 text-primary" />
               </View>
               <View className="min-w-0 flex-1 gap-1">
                 <View className="flex-row flex-wrap items-center gap-2">
                   <Text className="text-[15px] font-bold">{order.pharmacyName}</Text>
                   {pill ? <StatusPill tone={pill.tone}>{pill.label}</StatusPill> : null}
                 </View>
-                <Text className="text-muted-foreground text-[13px] leading-4.5">
+                <Text className="text-[13px] leading-4.5 text-muted-foreground">
                   {(ORDER_LINE[order.status] ?? (() => order.status))(order)}
                 </Text>
-                <Text className="text-muted-foreground text-xs">
+                <Text className="text-xs text-muted-foreground">
                   {[order.reference, order.totalKobo ? formatNaira(order.totalKobo) : null]
                     .filter(Boolean)
                     .join(' · ')}
@@ -170,26 +170,26 @@ function Timeline({ request }: { request: ShoppingRequest }) {
             scaleTo={0.96}
             role="button"
             onPress={() => setAll((current) => !current)}>
-            <Text className="text-primary text-[13px] font-semibold">
+            <Text className="text-[13px] font-semibold text-primary">
               {all ? 'Show less' : `Show all activity (${entries.length})`}
             </Text>
           </PressableScale>
         ) : null}
       </View>
-      <View className="border-border gap-4 rounded-2xl border p-4">
+      <View className="gap-4 rounded-2xl border border-border p-4">
         {shown.map((entry, index) => (
           <View key={`${entry.at}-${index}`} className="flex-row gap-3">
             <View className={cn('mt-1.5 size-2.5 rounded-full', DOT[entry.tone])} />
             <View className="min-w-0 flex-1">
               <Text className="text-[13px] leading-5">{entry.text}</Text>
-              <Text className="text-muted-foreground text-xs">{formatWhen(entry.at)}</Text>
+              <Text className="text-xs text-muted-foreground">{formatWhen(entry.at)}</Text>
             </View>
           </View>
         ))}
         {pending ? (
           <View className="flex-row gap-3">
-            <View className="bg-primary mt-1.5 size-2.5 rounded-full" />
-            <Text className="text-primary flex-1 text-[13px] font-semibold">{pending}</Text>
+            <View className="mt-1.5 size-2.5 rounded-full bg-primary" />
+            <Text className="flex-1 text-[13px] font-semibold text-primary">{pending}</Text>
           </View>
         ) : null}
       </View>
@@ -203,7 +203,7 @@ function Medicines({ request, closed }: { request: ShoppingRequest; closed: bool
     request.offers.some((offer) => hasLine(offer, item));
 
   return (
-    <View className="border-border rounded-2xl border">
+    <View className="rounded-2xl border border-border">
       <PressableScale
         scaleTo={0.99}
         role="button"
@@ -213,11 +213,11 @@ function Medicines({ request, closed }: { request: ShoppingRequest; closed: bool
         <Text className="text-[13px] font-bold">{`Your medicines (${request.items.length})`}</Text>
         <Icon
           as={ChevronDown}
-          className={cn('text-muted-foreground size-4', expanded && 'rotate-180')}
+          className={cn('size-4 text-muted-foreground', expanded && 'rotate-180')}
         />
       </PressableScale>
       {expanded ? (
-        <View className="border-border border-t px-4">
+        <View className="border-t border-border px-4">
           {request.items.map((item, index) => {
             const state =
               item.status === 'ordered'
@@ -232,7 +232,7 @@ function Medicines({ request, closed }: { request: ShoppingRequest; closed: bool
                 key={item.id}
                 className={cn(
                   'flex-row items-center justify-between gap-3 py-3',
-                  index > 0 && 'border-border border-t'
+                  index > 0 && 'border-t border-border'
                 )}>
                 <View className="min-w-0 flex-1">
                   <Text
@@ -242,7 +242,7 @@ function Medicines({ request, closed }: { request: ShoppingRequest; closed: bool
                     )}>
                     {item.name}
                   </Text>
-                  <Text className="text-muted-foreground text-xs">
+                  <Text className="text-xs text-muted-foreground">
                     {`Quantity ${item.quantity}${item.brand ? ` · ${item.brand} only` : ''}`}
                   </Text>
                 </View>
@@ -301,12 +301,12 @@ function Body({ request, picked, setPicked, onOpenOrder, onAskAll, onOrder }: Bo
 
   return (
     <>
-      <View className="bg-secondary/40 border-primary/15 flex-row items-center gap-3.5 rounded-2xl border p-3.5">
-        <View className="bg-secondary size-11 items-center justify-center rounded-xl">
-          <Icon as={pickup ? Store : Package} className="text-primary size-5" />
+      <View className="flex-row items-center gap-3.5 rounded-2xl border border-primary/15 bg-secondary/40 p-3.5">
+        <View className="size-11 items-center justify-center rounded-xl bg-secondary">
+          <Icon as={pickup ? Store : Package} className="size-5 text-primary" />
         </View>
         <View className="min-w-0 flex-1 gap-0.5">
-          <Text className="text-muted-foreground text-xs">
+          <Text className="text-xs text-muted-foreground">
             {pickup ? 'You collect from' : 'Deliver to'}
           </Text>
           <Text className="text-[15px] leading-5 font-bold" numberOfLines={2}>
@@ -314,7 +314,7 @@ function Body({ request, picked, setPicked, onOpenOrder, onAskAll, onOrder }: Bo
               ? 'The pharmacy you choose'
               : (request.deliveryAddress ?? request.area ?? 'Your address')}
           </Text>
-          <Text className="text-muted-foreground text-xs">
+          <Text className="text-xs text-muted-foreground">
             {[request.area, formatDay(request.createdAt)].filter(Boolean).join(' · ')}
           </Text>
         </View>
@@ -362,12 +362,12 @@ function Body({ request, picked, setPicked, onOpenOrder, onAskAll, onOrder }: Bo
               />
             ))
           ) : (
-            <View className="border-border items-center gap-2 rounded-2xl border border-dashed px-6 py-10">
-              <Icon as={Package} className="text-muted-foreground size-8" />
+            <View className="items-center gap-2 rounded-2xl border border-dashed border-border px-6 py-10">
+              <Icon as={Package} className="size-8 text-muted-foreground" />
               <Text className="text-center text-base font-bold">
                 Your request is with eligible pharmacies.
               </Text>
-              <Text className="text-muted-foreground text-center text-[13px] leading-5">
+              <Text className="text-center text-[13px] leading-5 text-muted-foreground">
                 Offers will appear here when pharmacies respond. No payment has been made.
               </Text>
             </View>
@@ -380,17 +380,17 @@ function Body({ request, picked, setPicked, onOpenOrder, onAskAll, onOrder }: Bo
       <Medicines request={request} closed={closed} />
 
       {quote && showOffers ? (
-        <View className="border-primary/20 bg-card gap-3 rounded-2xl border p-4">
+        <View className="gap-3 rounded-2xl border border-primary/20 bg-card p-4">
           <View className="flex-row items-baseline justify-between gap-3">
-            <Text className="text-muted-foreground flex-1 text-[13px]">
+            <Text className="flex-1 text-[13px] text-muted-foreground">
               {`${quote.covered} of ${quote.open} medicines from ${plural(quote.pharmacies, 'pharmacy', 'pharmacies')}`}
             </Text>
             <Text className="text-xl font-extrabold">{formatNaira(quote.totalKobo)}</Text>
           </View>
           {quote.covered < quote.open ? (
-            <View className="bg-warning-soft flex-row items-start gap-2 rounded-xl px-3 py-2">
-              <Icon as={Clock} className="text-warning mt-0.5 size-4" />
-              <Text className="text-warning flex-1 text-[13px] leading-5">
+            <View className="flex-row items-start gap-2 rounded-xl bg-warning-soft px-3 py-2">
+              <Icon as={Clock} className="mt-0.5 size-4 text-warning" />
+              <Text className="flex-1 text-[13px] leading-5 text-warning">
                 {`${plural(quote.open - quote.covered, 'medicine')} stay${quote.open - quote.covered === 1 ? 's' : ''} open. You can ask again or remove it later.`}
               </Text>
             </View>
@@ -449,7 +449,7 @@ export function OffersSheet({
       footer={
         request ? (
           <View className="gap-3">
-            <Text className="text-muted-foreground text-xs leading-4.5">
+            <Text className="text-xs leading-4.5 text-muted-foreground">
               {request.status === 'expired'
                 ? 'No pharmacy replied in time, so this request closed. Make a new order any time.'
                 : closed

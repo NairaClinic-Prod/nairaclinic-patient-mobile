@@ -31,8 +31,8 @@ function Chip({
       scaleTo={0.97}
       role="button"
       onPress={onPress}
-      className="bg-card h-12 flex-1 flex-row items-center justify-center gap-2 rounded-full">
-      <Icon as={icon} className="text-foreground size-4.5" />
+      className="h-12 flex-1 flex-row items-center justify-center gap-2 rounded-full bg-card">
+      <Icon as={icon} className="size-4.5 text-foreground" />
       <Text className="text-[13px] font-semibold">{label}</Text>
     </PressableScale>
   );
@@ -40,13 +40,13 @@ function Chip({
 
 function MonthTile({ label, kobo, tone }: { label: string; kobo: number; tone: 'in' | 'out' }) {
   return (
-    <View className="bg-card flex-1 gap-1 rounded-2xl p-3.5">
+    <View className="flex-1 gap-1 rounded-2xl bg-card p-3.5">
       <View className="flex-row items-center gap-1.5">
         <Icon
           as={tone === 'in' ? ArrowDownLeft : ArrowUpRight}
-          className="text-muted-foreground size-3.5"
+          className="size-3.5 text-muted-foreground"
         />
-        <Text className="text-muted-foreground text-xs">{label}</Text>
+        <Text className="text-xs text-muted-foreground">{label}</Text>
       </View>
       <Text className={cn('text-xl font-extrabold', tone === 'in' && 'text-primary')}>
         {formatNaira(kobo)}
@@ -68,21 +68,21 @@ export function WalletView() {
 
   return (
     <View className="gap-5">
-      <View className="bg-primary gap-2.5 rounded-2xl px-3.5 py-3">
+      <View className="gap-2.5 rounded-2xl bg-primary px-3.5 py-3">
         <View className="flex-row items-center justify-between gap-3">
           <View>
-            <Text className="text-primary-foreground/80 text-[11px] font-semibold">Balance</Text>
+            <Text className="text-[11px] font-semibold text-primary-foreground/80">Balance</Text>
             <BigNaira
               kobo={wallet.balanceKobo}
-              className="text-primary-foreground text-2xl leading-8 font-extrabold"
+              className="text-2xl leading-8 font-extrabold text-primary-foreground"
             />
           </View>
           <View className="items-end">
-            <Text className="text-primary-foreground/80 text-[11px]">Account number</Text>
+            <Text className="text-[11px] text-primary-foreground/80">Account number</Text>
             <View className="flex-row items-center gap-2">
               <Text
                 selectable
-                className="text-primary-foreground text-base font-extrabold tracking-[1px]">
+                className="text-base font-extrabold tracking-[1px] text-primary-foreground">
                 {wallet.accountNumber}
               </Text>
               <PressableScale
@@ -91,12 +91,12 @@ export function WalletView() {
                 accessibilityLabel="Share account number"
                 onPress={() => Share.share({ message: wallet.accountNumber })}
                 className="size-7 items-center justify-center rounded-full bg-white/20">
-                <Icon as={Share2} className="text-primary-foreground size-3.5" />
+                <Icon as={Share2} className="size-3.5 text-primary-foreground" />
               </PressableScale>
             </View>
           </View>
         </View>
-        <Text className="text-primary-foreground/75 text-[11px]" numberOfLines={1}>
+        <Text className="text-[11px] text-primary-foreground/75" numberOfLines={1}>
           {`${wallet.accountName} · ${wallet.bankName}`}
         </Text>
       </View>
@@ -123,18 +123,18 @@ export function WalletView() {
         <View className="flex-row items-center justify-between">
           <Text className="text-base font-extrabold">Recent transactions</Text>
           <View className="flex-row items-center gap-1">
-            <Icon as={ArrowDownUp} className="text-muted-foreground size-3.5" />
-            <Text className="text-muted-foreground text-xs">{`${history.length} in total`}</Text>
+            <Icon as={ArrowDownUp} className="size-3.5 text-muted-foreground" />
+            <Text className="text-xs text-muted-foreground">{`${history.length} in total`}</Text>
           </View>
         </View>
-        <View className="bg-card overflow-hidden rounded-2xl">
+        <View className="overflow-hidden rounded-2xl bg-card">
           {history.length ? (
             history.map((entry, index) => (
               <View
                 key={entry.id}
                 className={cn(
                   'flex-row items-center gap-3 px-3.5 py-3',
-                  index > 0 && 'border-border border-t'
+                  index > 0 && 'border-t border-border'
                 )}>
                 <View
                   className={cn(
@@ -153,7 +153,7 @@ export function WalletView() {
                   <Text className="text-[14px] font-semibold" numberOfLines={1}>
                     {entry.title}
                   </Text>
-                  <Text className="text-muted-foreground text-xs">{formatWhen(entry.at)}</Text>
+                  <Text className="text-xs text-muted-foreground">{formatWhen(entry.at)}</Text>
                 </View>
                 <Text
                   className={cn(
@@ -166,8 +166,8 @@ export function WalletView() {
             ))
           ) : (
             <View className="items-center gap-2 px-6 py-10">
-              <Icon as={Landmark} className="text-primary size-5" />
-              <Text className="text-muted-foreground text-center text-xs">
+              <Icon as={Landmark} className="size-5 text-primary" />
+              <Text className="text-center text-xs text-muted-foreground">
                 No transactions yet. Add money by bank transfer and it shows here the moment it
                 lands.
               </Text>

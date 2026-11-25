@@ -14,22 +14,22 @@ export function CalendarRow({ connected, onPress }: CalendarRowProps) {
       role="button"
       accessibilityLabel={connected ? 'Calendar connected' : 'Add your reminders to your calendar'}
       onPress={onPress}
-      className="bg-card flex-row items-center gap-3 rounded-2xl p-3.5">
-      <View className="bg-secondary size-10 items-center justify-center rounded-full">
+      className="flex-row items-center gap-3 rounded-2xl bg-card p-3.5">
+      <View className="size-10 items-center justify-center rounded-full bg-secondary">
         <Icon
           as={connected ? CalendarCheck : CalendarPlus}
-          className={connected ? 'text-success size-[18px]' : 'text-primary size-[18px]'}
+          className={connected ? 'size-[18px] text-success' : 'size-[18px] text-primary'}
         />
       </View>
       <View className="flex-1 gap-0.5">
         <Text className="text-[13px] font-bold">
           {connected ? 'Calendar connected' : 'Add reminders to your calendar'}
         </Text>
-        <Text className="text-muted-foreground text-[11px] leading-4">
+        <Text className="text-[11px] leading-4 text-muted-foreground">
           {connected ? 'Tap to review calendar access' : 'Connect once and never miss one'}
         </Text>
       </View>
-      <Icon as={ChevronRight} className="text-muted-foreground size-4" />
+      <Icon as={ChevronRight} className="size-4 text-muted-foreground" />
     </PressableScale>
   );
 }

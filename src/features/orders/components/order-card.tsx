@@ -24,7 +24,7 @@ export function OrderCard({ order, onOpen, onCancel }: OrderCardProps) {
   const place = [order.deliveryArea, order.pharmacyState].filter(Boolean).join(', ');
 
   return (
-    <View className="bg-card gap-3 rounded-2xl p-4">
+    <View className="gap-3 rounded-2xl bg-card p-4">
       <View className="flex-row gap-3">
         {/* <View className="bg-secondary size-10 items-center justify-center rounded-full">
           <Icon as={Pill} className="text-primary size-5" />
@@ -35,7 +35,7 @@ export function OrderCard({ order, onOpen, onCancel }: OrderCardProps) {
             {order.items.map((item) => item.name).join(', ')}
           </Text>
           <Text className="text-[13px]">{statusLine(order)}</Text>
-          <Text className="text-muted-foreground text-xs leading-4.5">
+          <Text className="text-xs leading-4.5 text-muted-foreground">
             {`${order.reference} · ${order.pharmacyName} · ${formatWhen(order.createdAt)}`}
           </Text>
         </View>
@@ -43,19 +43,19 @@ export function OrderCard({ order, onOpen, onCancel }: OrderCardProps) {
       <View className="flex-row flex-wrap gap-x-4 gap-y-1.5">
         {place ? (
           <View className="flex-row items-center gap-1.5">
-            <Icon as={MapPin} className="text-muted-foreground size-3.5" />
-            <Text className="text-muted-foreground text-xs">{place}</Text>
+            <Icon as={MapPin} className="size-3.5 text-muted-foreground" />
+            <Text className="text-xs text-muted-foreground">{place}</Text>
           </View>
         ) : null}
         <View className="flex-row items-center gap-1.5">
-          <Icon as={Truck} className="text-muted-foreground size-3.5" />
-          <Text className="text-muted-foreground text-xs">
+          <Icon as={Truck} className="size-3.5 text-muted-foreground" />
+          <Text className="text-xs text-muted-foreground">
             {order.fulfilment === 'delivery' ? 'Home delivery' : 'Pick up'}
           </Text>
         </View>
         <View className="flex-row items-center gap-1.5">
-          <Icon as={Lock} className="text-muted-foreground size-3.5" />
-          <Text className="text-muted-foreground text-xs">{paymentLabel(order)}</Text>
+          <Icon as={Lock} className="size-3.5 text-muted-foreground" />
+          <Text className="text-xs text-muted-foreground">{paymentLabel(order)}</Text>
         </View>
       </View>
       <View className="flex-row gap-2">

@@ -33,7 +33,7 @@ export function AppointmentsSection({
         onActionPress={onSeeAll}
       />
       <View
-        className="bg-card overflow-hidden rounded-2xl"
+        className="overflow-hidden rounded-2xl bg-card"
         style={{ marginHorizontal: SCREEN_PADDING_X }}>
         {appointments.length ? (
           appointments.map((appointment, index) => (
@@ -47,10 +47,10 @@ export function AppointmentsSection({
           ))
         ) : (
           <View className="items-center gap-2.5 p-5">
-            <View className="bg-secondary size-10 items-center justify-center rounded-full">
-              <Icon as={CalendarDays} className="text-primary size-4" />
+            <View className="size-10 items-center justify-center rounded-full bg-secondary">
+              <Icon as={CalendarDays} className="size-4 text-primary" />
             </View>
-            <Text className="text-muted-foreground text-xs">No upcoming consultations.</Text>
+            <Text className="text-xs text-muted-foreground">No upcoming consultations.</Text>
             <Button variant="default" size="sm" className="rounded-xl" onPress={onBook}>
               <Text className="text-xs">Book a doctor</Text>
             </Button>

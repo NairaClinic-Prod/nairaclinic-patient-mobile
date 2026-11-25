@@ -132,7 +132,7 @@ export function ReadingSheet({ open, editing, defaultKind, onClose }: ReadingShe
       footer={
         <View className="gap-2">
           {missing.length ? (
-            <Text className="text-muted-foreground text-xs">{`Still needed: ${missing.join(', ')}.`}</Text>
+            <Text className="text-xs text-muted-foreground">{`Still needed: ${missing.join(', ')}.`}</Text>
           ) : null}
           <View className="flex-row gap-2">
             <ActionButton

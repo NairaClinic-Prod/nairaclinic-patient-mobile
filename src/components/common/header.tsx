@@ -30,7 +30,7 @@ const TabHeader = ({ title, compactTitle, subtitle, right, gutter = false }: Tab
           title
         )}
         {subtitle ? (
-          <Text className="text-muted-foreground mt-0.5 text-xs leading-4.5">{subtitle}</Text>
+          <Text className="mt-0.5 text-xs leading-4.5 text-muted-foreground">{subtitle}</Text>
         ) : null}
       </View>
       {right}

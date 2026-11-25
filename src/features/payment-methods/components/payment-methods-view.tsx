@@ -32,18 +32,18 @@ export function PaymentMethodsView({ onAddCard }: { onAddCard?: () => void }) {
 
   return (
     <View className="gap-5">
-      <View className="bg-primary gap-1.5 rounded-2xl px-3.5 py-3">
+      <View className="gap-1.5 rounded-2xl bg-primary px-3.5 py-3">
         <View className="flex-row items-center justify-between gap-3">
           <View className="min-w-0 flex-1">
             <View className="flex-row items-center gap-1.5">
-              <Icon as={Landmark} className="text-primary-foreground/85 size-3.5" />
-              <Text className="text-primary-foreground/85 text-[11px] font-semibold">
+              <Icon as={Landmark} className="size-3.5 text-primary-foreground/85" />
+              <Text className="text-[11px] font-semibold text-primary-foreground/85">
                 Wallet account
               </Text>
             </View>
             <Text
               selectable
-              className="text-primary-foreground text-xl font-extrabold tracking-[1.5px]">
+              className="text-xl font-extrabold tracking-[1.5px] text-primary-foreground">
               {wallet.accountNumber}
             </Text>
           </View>
@@ -52,10 +52,10 @@ export function PaymentMethodsView({ onAddCard }: { onAddCard?: () => void }) {
             accessibilityLabel="Share account number"
             onPress={() => Share.share({ message: wallet.accountNumber })}
             className="size-9 items-center justify-center rounded-full bg-white/20 active:opacity-70">
-            <Icon as={Share2} className="text-primary-foreground size-4" />
+            <Icon as={Share2} className="size-4 text-primary-foreground" />
           </Pressable>
         </View>
-        <Text className="text-primary-foreground/75 text-[11px]" numberOfLines={1}>
+        <Text className="text-[11px] text-primary-foreground/75" numberOfLines={1}>
           {`${wallet.accountName} · ${wallet.bankName} · Transfer from any bank app`}
         </Text>
       </View>
@@ -64,7 +64,7 @@ export function PaymentMethodsView({ onAddCard }: { onAddCard?: () => void }) {
         <View className="flex-row items-center justify-between">
           <Text className="text-base font-bold">
             {'Saved cards '}
-            <Text className="text-muted-foreground text-base font-normal">{cards.length}</Text>
+            <Text className="text-base font-normal text-muted-foreground">{cards.length}</Text>
           </Text>
           <ActionButton label="Add a card" icon={Plus} onPress={() => setAdding(true)} />
         </View>
@@ -80,7 +80,7 @@ export function PaymentMethodsView({ onAddCard }: { onAddCard?: () => void }) {
             />
           ))
         ) : (
-          <View className="bg-card rounded-2xl">
+          <View className="rounded-2xl bg-card">
             <EmptyState
               icon={CreditCard}
               text="No saved cards yet. Add one now, or it will appear here the first time you pay by card."
@@ -89,7 +89,7 @@ export function PaymentMethodsView({ onAddCard }: { onAddCard?: () => void }) {
         )}
       </View>
 
-      <Text className="text-muted-foreground text-xs leading-4.5">
+      <Text className="text-xs leading-4.5 text-muted-foreground">
         We never see or store your card number. Paystack keeps it, and we keep only a secure token
         and the last four digits. Remove a card here any time and we stop using it.
       </Text>
@@ -127,8 +127,8 @@ export function PaymentMethodsView({ onAddCard }: { onAddCard?: () => void }) {
             'You can remove the card here any time.',
           ].map((line) => (
             <View key={line} className="flex-row gap-2.5">
-              <View className="bg-primary mt-2 size-1.5 rounded-full" />
-              <Text className="text-muted-foreground flex-1 text-xs leading-4.5">{line}</Text>
+              <View className="mt-2 size-1.5 rounded-full bg-primary" />
+              <Text className="flex-1 text-xs leading-4.5 text-muted-foreground">{line}</Text>
             </View>
           ))}
         </View>

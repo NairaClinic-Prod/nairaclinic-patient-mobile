@@ -13,12 +13,12 @@ export function ClosedRequestCard({ request, onOpen }: ClosedRequestCardProps) {
   const names = request.items.map(medicineLine);
 
   return (
-    <View className="bg-card gap-3 rounded-2xl p-4">
+    <View className="gap-3 rounded-2xl bg-card p-4">
       <View className="gap-1">
         <Text className="text-base leading-5.5 font-bold">
           {`${request.reference} · ${plural(request.items.length, 'medicine')}`}
         </Text>
-        <Text className="text-muted-foreground text-xs">
+        <Text className="text-xs text-muted-foreground">
           {`Requested ${formatWhen(request.createdAt)}`}
         </Text>
       </View>
@@ -26,8 +26,8 @@ export function ClosedRequestCard({ request, onOpen }: ClosedRequestCardProps) {
       <Text className="text-[13px] leading-5">
         {`${names.slice(0, MEDICINES_SHOWN).join(' · ')}${names.length > MEDICINES_SHOWN ? ' …' : ''}`}
       </Text>
-      <View className="border-border gap-3 border-t pt-3">
-        <Text className="text-muted-foreground text-[13px] leading-5">
+      <View className="gap-3 border-t border-border pt-3">
+        <Text className="text-[13px] leading-5 text-muted-foreground">
           {expired
             ? 'No pharmacy replied in time, so this request closed. You can make a new order any time.'
             : 'You cancelled this request.'}

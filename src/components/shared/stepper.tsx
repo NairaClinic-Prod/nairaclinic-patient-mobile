@@ -22,7 +22,7 @@ export function Stepper({ value, min = 1, max = 20, disabled, label, onChange }:
   };
   return (
     <View
-      className={cn('bg-muted flex-row items-center rounded-full', disabled && 'opacity-40')}
+      className={cn('flex-row items-center rounded-full bg-muted', disabled && 'opacity-40')}
       accessibilityLabel={`${label}: ${value}`}>
       <PressableScale
         scaleTo={0.9}
@@ -31,7 +31,7 @@ export function Stepper({ value, min = 1, max = 20, disabled, label, onChange }:
         disabled={disabled || value <= min}
         onPress={() => step(-1)}
         className="size-9 items-center justify-center">
-        <Icon as={Minus} className="text-foreground size-4" />
+        <Icon as={Minus} className="size-4 text-foreground" />
       </PressableScale>
       <Text className="min-w-7 text-center text-[14px] font-bold">{value}</Text>
       <PressableScale
@@ -41,7 +41,7 @@ export function Stepper({ value, min = 1, max = 20, disabled, label, onChange }:
         disabled={disabled || value >= max}
         onPress={() => step(1)}
         className="size-9 items-center justify-center">
-        <Icon as={Plus} className="text-foreground size-4" />
+        <Icon as={Plus} className="size-4 text-foreground" />
       </PressableScale>
     </View>
   );

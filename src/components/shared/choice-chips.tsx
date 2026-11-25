@@ -54,7 +54,7 @@ export function ChoiceChips({
 
   return (
     <View className="gap-1.5">
-      <Text className="text-muted-foreground text-xs font-semibold">{label}</Text>
+      <Text className="text-xs font-semibold text-muted-foreground">{label}</Text>
       {scroll ? (
         <ScrollView
           horizontal

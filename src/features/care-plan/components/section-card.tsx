@@ -15,9 +15,9 @@ export function SectionCard({ title, count, tone = 'plain', actions, children }:
   const rows = React.Children.toArray(children);
   return (
     <View className={cn('px-4', tone === 'test' ? 'bg-secondary/45' : 'bg-card')}>
-      <View className="border-border/70 gap-3 border-b py-3.5">
+      <View className="gap-3 border-b border-border/70 py-3.5">
         <Text className="text-[15px] font-bold">
-          {title} <Text className="text-muted-foreground text-sm font-normal">{count}</Text>
+          {title} <Text className="text-sm font-normal text-muted-foreground">{count}</Text>
         </Text>
         {actions ? (
           <ScrollView
@@ -30,7 +30,7 @@ export function SectionCard({ title, count, tone = 'plain', actions, children }:
         ) : null}
       </View>
       {rows.map((row, index) => (
-        <View key={index} className={index ? 'border-border/70 border-t' : ''}>
+        <View key={index} className={index ? 'border-t border-border/70' : ''}>
           {row}
         </View>
       ))}

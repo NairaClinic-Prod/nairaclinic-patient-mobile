@@ -67,10 +67,10 @@ function Steps({ order }: { order: PharmacyOrder }) {
               <View
                 className={cn(
                   'size-7 items-center justify-center rounded-full border',
-                  done || active ? 'bg-secondary border-primary/30' : 'bg-muted border-transparent'
+                  done || active ? 'border-primary/30 bg-secondary' : 'border-transparent bg-muted'
                 )}>
                 {done ? (
-                  <Icon as={Check} strokeWidth={3} className="text-primary size-3.5" />
+                  <Icon as={Check} strokeWidth={3} className="size-3.5 text-primary" />
                 ) : (
                   <Text
                     className={cn(
@@ -89,12 +89,12 @@ function Steps({ order }: { order: PharmacyOrder }) {
               <Text
                 className={cn(
                   'text-[14px] leading-7 font-semibold',
-                  !done && !active && 'text-muted-foreground font-medium'
+                  !done && !active && 'font-medium text-muted-foreground'
                 )}>
                 {label}
               </Text>
               {entry && (done || active) ? (
-                <Text className="text-muted-foreground -mt-1 text-xs">{formatWhen(entry.at)}</Text>
+                <Text className="-mt-1 text-xs text-muted-foreground">{formatWhen(entry.at)}</Text>
               ) : null}
             </View>
           </View>
@@ -109,7 +109,7 @@ type RowProps = { label: string; value: string; big?: boolean };
 function Row({ label, value, big }: RowProps) {
   return (
     <View className="flex-row items-baseline justify-between gap-3">
-      <Text className={cn(big ? 'text-base font-bold' : 'text-muted-foreground text-[13px]')}>
+      <Text className={cn(big ? 'text-base font-bold' : 'text-[13px] text-muted-foreground')}>
         {label}
       </Text>
       <Text className={cn(big ? 'text-xl font-extrabold' : 'text-[13px] font-semibold')}>
@@ -180,7 +180,7 @@ export function OrderDetailSheet({
         </View>
       ) : (
         <>
-          <Text className="text-muted-foreground text-xs leading-4.5">
+          <Text className="text-xs leading-4.5 text-muted-foreground">
             {order.status === 'quoted'
               ? 'Prices are held for 48 hours.'
               : order.status === 'new'
@@ -226,21 +226,21 @@ export function OrderDetailSheet({
         <>
           <View className="flex-row flex-wrap items-center gap-2">
             <StatusPill tone={orderTone(order.status)}>{orderStatusLabel(order)}</StatusPill>
-            <View className="border-border rounded-full border px-2.5 py-1">
-              <Text className="text-muted-foreground text-[11px] font-bold">{order.reference}</Text>
+            <View className="rounded-full border border-border px-2.5 py-1">
+              <Text className="text-[11px] font-bold text-muted-foreground">{order.reference}</Text>
             </View>
           </View>
-          <Text className="text-muted-foreground text-[13px] leading-5">{where}</Text>
+          <Text className="text-[13px] leading-5 text-muted-foreground">{where}</Text>
 
           {order.collectionCode ? (
-            <View className="border-primary/30 bg-secondary/50 items-center gap-1.5 rounded-2xl border border-dashed px-4 py-5">
-              <Text className="text-muted-foreground text-[13px]">
+            <View className="items-center gap-1.5 rounded-2xl border border-dashed border-primary/30 bg-secondary/50 px-4 py-5">
+              <Text className="text-[13px] text-muted-foreground">
                 {delivery ? 'Your delivery confirmation code' : 'Your pickup confirmation code'}
               </Text>
-              <Text className="text-primary text-[40px] leading-[48px] font-extrabold tracking-[10px]">
+              <Text className="text-[40px] leading-[48px] font-extrabold tracking-[10px] text-primary">
                 {order.collectionCode}
               </Text>
-              <Text className="text-muted-foreground text-center text-xs leading-4.5">
+              <Text className="text-center text-xs leading-4.5 text-muted-foreground">
                 {delivery
                   ? 'Give this to the rider only when your order arrives.'
                   : 'Share this code only when you have received your medicines.'}
@@ -249,16 +249,16 @@ export function OrderDetailSheet({
           ) : null}
 
           {order.deliveryStatus ? (
-            <View className="border-border flex-row items-center gap-3 rounded-2xl border p-3.5">
-              <Icon as={Truck} className="text-primary size-5" />
+            <View className="flex-row items-center gap-3 rounded-2xl border border-border p-3.5">
+              <Icon as={Truck} className="size-5 text-primary" />
               <View className="flex-1 gap-0.5">
                 <Text className="text-[13px] font-bold">Delivery</Text>
-                <Text className="text-muted-foreground text-xs">{order.deliveryStatus}</Text>
+                <Text className="text-xs text-muted-foreground">{order.deliveryStatus}</Text>
               </View>
             </View>
           ) : null}
 
-          <View className="bg-secondary/30 border-border gap-2.5 rounded-2xl border p-4">
+          <View className="gap-2.5 rounded-2xl border border-border bg-secondary/30 p-4">
             {order.items.map((item) => (
               <Row
                 key={item.id}
@@ -274,7 +274,7 @@ export function OrderDetailSheet({
                 {order.serviceFeeKobo > 0 ? (
                   <Row label="Service fee" value={formatNaira(order.serviceFeeKobo)} />
                 ) : null}
-                <View className="bg-border my-1 h-px" />
+                <View className="my-1 h-px bg-border" />
                 <Row
                   big
                   label={order.paid ? 'Paid total' : 'Total'}
@@ -291,15 +291,15 @@ export function OrderDetailSheet({
           </View>
 
           <View className="gap-1.5">
-            <Text className="text-muted-foreground text-[13px]">
+            <Text className="text-[13px] text-muted-foreground">
               {`${order.contactName} · ${order.contactPhone}`}
             </Text>
             <View className="flex-row items-start gap-2">
               <Icon
                 as={delivery ? Package : MapPin}
-                className="text-muted-foreground mt-0.5 size-4"
+                className="mt-0.5 size-4 text-muted-foreground"
               />
-              <Text className="text-muted-foreground flex-1 text-[13px] leading-5">
+              <Text className="flex-1 text-[13px] leading-5 text-muted-foreground">
                 {delivery
                   ? `Delivery to ${order.deliveryArea ?? 'your address'}`
                   : `Pickup at ${[order.pharmacyAddress, order.pharmacyState].filter(Boolean).join(', ')}`}
@@ -307,8 +307,8 @@ export function OrderDetailSheet({
             </View>
             {order.pharmacyPhone && order.paid ? (
               <View className="flex-row items-center gap-2">
-                <Icon as={Phone} className="text-primary size-4" />
-                <Text className="text-primary text-[13px] font-semibold">
+                <Icon as={Phone} className="size-4 text-primary" />
+                <Text className="text-[13px] font-semibold text-primary">
                   {order.pharmacyPhone}
                 </Text>
               </View>
@@ -316,13 +316,13 @@ export function OrderDetailSheet({
           </View>
 
           {closedOut ? (
-            <View className="bg-muted gap-1 rounded-2xl p-4">
+            <View className="gap-1 rounded-2xl bg-muted p-4">
               <Text className="text-[13px] font-bold">
                 {order.status === 'declined'
                   ? 'The pharmacy declined this order'
                   : 'You cancelled this request'}
               </Text>
-              <Text className="text-muted-foreground text-xs leading-4.5">
+              <Text className="text-xs leading-4.5 text-muted-foreground">
                 {order.status === 'declined'
                   ? (order.declineReason ?? 'No reason given.')
                   : 'No payment was taken.'}

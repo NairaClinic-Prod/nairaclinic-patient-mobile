@@ -15,15 +15,15 @@ export function CompletionCard({
   onComplete: () => void;
 }) {
   return (
-    <View className="bg-card gap-3 rounded-3xl p-4">
+    <View className="gap-3 rounded-3xl bg-card p-4">
       <View className="flex-row items-baseline justify-between">
         <Text className="text-[15px] font-extrabold">{`Profile ${percent}% complete`}</Text>
-        <Text className="text-muted-foreground text-xs">{`${missing.length} to add`}</Text>
+        <Text className="text-xs text-muted-foreground">{`${missing.length} to add`}</Text>
       </View>
-      <View className="bg-muted h-2 overflow-hidden rounded-full">
-        <View className="bg-primary h-2 rounded-full" style={{ width: `${percent}%` }} />
+      <View className="h-2 overflow-hidden rounded-full bg-muted">
+        <View className="h-2 rounded-full bg-primary" style={{ width: `${percent}%` }} />
       </View>
-      <Text className="text-muted-foreground text-xs leading-4.5">
+      <Text className="text-xs leading-4.5 text-muted-foreground">
         {`Add ${missing.slice(0, 3).join(', ').toLowerCase()}${missing.length > 3 ? ' and more' : ''} so clinicians have what they need.`}
       </Text>
       <ActionButton size="md" variant="outline" label="Complete my profile" onPress={onComplete} />
@@ -50,19 +50,19 @@ export function DetailsCard({
         <Text className="text-lg font-extrabold">{title}</Text>
         <ActionButton label={editLabel} icon={Pencil} variant="ghost" onPress={onEdit} />
       </View>
-      <View className="bg-card overflow-hidden rounded-3xl">
+      <View className="overflow-hidden rounded-3xl bg-card">
         {details.map((detail, index) => (
           <View
             key={detail.label}
-            className={cn('gap-0.5 px-4 py-3', index > 0 && 'border-border border-t')}>
+            className={cn('gap-0.5 px-4 py-3', index > 0 && 'border-t border-border')}>
             <View className="flex-row items-center gap-1.5">
-              <Text className="text-muted-foreground text-xs">{detail.label}</Text>
-              {detail.locked ? <Icon as={Lock} className="text-muted-foreground size-3" /> : null}
+              <Text className="text-xs text-muted-foreground">{detail.label}</Text>
+              {detail.locked ? <Icon as={Lock} className="size-3 text-muted-foreground" /> : null}
             </View>
             <Text
               className={cn(
                 'text-[14px] leading-5 font-semibold',
-                !detail.value && 'text-muted-foreground font-normal'
+                !detail.value && 'font-normal text-muted-foreground'
               )}>
               {detail.value || 'Not added yet'}
             </Text>

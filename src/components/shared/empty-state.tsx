@@ -14,11 +14,11 @@ type EmptyStateProps = {
 export function EmptyState({ icon, title, text, action }: EmptyStateProps) {
   return (
     <View className="items-center gap-2.5 px-6 py-8">
-      <View className="bg-secondary size-10 items-center justify-center rounded-full">
-        <Icon as={icon} className="text-primary size-4" />
+      <View className="size-10 items-center justify-center rounded-full bg-secondary">
+        <Icon as={icon} className="size-4 text-primary" />
       </View>
       {title ? <Text className="text-center text-[13px] font-bold">{title}</Text> : null}
-      <Text className="text-muted-foreground text-center text-xs leading-4.5">{text}</Text>
+      <Text className="text-center text-xs leading-4.5 text-muted-foreground">{text}</Text>
       {action}
     </View>
   );

@@ -12,7 +12,7 @@ export function CheckBox({ checked, disabled }: { checked: boolean; disabled?: b
         disabled && 'opacity-50'
       )}>
       {checked ? (
-        <Icon as={Check} strokeWidth={3} className="text-primary-foreground size-3.5" />
+        <Icon as={Check} strokeWidth={3} className="size-3.5 text-primary-foreground" />
       ) : null}
     </View>
   );

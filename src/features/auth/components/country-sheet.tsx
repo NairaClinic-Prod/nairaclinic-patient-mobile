@@ -33,12 +33,12 @@ const CountryRow = React.memo(function CountryRow({
     <Pressable
       onPress={() => onPress(country)}
       style={{ height: ROW_HEIGHT }}
-      className="border-border flex-row items-center gap-3 border-b active:opacity-60">
+      className="flex-row items-center gap-3 border-b border-border active:opacity-60">
       <Text className="text-2xl">{getEmojiFlag(country.cca2)}</Text>
       <Text className="flex-1 text-base" numberOfLines={1}>
         {String(country.name)}
       </Text>
-      <Text className="text-muted-foreground text-base">+{country.callingCode[0]}</Text>
+      <Text className="text-base text-muted-foreground">+{country.callingCode[0]}</Text>
     </Pressable>
   );
 });
@@ -133,7 +133,7 @@ export function CountrySheet({ open, onClose, onSelect }: CountrySheetProps) {
                 className="size-10 rounded-full"
                 onPress={() => setFilter('')}
                 accessibilityLabel="Clear search">
-                <Icon as={X} className="text-muted-foreground size-4" />
+                <Icon as={X} className="size-4 text-muted-foreground" />
               </Button>
             </View>
           ) : null}
@@ -149,7 +149,7 @@ export function CountrySheet({ open, onClose, onSelect }: CountrySheetProps) {
           paddingBottom: sheetBottom,
         }}
         ListEmptyComponent={
-          <Text className="text-muted-foreground py-10 text-center">No country found</Text>
+          <Text className="py-10 text-center text-muted-foreground">No country found</Text>
         }
         renderItem={({ item }: { item: Country }) => <CountryRow country={item} onPress={pick} />}
         getItemLayout={(_: unknown, index: number) => ({

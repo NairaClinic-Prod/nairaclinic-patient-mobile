@@ -54,11 +54,11 @@ export function ProfileForm({ section }: { section: ProfileDetailSection }) {
   }
 
   const footer = (
-    <View className="bg-card gap-2 rounded-3xl p-3">
+    <View className="gap-2 rounded-3xl bg-card p-3">
       {missing.length ? (
         <Text
           role="status"
-          className="text-destructive text-xs">{`Still needed: ${missing.join(', ')}`}</Text>
+          className="text-xs text-destructive">{`Still needed: ${missing.join(', ')}`}</Text>
       ) : null}
       <View className="flex-row gap-2">
         <ActionButton
@@ -86,7 +86,7 @@ export function ProfileForm({ section }: { section: ProfileDetailSection }) {
   return (
     <BodyLayout scrollView fixedHeader className="gap-4 pt-2" footer={footer}>
       <SubScreenHeader title={copy.title} />
-      <Text className="text-muted-foreground text-xs leading-4.5">{copy.description}</Text>
+      <Text className="text-xs leading-4.5 text-muted-foreground">{copy.description}</Text>
 
       {message ? (
         <View
@@ -152,7 +152,7 @@ export function ProfileForm({ section }: { section: ProfileDetailSection }) {
             disabled
             onChange={(sexAtBirth) => patch({ sexAtBirth })}
           />
-          <Text className="text-muted-foreground text-xs leading-4.5">{LOCKED_NOTE}</Text>
+          <Text className="text-xs leading-4.5 text-muted-foreground">{LOCKED_NOTE}</Text>
         </View>
       ) : null}
 

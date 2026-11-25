@@ -93,7 +93,7 @@ export function BodyLayout({
 
   return (
     <HeaderBarContext.Provider value={active ? headerBar : null}>
-      <View className="bg-background flex-1">
+      <View className="flex-1 bg-background">
         {gradient ? (
           <LinearGradient
             pointerEvents="none"

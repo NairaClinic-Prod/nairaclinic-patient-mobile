@@ -35,9 +35,9 @@ export function TextField({
 
   return (
     <View ref={frame} className="gap-1.5">
-      <Text className="text-muted-foreground text-xs font-semibold">
+      <Text className="text-xs font-semibold text-muted-foreground">
         {label}
-        {required ? <Text className="text-destructive text-xs font-semibold">{' *'}</Text> : null}
+        {required ? <Text className="text-xs font-semibold text-destructive">{' *'}</Text> : null}
       </Text>
       <Input
         {...props}
@@ -62,7 +62,7 @@ export function TextField({
           textAlignVertical: multiline ? 'top' : 'center',
         }}
       />
-      {hint ? <Text className="text-muted-foreground text-[11px]">{hint}</Text> : null}
+      {hint ? <Text className="text-[11px] text-muted-foreground">{hint}</Text> : null}
     </View>
   );
 }

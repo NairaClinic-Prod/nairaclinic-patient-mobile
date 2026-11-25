@@ -89,7 +89,7 @@ const SlideLayer = React.memo(function SlideLayer({ slide, index, active }: Slid
             </Text>
           </Reveal>
           <Reveal distance={56} style={{ marginTop: 12 }}>
-            <Text className="text-muted-foreground text-center text-[15px] leading-5.5">
+            <Text className="text-center text-[15px] leading-5.5 text-muted-foreground">
               {slide.body}
             </Text>
           </Reveal>
@@ -225,7 +225,7 @@ export function Onboarding({ onFinish, onSignIn }: OnboardingProps) {
               transitionProperty: 'opacity',
               transitionDuration: 200,
             }}>
-            <Text className="text-muted-foreground text-base font-medium">Skip</Text>
+            <Text className="text-base font-medium text-muted-foreground">Skip</Text>
           </Animated.View>
         </Pressable>
       </View>
@@ -258,7 +258,7 @@ export function Onboarding({ onFinish, onSignIn }: OnboardingProps) {
         <Pressable onPress={onSignIn} accessibilityRole="button" className="items-center pb-1">
           <Text className="text-[15px]">
             Already have an account?{' '}
-            <Text className="text-primary text-[15px] font-bold">Sign in</Text>
+            <Text className="text-[15px] font-bold text-primary">Sign in</Text>
           </Text>
         </Pressable>
       </View>

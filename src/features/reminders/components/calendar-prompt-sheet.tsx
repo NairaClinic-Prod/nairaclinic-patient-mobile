@@ -65,18 +65,18 @@ export function CalendarPromptSheet({ open, onClose }: CalendarPromptSheetProps)
       <View className="gap-3">
         {BENEFITS.map(({ icon, text }) => (
           <View key={text} className="flex-row items-center gap-3">
-            <View className="bg-secondary size-9 items-center justify-center rounded-full">
-              <Icon as={icon} className="text-primary size-4" />
+            <View className="size-9 items-center justify-center rounded-full bg-secondary">
+              <Icon as={icon} className="size-4 text-primary" />
             </View>
-            <Text className="text-muted-foreground flex-1 text-[13px] leading-5">{text}</Text>
+            <Text className="flex-1 text-[13px] leading-5 text-muted-foreground">{text}</Text>
           </View>
         ))}
       </View>
 
       {denied ? (
-        <View className="bg-warning-soft gap-1 rounded-2xl p-3.5">
-          <Text className="text-warning text-[13px] font-bold">Calendar access is off</Text>
-          <Text className="text-warning text-xs leading-4.5">
+        <View className="gap-1 rounded-2xl bg-warning-soft p-3.5">
+          <Text className="text-[13px] font-bold text-warning">Calendar access is off</Text>
+          <Text className="text-xs leading-4.5 text-warning">
             Turn it on for NairaClinic in your phone settings, then come back. We’ll ask again
             tomorrow.
           </Text>
@@ -121,7 +121,7 @@ export function CalendarPromptSheet({ open, onClose }: CalendarPromptSheetProps)
             )}
             <ActionButton size="md" variant="ghost" label="Not now" onPress={dismiss} />
             {denied ? null : (
-              <Text className="text-muted-foreground text-center text-xs">
+              <Text className="text-center text-xs text-muted-foreground">
                 If you skip, we’ll remind you again tomorrow.
               </Text>
             )}

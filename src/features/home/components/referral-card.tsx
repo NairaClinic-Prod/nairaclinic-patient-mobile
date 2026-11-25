@@ -9,22 +9,22 @@ import type { ReferralLink } from '../types';
 export function ReferralCard({ referral }: { referral: ReferralLink }) {
   return (
     <View
-      className="bg-secondary gap-3 rounded-3xl p-4"
+      className="gap-3 rounded-3xl bg-secondary p-4"
       style={{ marginHorizontal: SCREEN_PADDING_X }}>
       <View className="flex-row items-center gap-2.5">
-        <View className="bg-card size-10 items-center justify-center rounded-full">
-          <Icon as={Heart} className="text-primary size-4" />
+        <View className="size-10 items-center justify-center rounded-full bg-card">
+          <Icon as={Heart} className="size-4 text-primary" />
         </View>
         <View className="flex-1">
-          <Text className="text-secondary-foreground text-sm font-bold">
+          <Text className="text-sm font-bold text-secondary-foreground">
             Good care is worth sharing.
           </Text>
-          <Text className="text-muted-foreground mt-0.5 text-[11px]">
+          <Text className="mt-0.5 text-[11px] text-muted-foreground">
             Invite friends and family. Earn coins for care.
           </Text>
         </View>
       </View>
-      <View className="bg-card h-10 items-center justify-center rounded-2xl">
+      <View className="h-10 items-center justify-center rounded-2xl bg-card">
         <Text className="text-sm font-bold tracking-widest">{referral.code}</Text>
       </View>
       <View className="flex-row gap-3">
@@ -41,7 +41,7 @@ export function ReferralCard({ referral }: { referral: ReferralLink }) {
           variant="default"
           className="flex-1 rounded-2xl"
           onPress={() => Share.share({ message: referral.shareUrl })}>
-          <Icon as={Link2} className="text-primary-foreground size-3.5" />
+          <Icon as={Link2} className="size-3.5 text-primary-foreground" />
           <Text>Share link</Text>
         </Button>
       </View>

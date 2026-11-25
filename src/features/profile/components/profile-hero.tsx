@@ -61,19 +61,19 @@ export function ProfileHero({ initials, name, detail, contact }: ProfileHeroProp
         accessibilityLabel={photo ? 'Change profile photo' : 'Add a profile photo'}
         onPress={() => setOpen(true)}>
         <Avatar uri={photo} initials={initials} size={104} />
-        <View className="bg-card border-background absolute -right-1 -bottom-1 size-9 items-center justify-center rounded-full border-[3px]">
-          <Icon as={Camera} className="text-foreground size-4" />
+        <View className="absolute -right-1 -bottom-1 size-9 items-center justify-center rounded-full border-[3px] border-background bg-card">
+          <Icon as={Camera} className="size-4 text-foreground" />
         </View>
       </PressableScale>
       <Text className="mt-3 text-2xl font-extrabold tracking-tight">{name}</Text>
       <Text className="text-[13px] font-semibold">{detail}</Text>
-      <Text className="text-muted-foreground text-[13px]">{contact}</Text>
-      <View className="bg-secondary mt-2 flex-row items-center gap-1.5 rounded-full px-3 py-1.5">
-        <Icon as={ShieldCheck} className="text-success size-3.5" />
-        <Text className="text-success text-[11px] font-semibold">Private and secure</Text>
+      <Text className="text-[13px] text-muted-foreground">{contact}</Text>
+      <View className="mt-2 flex-row items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5">
+        <Icon as={ShieldCheck} className="size-3.5 text-success" />
+        <Text className="text-[11px] font-semibold text-success">Private and secure</Text>
       </View>
       {problem ? (
-        <Text className="text-destructive mt-2 text-center text-xs leading-4.5">{problem}</Text>
+        <Text className="mt-2 text-center text-xs leading-4.5 text-destructive">{problem}</Text>
       ) : null}
 
       <ChoiceSheet<PhotoSource | 'remove'>

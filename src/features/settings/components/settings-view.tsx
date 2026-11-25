@@ -51,12 +51,12 @@ const CHANNELS = [
 function Group({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <View className="gap-2.5">
-      <Text className="text-muted-foreground px-1 text-xs font-semibold tracking-wide uppercase">
+      <Text className="px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
         {title}
       </Text>
-      <View className="bg-card overflow-hidden rounded-2xl">
+      <View className="overflow-hidden rounded-2xl bg-card">
         {React.Children.toArray(children).map((child, index) => (
-          <View key={index} className={cn(index > 0 && 'border-border border-t')}>
+          <View key={index} className={cn(index > 0 && 'border-t border-border')}>
             {child}
           </View>
         ))}
@@ -89,9 +89,9 @@ function Row({
         <Text className={cn('text-[14px] font-semibold', danger && 'text-destructive')}>
           {title}
         </Text>
-        {text ? <Text className="text-muted-foreground text-xs leading-4.5">{text}</Text> : null}
+        {text ? <Text className="text-xs leading-4.5 text-muted-foreground">{text}</Text> : null}
       </View>
-      <Icon as={ChevronRight} className="text-muted-foreground size-4" />
+      <Icon as={ChevronRight} className="size-4 text-muted-foreground" />
     </PressableScale>
   );
 }
@@ -112,7 +112,7 @@ function SwitchRow({
     <View className="flex-row items-center gap-3 px-4 py-3">
       <View className="min-w-0 flex-1">
         <Text className="text-[14px] font-semibold">{title}</Text>
-        <Text className="text-muted-foreground text-xs leading-4.5">{text}</Text>
+        <Text className="text-xs leading-4.5 text-muted-foreground">{text}</Text>
       </View>
       <Switch
         accessibilityLabel={title}
@@ -195,7 +195,7 @@ export function SettingsView() {
       </Group>
 
       <View className="gap-2.5">
-        <Text className="text-muted-foreground px-1 text-xs font-semibold tracking-wide uppercase">
+        <Text className="px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
           Appearance
         </Text>
         <SegmentedControl<ThemeChoice>
@@ -248,7 +248,7 @@ export function SettingsView() {
         />
       </Group>
 
-      <Text className="text-muted-foreground text-center text-xs">
+      <Text className="text-center text-xs text-muted-foreground">
         {`NairaClinic ${Constants.expoConfig?.version ?? ''}`.trim()}
       </Text>
 

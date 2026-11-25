@@ -26,14 +26,14 @@ export function SentStep({ kind, mode, name, reference }: SentStepProps) {
 
   return (
     <View className="items-center gap-3 pt-6 pb-2">
-      <View className="bg-primary size-16 items-center justify-center rounded-full">
-        <Icon as={Check} strokeWidth={2.5} className="text-primary-foreground size-8" />
+      <View className="size-16 items-center justify-center rounded-full bg-primary">
+        <Icon as={Check} strokeWidth={2.5} className="size-8 text-primary-foreground" />
       </View>
       <Text className="text-[22px] font-extrabold tracking-tight">{title}</Text>
-      <Text className="text-muted-foreground max-w-xs text-center text-[13px] leading-5">
+      <Text className="max-w-xs text-center text-[13px] leading-5 text-muted-foreground">
         {`${text}${mode === 'order' ? '' : ' You only pay once you accept the price.'}`}
       </Text>
-      <Text className="text-muted-foreground text-xs">{reference}</Text>
+      <Text className="text-xs text-muted-foreground">{reference}</Text>
     </View>
   );
 }

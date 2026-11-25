@@ -52,8 +52,8 @@ export function ProfileScreen() {
             role="button"
             accessibilityLabel="Settings"
             onPress={() => open('/settings')}
-            className="bg-card size-11 items-center justify-center rounded-full">
-            <Icon as={Settings} className="text-foreground size-5" />
+            className="size-11 items-center justify-center rounded-full bg-card">
+            <Icon as={Settings} className="size-5 text-foreground" />
           </PressableScale>
         }
       />

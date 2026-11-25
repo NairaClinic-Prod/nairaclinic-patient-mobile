@@ -17,7 +17,7 @@ export function SubScreen({ title, description, right, children }: SubScreenProp
     <BodyLayout scrollView fixedHeader className="gap-4 pt-2">
       <SubScreenHeader title={title} right={right} />
       {description ? (
-        <Text className="text-muted-foreground text-xs leading-4.5">{description}</Text>
+        <Text className="text-xs leading-4.5 text-muted-foreground">{description}</Text>
       ) : null}
       <FadeIn index={1}>{children}</FadeIn>
     </BodyLayout>
