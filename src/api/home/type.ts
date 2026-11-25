@@ -35,7 +35,12 @@ export type DashboardResponse = {
 
 export type HomeProfileResponse = {
   user: { id: string; phone: string | null; email: string | null };
-  patientProfile: { firstName: string | null; lastName: string | null } | null;
+  patientProfile: {
+    firstName: string | null;
+    lastName: string | null;
+    // A short-lived link to the patient's picture, when they have set one.
+    profilePhotoUrl?: string | null;
+  } | null;
 };
 
 export type ReferralLinkResponse = {

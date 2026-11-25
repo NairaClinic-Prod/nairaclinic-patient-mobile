@@ -46,7 +46,7 @@ export function ProfileHero({ name, detail, contact }: ProfileHeroProps) {
 
   async function pick(key: PhotoSource | 'remove') {
     setProblem(null);
-    if (key === 'remove') return removePhoto();
+    if (key === 'remove') return setProblem(await removePhoto());
     // The picker needs the sheet to finish closing before it can open.
     await new Promise((resolve) => setTimeout(resolve, 350));
     setProblem(await pickPhoto(key));
