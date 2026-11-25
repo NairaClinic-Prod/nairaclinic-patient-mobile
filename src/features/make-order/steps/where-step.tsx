@@ -103,7 +103,7 @@ export function WhereStep({
         onChange={onLocation}
       />
 
-      {withStreet ? <LocationMap value={location} onChange={onLocation} /> : null}
+      <LocationMap value={location} onChange={onLocation} />
 
       {problem ? <Text className="text-[13px] text-destructive">{problem}</Text> : null}
     </View>
