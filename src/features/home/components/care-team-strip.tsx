@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { CalendarPlus, Plus } from 'lucide-react-native';
+import { router } from 'expo-router';
 import { Image, View } from 'react-native';
 import type { CareTeamDoctor } from '../types';
 import { drName, initials } from '../utils';
@@ -16,7 +17,18 @@ type CareTeamStripProps = {
   onBook?: () => void;
 };
 
-export function CareTeamStrip({ members, onSelect, onSeeAll, onBook }: CareTeamStripProps) {
+const openDoctor = (member: CareTeamDoctor) =>
+  router.push(member.bookingSlug ? `/book/doctor/${member.bookingSlug}` : '/book');
+const openBooking = () => router.push('/book');
+const findDoctor = () => router.push('/book/find');
+
+// Works the same on every screen: a doctor opens their booking page, "See all" opens booking and "Add a doctor" finds one.
+export function CareTeamStrip({
+  members,
+  onSelect = openDoctor,
+  onSeeAll = openBooking,
+  onBook = findDoctor,
+}: CareTeamStripProps) {
   return (
     <View className="gap-3">
       <SectionHeader title="Your care team" action="See all" onActionPress={onSeeAll} />

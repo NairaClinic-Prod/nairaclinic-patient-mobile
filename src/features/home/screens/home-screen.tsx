@@ -58,14 +58,7 @@ export function HomeScreen() {
             />
           </FadeIn>
           <FadeIn index={2}>
-            <CareTeamStrip
-              members={dashboard.careTeam}
-              onSelect={(member) =>
-                router.push(member.bookingSlug ? `/book/doctor/${member.bookingSlug}` : '/book')
-              }
-              onSeeAll={() => router.push('/book')}
-              onBook={() => router.push('/book/find')}
-            />
+            <CareTeamStrip members={dashboard.careTeam} />
           </FadeIn>
           {dashboard.readyNow.length ? (
             <FadeIn index={3}>

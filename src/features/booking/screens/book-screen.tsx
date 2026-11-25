@@ -21,11 +21,7 @@ export function BookScreen() {
       <View className="gap-6">
         {team.length ? (
           <View className="-mx-6">
-            <CareTeamStrip
-              members={team}
-              onSelect={(member) => router.push(`/book/doctor/${member.bookingSlug}`)}
-              onBook={() => router.push('/book/find')}
-            />
+            <CareTeamStrip members={team} />
           </View>
         ) : null}
 

@@ -85,7 +85,7 @@ export function RecordsScreen() {
         </FadeIn>
 
         <FadeIn index={3} className="gap-5" style={gutter}>
-          <LabResultsCard />
+          {/* <LabResultsCard /> */}
           <CarePlanSection />
         </FadeIn>
       </View>
