@@ -2,6 +2,7 @@ import '@/global.css';
 
 import { queryClient } from '@/api/query-client';
 import { BiometricsOfferSheet } from '@/features/auth/components/biometrics-offer-sheet';
+import { SignOutSheet } from '@/features/auth/components/sign-out-sheet';
 import { SessionGate } from '@/features/auth/components/session-gate';
 import { bootSession, useSession } from '@/lib/auth/session';
 import { FONT_FILES } from '@/lib/fonts';
@@ -59,6 +60,7 @@ export default function RootLayout() {
               </Stack.Protected>
             </Stack>
             <BiometricsOfferSheet />
+            <SignOutSheet />
             <PortalHost />
           </ThemeProvider>
         </BottomSheetModalProvider>

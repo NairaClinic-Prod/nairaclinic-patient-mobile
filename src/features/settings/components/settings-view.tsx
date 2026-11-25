@@ -1,5 +1,5 @@
 import { PressableScale } from '@/components/shared/pressable-scale';
-import { signOut } from '@/lib/auth/session';
+import { confirmSignOut } from '@/features/auth/sign-out-confirm';
 import { SegmentedControl } from '@/components/shared/segmented-control';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
@@ -243,7 +243,7 @@ export function SettingsView() {
           title="Sign out"
           text="You can sign back in with your PIN"
           danger
-          onPress={() => signOut()}
+          onPress={confirmSignOut}
         />
       </Group>
 

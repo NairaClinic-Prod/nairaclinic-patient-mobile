@@ -1,5 +1,5 @@
 import { BodyLayout } from '@/components/common/body-layout';
-import { signOut } from '@/lib/auth/session';
+import { confirmSignOut } from '@/features/auth/sign-out-confirm';
 import TabHeader from '@/components/common/header';
 import { FadeIn } from '@/components/shared/fade-in';
 import { PressableScale } from '@/components/shared/pressable-scale';
@@ -222,7 +222,7 @@ export function ProfileScreen() {
                 text: 'You can sign back in with your PIN',
                 icon: LogOut,
                 danger: true,
-                onPress: () => signOut(),
+                onPress: confirmSignOut,
               },
             ]}
           />
