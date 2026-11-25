@@ -1,3 +1,4 @@
+import { ConsultationSheet } from '@/features/consultations/components/consultation-sheet';
 import { ExternalRecordSheet } from '@/features/care-plan/components/external-record-sheet';
 import { MakeOrderSheet } from '@/features/make-order/components/make-order-sheet';
 import { useSession } from '@/lib/auth/session';
@@ -24,6 +25,7 @@ export default function ProtectedLayout() {
       />
       <MakeOrderSheet />
       <ExternalRecordSheet />
+      <ConsultationSheet />
     </>
   );
 }

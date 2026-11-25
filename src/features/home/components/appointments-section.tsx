@@ -6,6 +6,7 @@ import { SCREEN_PADDING_X } from '@/constants/ui';
 import { CalendarDays } from 'lucide-react-native';
 import { View } from 'react-native';
 import type { DashboardAppointment } from '../types';
+import { openConsultation } from '@/features/consultations/ui-store';
 import { AppointmentRow } from './appointment-row';
 
 type AppointmentsSectionProps = {
@@ -22,7 +23,7 @@ export function AppointmentsSection({
   appointments,
   ready = false,
   onSeeAll,
-  onOpen,
+  onOpen = (appointment) => openConsultation(appointment.id),
   onBook,
 }: AppointmentsSectionProps) {
   return (
