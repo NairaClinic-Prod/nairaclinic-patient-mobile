@@ -1,41 +1,89 @@
+import { ChoiceSheet } from '@/components/shared/choice-sheet';
 import { PressableScale } from '@/components/shared/pressable-scale';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import { Pencil, ShieldCheck } from 'lucide-react-native';
+import { Camera, Image as ImageIcon, ShieldCheck, Trash2 } from 'lucide-react-native';
+import * as React from 'react';
 import { View } from 'react-native';
+import { pickPhoto, removePhoto, usePhoto, type PhotoSource } from '../hooks/use-photo';
+import { Avatar } from './avatar';
 
 type ProfileHeroProps = {
   initials: string;
-  firstName: string;
+  name: string;
+  detail: string;
   contact: string;
-  onEdit: () => void;
 };
 
-export function ProfileHero({ initials, firstName, contact, onEdit }: ProfileHeroProps) {
+export function ProfileHero({ initials, name, detail, contact }: ProfileHeroProps) {
+  const photo = usePhoto();
+  const [open, setOpen] = React.useState(false);
+  const [problem, setProblem] = React.useState<string | null>(null);
+
+  const choices = [
+    {
+      key: 'camera' as const,
+      title: 'Take a photo',
+      description: 'Use your camera',
+      icon: Camera,
+    },
+    {
+      key: 'library' as const,
+      title: 'Choose a photo',
+      description: 'From your photo library',
+      icon: ImageIcon,
+    },
+    ...(photo
+      ? [
+          {
+            key: 'remove' as const,
+            title: 'Remove photo',
+            description: 'Go back to your initials',
+            icon: Trash2,
+          },
+        ]
+      : []),
+  ];
+
+  async function pick(key: PhotoSource | 'remove') {
+    setProblem(null);
+    if (key === 'remove') return removePhoto();
+    // The picker needs the sheet to finish closing before it can open.
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    setProblem(await pickPhoto(key));
+  }
+
   return (
     <View className="items-center gap-1">
-      <View>
-        <View className="bg-secondary size-24 items-center justify-center rounded-full">
-          <Text className="text-primary text-3xl font-extrabold">{initials}</Text>
+      <PressableScale
+        scaleTo={0.96}
+        role="button"
+        accessibilityLabel={photo ? 'Change profile photo' : 'Add a profile photo'}
+        onPress={() => setOpen(true)}>
+        <Avatar uri={photo} initials={initials} size={104} />
+        <View className="bg-card border-background absolute -right-1 -bottom-1 size-9 items-center justify-center rounded-full border-[3px]">
+          <Icon as={Camera} className="text-foreground size-4" />
         </View>
-        <PressableScale
-          scaleTo={0.9}
-          hitSlop={6}
-          role="button"
-          accessibilityLabel="Edit personal information"
-          onPress={onEdit}
-          className="bg-card border-background absolute -right-1 -bottom-1 size-9 items-center justify-center rounded-full border-[3px]">
-          <Icon as={Pencil} className="text-foreground size-4" />
-        </PressableScale>
-      </View>
-      <Text className="mt-3 text-2xl font-extrabold tracking-tight">
-        {firstName ? `Hello, ${firstName}` : 'Hello'}
-      </Text>
+      </PressableScale>
+      <Text className="mt-3 text-2xl font-extrabold tracking-tight">{name}</Text>
+      <Text className="text-[13px] font-semibold">{detail}</Text>
       <Text className="text-muted-foreground text-[13px]">{contact}</Text>
       <View className="bg-secondary mt-2 flex-row items-center gap-1.5 rounded-full px-3 py-1.5">
         <Icon as={ShieldCheck} className="text-success size-3.5" />
         <Text className="text-success text-[11px] font-semibold">Private and secure</Text>
       </View>
+      {problem ? (
+        <Text className="text-destructive mt-2 text-center text-xs leading-4.5">{problem}</Text>
+      ) : null}
+
+      <ChoiceSheet<PhotoSource | 'remove'>
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Profile photo"
+        subtitle="It replaces your initials across the app."
+        choices={choices}
+        onPick={pick}
+      />
     </View>
   );
 }

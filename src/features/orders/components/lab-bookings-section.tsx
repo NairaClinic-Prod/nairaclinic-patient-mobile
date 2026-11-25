@@ -14,17 +14,27 @@ import { formatDay, formatNaira, formatWhen } from '../utils';
 const EMPTY_TEXT =
   'Tests you book from a consultation appear here, with results once the laboratory releases them.';
 
-type LabBookingsSectionProps = { bookings: LabBooking[]; onViewAll?: () => void };
+type LabBookingsSectionProps = {
+  bookings: LabBooking[];
+  title?: string;
+  action?: string;
+  limit?: number;
+  onViewAll?: () => void;
+};
 
-export function LabBookingsSection({ bookings, onViewAll }: LabBookingsSectionProps) {
+export function LabBookingsSection({
+  bookings,
+  title = 'Lab tests',
+  action = 'Book or view all',
+  limit = LABS_SHOWN,
+  onViewAll,
+}: LabBookingsSectionProps) {
   const [open, setOpen] = React.useState<LabBooking | null>(null);
-  const list = bookings
-    .filter((booking) => booking.status !== 'pending_payment')
-    .slice(0, LABS_SHOWN);
+  const list = bookings.filter((booking) => booking.status !== 'pending_payment').slice(0, limit);
 
   return (
     <View className="gap-3">
-      <SectionHeaderInline onViewAll={onViewAll} />
+      <SectionHeaderInline title={title} action={action} onViewAll={onViewAll} />
       {list.length ? (
         <View className="bg-card overflow-hidden rounded-2xl">
           {list.map((booking, index) => (
@@ -65,10 +75,18 @@ export function LabBookingsSection({ bookings, onViewAll }: LabBookingsSectionPr
   );
 }
 
-function SectionHeaderInline({ onViewAll }: { onViewAll?: () => void }) {
+function SectionHeaderInline({
+  title,
+  action,
+  onViewAll,
+}: {
+  title: string;
+  action?: string;
+  onViewAll?: () => void;
+}) {
   return (
     <View className="-mx-6">
-      <SectionHeader title="Lab tests" action="Book or view all" onActionPress={onViewAll} />
+      <SectionHeader title={title} action={action} onActionPress={onViewAll} />
     </View>
   );
 }

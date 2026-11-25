@@ -1,138 +1,228 @@
-import { FadeIn } from '@/components/shared/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
 import TabHeader from '@/components/common/header';
+import { FadeIn } from '@/components/shared/fade-in';
+import { PressableScale } from '@/components/shared/pressable-scale';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { router, type Href } from 'expo-router';
 import {
+  Bell,
   CreditCard,
-  HeartPulse,
-  LockKeyhole,
+  FlaskConical,
+  Gift,
+  HeartHandshake,
+  IdCard,
   LogOut,
   Receipt,
   Settings,
-  SlidersHorizontal,
-  UserRound,
+  Stethoscope,
+  Wallet,
 } from 'lucide-react-native';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { MenuList } from '../components/menu-list';
+import { CompletionCard, DetailsCard } from '../components/profile-summary';
 import { ProfileHero } from '../components/profile-hero';
-import { SummaryTiles } from '../components/summary-tiles';
 import { WalletCard } from '../components/wallet-card';
-import { SECTION_COPY } from '../constants';
-import { initialsOf, useProfile } from '../hooks/use-profile';
+import { ageOf, completion, fullName, initialsOf, useProfile } from '../hooks/use-profile';
+import { usePhoto } from '../hooks/use-photo';
+import { notificationsStore } from '../pages-data';
 import type { AccountSection } from '../types';
 
 const open = (section: AccountSection) => router.push(`/account/${section}` as Href);
 
+const DOB = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
 export function ProfileScreen() {
-  const { profile, cards, transactions, wallet } = useProfile();
+  const { profile, wallet } = useProfile();
+  const photo = usePhoto();
+  const unread = notificationsStore.use().rows.filter((row) => !row.isRead).length;
+  const progress = completion(profile, Boolean(photo));
+  const age = ageOf(profile.dob);
 
   return (
     <BodyLayout scrollView tabBar className="gap-5">
       <TabHeader
         title="Profile"
         right={
-          <Pressable
+          <PressableScale
+            scaleTo={0.92}
             role="button"
-            accessibilityLabel="Preferences"
-            onPress={() => open('preferences')}
-            className="bg-card size-11 items-center justify-center rounded-full active:opacity-70">
+            accessibilityLabel="Settings"
+            onPress={() => open('settings')}
+            className="bg-card size-11 items-center justify-center rounded-full">
             <Icon as={Settings} className="text-foreground size-5" />
-          </Pressable>
+          </PressableScale>
         }
       />
 
       <FadeIn index={0}>
         <ProfileHero
           initials={initialsOf(profile)}
-          firstName={profile.firstName}
+          name={fullName(profile) || 'Your profile'}
+          detail={[age === null ? '' : `${age} years`, profile.sexAtBirth]
+            .filter(Boolean)
+            .join(' · ')}
           contact={profile.email || profile.phone || 'Complete your personal details'}
-          onEdit={() => open('personal')}
         />
       </FadeIn>
 
-      <FadeIn index={1}>
-        <WalletCard wallet={wallet} onPress={() => open('payment-methods')} />
-      </FadeIn>
+      {progress.percent < 100 ? (
+        <FadeIn index={1}>
+          <CompletionCard
+            percent={progress.percent}
+            missing={progress.missing}
+            onComplete={() =>
+              open(progress.missing.includes('A profile photo') ? 'personal' : 'health')
+            }
+          />
+        </FadeIn>
+      ) : null}
 
       <FadeIn index={2}>
-        <SummaryTiles
-          cards={cards.length}
-          payments={transactions.length}
-          onCards={() => open('payment-methods')}
-          onTransactions={() => open('transactions')}
-        />
+        <WalletCard wallet={wallet} onPress={() => open('wallet')} />
       </FadeIn>
 
-      <FadeIn index={3} className="gap-3">
-        <Text className="text-lg font-extrabold">Personal information</Text>
-        <MenuList
-          items={[
+      <FadeIn index={3}>
+        <DetailsCard
+          title="Your details"
+          editLabel="Edit email"
+          onEdit={() => open('personal')}
+          details={[
+            { label: 'Full name', value: fullName(profile), locked: true },
             {
-              key: 'personal',
-              title: SECTION_COPY.personal.title,
-              text: 'Manage your account details',
-              icon: UserRound,
-              onPress: () => open('personal'),
+              label: 'Date of birth',
+              value: profile.dob ? DOB.format(new Date(profile.dob)) : '',
+              locked: true,
             },
-            {
-              key: 'health',
-              title: SECTION_COPY.health.title,
-              text: 'Blood group, allergies and conditions',
-              icon: HeartPulse,
-              onPress: () => open('health'),
-            },
-            {
-              key: 'preferences',
-              title: SECTION_COPY.preferences.title,
-              text: 'Language, smoking and alcohol',
-              icon: SlidersHorizontal,
-              onPress: () => open('preferences'),
-            },
+            { label: 'Age', value: age === null ? '' : `${age} years`, locked: true },
+            { label: 'Sex at birth', value: profile.sexAtBirth, locked: true },
+            { label: 'Phone number', value: profile.phone, locked: true },
+            { label: 'Email address', value: profile.email },
           ]}
         />
       </FadeIn>
 
-      <FadeIn index={4} className="gap-3">
-        <Text className="text-lg font-extrabold">Account</Text>
-        <MenuList
-          items={[
-            {
-              key: 'payment-methods',
-              title: SECTION_COPY['payment-methods'].title,
-              text: 'Your wallet and saved cards',
-              icon: CreditCard,
-              onPress: () => open('payment-methods'),
-            },
-            {
-              key: 'transactions',
-              title: SECTION_COPY.transactions.title,
-              text: 'Payments for visits, orders and plans',
-              icon: Receipt,
-              onPress: () => open('transactions'),
-            },
-            {
-              key: 'security',
-              title: SECTION_COPY.security.title,
-              text: 'PIN, fingerprint and privacy',
-              icon: LockKeyhole,
-              onPress: () => open('security'),
-            },
+      <FadeIn index={4}>
+        <DetailsCard
+          title="Health snapshot"
+          onEdit={() => open('health')}
+          details={[
+            { label: 'Blood group', value: profile.bloodGroup },
+            { label: 'Genotype', value: profile.genotype },
+            { label: 'Allergies', value: profile.allergies },
+            { label: 'Past conditions', value: profile.pastConditions },
+            { label: 'Current medicines', value: profile.currentMedications },
           ]}
         />
-        <MenuList
-          items={[
-            {
-              key: 'sign-out',
-              title: 'Sign out',
-              text: 'You can sign back in with your PIN',
-              icon: LogOut,
-              danger: true,
-              onPress: () => router.replace('/auth/login'),
-            },
-          ]}
-        />
+      </FadeIn>
+
+      <FadeIn index={5} className="gap-5">
+        <View className="gap-3">
+          <Text className="text-lg font-extrabold">Care</Text>
+          <MenuList
+            items={[
+              {
+                key: 'lab-tests',
+                title: 'Lab tests',
+                text: 'Bookings, results and price requests',
+                icon: FlaskConical,
+                onPress: () => open('lab-tests'),
+              },
+              {
+                key: 'membership',
+                title: 'Membership',
+                text: 'Your plan and what it includes',
+                icon: IdCard,
+                onPress: () => open('membership'),
+              },
+              {
+                key: 'doctor-plans',
+                title: 'My doctor plans',
+                text: 'Monthly plans and visits left',
+                icon: Stethoscope,
+                onPress: () => open('doctor-plans'),
+              },
+            ]}
+          />
+        </View>
+
+        <View className="gap-3">
+          <Text className="text-lg font-extrabold">Money and rewards</Text>
+          <MenuList
+            items={[
+              {
+                key: 'wallet',
+                title: 'Wallet',
+                text: 'Balance and every naira in and out',
+                icon: Wallet,
+                onPress: () => open('wallet'),
+              },
+              {
+                key: 'payment-methods',
+                title: 'Payment methods',
+                text: 'Your saved cards',
+                icon: CreditCard,
+                onPress: () => open('payment-methods'),
+              },
+              {
+                key: 'transactions',
+                title: 'Transactions',
+                text: 'Payments for visits, orders and plans',
+                icon: Receipt,
+                onPress: () => open('transactions'),
+              },
+              {
+                key: 'refer',
+                title: 'Refer someone',
+                text: 'Share your code and earn coins',
+                icon: Gift,
+                onPress: () => open('refer'),
+              },
+            ]}
+          />
+        </View>
+
+        <View className="gap-3">
+          <Text className="text-lg font-extrabold">Account</Text>
+          <MenuList
+            items={[
+              {
+                key: 'notifications',
+                title: 'Notifications',
+                text: unread ? `${unread} unread` : 'Updates, reminders and follow-through',
+                icon: Bell,
+                badge: unread ? String(unread) : undefined,
+                onPress: () => open('notifications'),
+              },
+              {
+                key: 'settings',
+                title: 'Settings',
+                text: 'PIN, notifications and appearance',
+                icon: Settings,
+                onPress: () => open('settings'),
+              },
+              {
+                key: 'support',
+                title: 'Privacy and security',
+                text: 'Devices and record privacy',
+                icon: HeartHandshake,
+                onPress: () => open('security'),
+              },
+            ]}
+          />
+          <MenuList
+            items={[
+              {
+                key: 'sign-out',
+                title: 'Sign out',
+                text: 'You can sign back in with your PIN',
+                icon: LogOut,
+                danger: true,
+                onPress: () => router.replace('/auth/login'),
+              },
+            ]}
+          />
+        </View>
       </FadeIn>
     </BodyLayout>
   );

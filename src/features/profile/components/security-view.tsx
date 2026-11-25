@@ -1,9 +1,6 @@
 import { ActionButton } from '@/components/shared/action-button';
-import { Sheet } from '@/components/shared/sheet';
-import { TextField } from '@/components/shared/text-field';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import * as Haptics from 'expo-haptics';
 import {
   Fingerprint,
   KeyRound,
@@ -16,8 +13,8 @@ import * as React from 'react';
 import { Linking, View } from 'react-native';
 import { PIN_LENGTH, PRIVACY_URL, TERMS_URL } from '../constants';
 import { addDevice, removeDevice, useProfile } from '../hooks/use-profile';
+import { ChangePinSheet } from './change-pin-sheet';
 
-const digits = (value: string) => value.replace(/\D/g, '').slice(0, PIN_LENGTH);
 const DATE = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
 function InfoCard({
@@ -47,40 +44,7 @@ function InfoCard({
 
 function PinCard() {
   const [open, setOpen] = React.useState(false);
-  const [current, setCurrent] = React.useState('');
-  const [next, setNext] = React.useState('');
-  const [confirm, setConfirm] = React.useState('');
   const [done, setDone] = React.useState(false);
-
-  const missing = [
-    ...(current.length === PIN_LENGTH ? [] : ['Your current PIN']),
-    ...(next.length === PIN_LENGTH ? [] : [`A new ${PIN_LENGTH}-digit PIN`]),
-    ...(next.length === PIN_LENGTH && current === next
-      ? ['A PIN different from your current one']
-      : []),
-    ...(next.length === PIN_LENGTH && confirm !== next ? ['The same new PIN again'] : []),
-  ];
-
-  function close() {
-    setOpen(false);
-    setCurrent('');
-    setNext('');
-    setConfirm('');
-  }
-
-  const pin = (label: string, value: string, set: (value: string) => void) => (
-    <TextField
-      sheet
-      tone="muted"
-      label={label}
-      secureTextEntry
-      keyboardType="number-pad"
-      maxLength={PIN_LENGTH}
-      placeholder="•••••"
-      value={value}
-      onChangeText={(text) => set(digits(text))}
-    />
-  );
 
   return (
     <InfoCard
@@ -102,45 +66,7 @@ function PinCard() {
           setOpen(true);
         }}
       />
-      <Sheet
-        open={open}
-        onClose={close}
-        title="Change your PIN"
-        subtitle={`Enter your current PIN, then choose a new ${PIN_LENGTH}-digit PIN.`}
-        snapPoints={['70%']}
-        footer={
-          <View className="gap-2">
-            {missing.length ? (
-              <Text className="text-muted-foreground text-xs">{`Still needed: ${missing.join(', ')}.`}</Text>
-            ) : null}
-            <View className="flex-row gap-2">
-              <ActionButton
-                size="md"
-                label="Cancel"
-                variant="outline"
-                className="flex-1"
-                onPress={close}
-              />
-              <ActionButton
-                size="md"
-                label="Change PIN"
-                className="flex-[2]"
-                disabled={missing.length > 0}
-                onPress={() => {
-                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                  setDone(true);
-                  close();
-                }}
-              />
-            </View>
-          </View>
-        }>
-        <View className="gap-3.5">
-          {pin('Current PIN', current, setCurrent)}
-          {pin('New PIN', next, setNext)}
-          {pin('Confirm new PIN', confirm, setConfirm)}
-        </View>
-      </Sheet>
+      <ChangePinSheet open={open} onClose={() => setOpen(false)} onChanged={() => setDone(true)} />
     </InfoCard>
   );
 }
@@ -161,8 +87,9 @@ function BiometricCard() {
               {device.deviceName}
             </Text>
             <Text className="text-muted-foreground text-[11px]">
-              {`Added ${DATE.format(new Date(device.createdAt))}${device.lastUsedAt ? ` · Last used ${DATE.format(new Date(device.lastUsedAt))}` : ''
-                }`}
+              {`Added ${DATE.format(new Date(device.createdAt))}${
+                device.lastUsedAt ? ` · Last used ${DATE.format(new Date(device.lastUsedAt))}` : ''
+              }`}
             </Text>
           </View>
           <ActionButton

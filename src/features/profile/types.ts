@@ -74,4 +74,11 @@ export type AccountSection =
   | 'preferences'
   | 'payment-methods'
   | 'transactions'
-  | 'security';
+  | 'security'
+  | 'settings'
+  | 'wallet'
+  | 'membership'
+  | 'lab-tests'
+  | 'notifications'
+  | 'refer'
+  | 'doctor-plans';

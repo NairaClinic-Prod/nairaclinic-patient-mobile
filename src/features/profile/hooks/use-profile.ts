@@ -24,7 +24,10 @@ export function removeCard(id: string) {
     const hasDefault = cards.some((card) => card.isDefault);
     return {
       ...state,
-      cards: cards.map((card, index) => ({ ...card, isDefault: hasDefault ? card.isDefault : index === 0 })),
+      cards: cards.map((card, index) => ({
+        ...card,
+        isDefault: hasDefault ? card.isDefault : index === 0,
+      })),
     };
   });
 }
@@ -48,14 +51,6 @@ export function removeDevice(id: string) {
   store.set((state) => ({ ...state, devices: state.devices.filter((device) => device.id !== id) }));
 }
 
-export function isLocked(profile: ProfileData) {
-  return {
-    name: Boolean(profile.firstName.trim()),
-    dob: Boolean(profile.dob),
-    sex: ['male', 'female'].includes(profile.sexAtBirth.toLowerCase()),
-  };
-}
-
 export function initialsOf(profile: ProfileData) {
   return (
     [profile.firstName, profile.lastName]
@@ -64,4 +59,38 @@ export function initialsOf(profile: ProfileData) {
       .join('')
       .toUpperCase() || 'NC'
   );
+}
+
+export function ageOf(dob: string) {
+  const born = dob ? new Date(dob) : null;
+  if (!born || Number.isNaN(born.getTime())) return null;
+  const now = new Date();
+  let years = now.getFullYear() - born.getFullYear();
+  const birthday = new Date(now.getFullYear(), born.getMonth(), born.getDate());
+  if (now < birthday) years -= 1;
+  return years >= 0 ? years : null;
+}
+
+export const fullName = (profile: ProfileData) =>
+  [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+
+// How much of the profile is filled in, and what is still missing.
+export function completion(profile: ProfileData, hasPhoto: boolean) {
+  const checks: [string, boolean][] = [
+    ['A profile photo', hasPhoto],
+    ['Email address', Boolean(profile.email.trim())],
+    ['Blood group', Boolean(profile.bloodGroup)],
+    ['Genotype', Boolean(profile.genotype)],
+    ['Allergies', Boolean(profile.allergies.trim())],
+    ['Current medicines', Boolean(profile.currentMedications.trim())],
+    ['Past conditions', Boolean(profile.pastConditions.trim())],
+    ['Preferred language', Boolean(profile.language.trim())],
+    ['Smoking', Boolean(profile.smokingStatus)],
+    ['Alcohol', Boolean(profile.alcoholUse)],
+  ];
+  const done = checks.filter(([, ok]) => ok).length;
+  return {
+    percent: Math.round((done / checks.length) * 100),
+    missing: checks.filter(([, ok]) => !ok).map(([label]) => label),
+  };
 }

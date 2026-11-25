@@ -7,6 +7,13 @@ import { PaymentMethodsView } from '../components/payment-methods-view';
 import { ProfileForm } from '../components/profile-form';
 import { SecurityView } from '../components/security-view';
 import { TransactionsView } from '../components/transactions-view';
+import { DoctorPlansView } from '../pages/doctor-plans-view';
+import { LabTestsView } from '../pages/lab-tests-view';
+import { MembershipView } from '../pages/membership-view';
+import { NotificationsView } from '../pages/notifications-view';
+import { ReferView } from '../pages/refer-view';
+import { SettingsView } from '../pages/settings-view';
+import { WalletView } from '../pages/wallet-view';
 import { SECTION_COPY } from '../constants';
 import type { AccountSection } from '../types';
 
@@ -31,6 +38,13 @@ export function AccountSectionScreen() {
         {section === 'payment-methods' ? <PaymentMethodsView /> : null}
         {section === 'transactions' ? <TransactionsView /> : null}
         {section === 'security' ? <SecurityView /> : null}
+        {section === 'settings' ? <SettingsView /> : null}
+        {section === 'wallet' ? <WalletView /> : null}
+        {section === 'membership' ? <MembershipView /> : null}
+        {section === 'lab-tests' ? <LabTestsView /> : null}
+        {section === 'notifications' ? <NotificationsView /> : null}
+        {section === 'refer' ? <ReferView /> : null}
+        {section === 'doctor-plans' ? <DoctorPlansView /> : null}
       </FadeIn>
     </BodyLayout>
   );

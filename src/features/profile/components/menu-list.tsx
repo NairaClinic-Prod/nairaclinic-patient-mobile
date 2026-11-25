@@ -10,6 +10,7 @@ export type MenuItem = {
   text: string;
   icon: LucideIcon;
   danger?: boolean;
+  badge?: string;
   onPress: () => void;
 };
 
@@ -38,6 +39,11 @@ export function MenuList({ items }: { items: MenuItem[] }) {
               {item.text}
             </Text>
           </View>
+          {item.badge ? (
+            <View className="bg-destructive min-w-5 items-center rounded-full px-1.5 py-0.5">
+              <Text className="text-[11px] font-bold text-white">{item.badge}</Text>
+            </View>
+          ) : null}
           <Icon as={ChevronRight} className="text-muted-foreground size-4" />
         </Pressable>
       ))}

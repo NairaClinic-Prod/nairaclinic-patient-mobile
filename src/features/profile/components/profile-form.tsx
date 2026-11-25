@@ -5,7 +5,6 @@ import { SubScreenHeader } from '@/components/shared/sub-screen-header';
 import { TextField } from '@/components/shared/text-field';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import { DateField } from '@/features/reminders/components/reminder-pickers';
 import { cn } from '@/lib/utils';
 import * as Haptics from 'expo-haptics';
 import { Check } from 'lucide-react-native';
@@ -19,11 +18,14 @@ import {
   SEX_OPTIONS,
   YES_NO,
 } from '../constants';
-import { isLocked, saveProfile, useProfile } from '../hooks/use-profile';
+import { ageOf, saveProfile, useProfile } from '../hooks/use-profile';
 import type { ProfileData } from '../types';
 
 type FormSection = 'personal' | 'health' | 'preferences';
 type Message = { kind: 'success' | 'error'; text: string };
+
+const DOB = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+const dobLabel = (dob: string) => (dob ? DOB.format(new Date(dob)) : '');
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -31,7 +33,7 @@ export function ProfileForm({ section }: { section: FormSection }) {
   const { profile: saved } = useProfile();
   const [draft, setDraft] = React.useState<ProfileData>(saved);
   const [message, setMessage] = React.useState<Message | null>(null);
-  const locked = isLocked(saved);
+  const age = ageOf(saved.dob);
   const copy = SECTION_COPY[section];
 
   const patch = (change: Partial<ProfileData>) => {
@@ -91,14 +93,14 @@ export function ProfileForm({ section }: { section: FormSection }) {
             <TextField
               label="First name"
               required
-              disabled={locked.name}
+              disabled
               value={draft.firstName}
               onChangeText={(firstName) => patch({ firstName })}
             />
             <TextField
               label="Last name"
               required
-              disabled={locked.name}
+              disabled
               value={draft.lastName}
               onChangeText={(lastName) => patch({ lastName })}
             />
@@ -111,30 +113,22 @@ export function ProfileForm({ section }: { section: FormSection }) {
               onChangeText={(email) => patch({ email })}
             />
             <TextField label="Phone number" disabled value={draft.phone} />
-            {locked.dob ? (
-              <TextField label="Date of birth" disabled value={draft.dob} />
-            ) : (
-              <View className="gap-1.5">
-                <Text className="text-muted-foreground text-xs font-semibold">Date of birth</Text>
-                <View className="bg-card rounded-2xl px-4 py-3">
-                  <DateField
-                    label="Date of birth"
-                    value={draft.dob}
-                    onChange={(dob) => patch({ dob })}
-                  />
-                </View>
+            <View className="flex-row gap-3">
+              <View className="flex-[1.6]">
+                <TextField label="Date of birth" disabled value={dobLabel(draft.dob)} />
               </View>
-            )}
+              <View className="flex-1">
+                <TextField label="Age" disabled value={age === null ? '' : `${age} years`} />
+              </View>
+            </View>
             <ChoiceChips
               label="Sex at birth"
               options={SEX_OPTIONS}
               value={draft.sexAtBirth}
-              disabled={locked.sex}
+              disabled
               onChange={(sexAtBirth) => patch({ sexAtBirth })}
             />
-            {locked.name || locked.dob || locked.sex ? (
-              <Text className="text-muted-foreground text-xs leading-4.5">{LOCKED_NOTE}</Text>
-            ) : null}
+            <Text className="text-muted-foreground text-xs leading-4.5">{LOCKED_NOTE}</Text>
           </View>
         ) : null}
 

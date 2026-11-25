@@ -27,6 +27,13 @@
     "plugins": [
       "expo-router",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "NairaClinic uses your photos so you can choose a profile picture.",
+          "cameraPermission": "NairaClinic uses your camera so you can take a profile picture."
+        }
+      ],
+      [
         "expo-location",
         {
           "locationWhenInUsePermission": "NairaClinic uses your location to find pharmacies and laboratories close to you."
