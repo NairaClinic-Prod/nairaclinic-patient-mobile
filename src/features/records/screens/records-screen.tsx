@@ -15,6 +15,7 @@ import { ReadingSheet } from '../components/reading-sheet';
 import { ReadingsListSheet } from '../components/readings-list-sheet';
 import { VitalsCard } from '../components/vitals-card';
 import { RECORDS_SUBTITLE } from '../constants';
+import { useRecordsRefresh } from '../hooks/use-records-refresh';
 import { useVitals } from '../hooks/use-vitals';
 import type { Reading, VitalView } from '../types';
 
@@ -22,6 +23,7 @@ const gutter = { paddingHorizontal: SCREEN_PADDING_X };
 
 export function RecordsScreen() {
   const readings = useVitals();
+  const { refresh, refreshing } = useRecordsRefresh();
   const { dashboard } = useHome();
   const [kind, setKind] = React.useState<VitalView>('bp');
   const [listOpen, setListOpen] = React.useState(false);
@@ -38,7 +40,13 @@ export function RecordsScreen() {
   }
 
   return (
-    <BodyLayout scrollView padding={false} tabBar className="gap-5">
+    <BodyLayout
+      scrollView
+      padding={false}
+      tabBar
+      className="gap-5"
+      onRefresh={refresh}
+      refreshing={refreshing}>
       <TabHeader gutter title="Health records" subtitle={RECORDS_SUBTITLE} />
       <View
         className="gap-5"

@@ -24,7 +24,17 @@ function confirmDelete(reading: Reading) {
     `The reading from ${stampLabel(reading.atUtc)} will be removed.`,
     [
       { text: 'Keep it', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => deleteReading(reading.id) },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () =>
+          deleteReading(reading.id).catch((error) =>
+            Alert.alert(
+              "Couldn't delete it",
+              error instanceof Error ? error.message : 'Please try again.'
+            )
+          ),
+      },
     ]
   );
 }

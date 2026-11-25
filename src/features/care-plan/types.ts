@@ -37,7 +37,9 @@ export type CareReferral = {
   title: string;
   hospital: string;
   reason: string;
+  status?: string;
   dateIso: string;
+  referredBy?: string;
   onPlatform: boolean;
 };
 
@@ -47,6 +49,7 @@ export type Encounter = {
   title: string;
   dateIso: string;
   doctor: string;
+  prescriptionId?: string | null;
   external: boolean;
   clinic: string;
   active: boolean;

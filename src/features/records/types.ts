@@ -10,6 +10,7 @@ export type BpReading = {
   diastolic: number;
   pulse: number | null;
   note?: string;
+  source?: 'typed' | 'upload';
 };
 
 export type SugarReading = {
@@ -19,6 +20,7 @@ export type SugarReading = {
   sugar: number;
   timing: SugarTiming;
   note?: string;
+  source?: 'typed' | 'upload';
 };
 
 export type Reading = BpReading | SugarReading;

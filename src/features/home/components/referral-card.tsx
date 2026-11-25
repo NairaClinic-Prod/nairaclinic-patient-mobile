@@ -2,11 +2,28 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { SCREEN_PADDING_X } from '@/constants/ui';
-import { Heart, Link2, Share2 } from 'lucide-react-native';
+import * as Clipboard from 'expo-clipboard';
+import * as Haptics from 'expo-haptics';
+import { Check, Copy, Heart, Link2 } from 'lucide-react-native';
+import * as React from 'react';
 import { Share, View } from 'react-native';
 import type { ReferralLink } from '../types';
 
 export function ReferralCard({ referral }: { referral: ReferralLink }) {
+  const [copied, setCopied] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
+
+  async function copy() {
+    await Clipboard.setStringAsync(referral.code);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setCopied(true);
+  }
+
   return (
     <View
       className="gap-3 rounded-3xl bg-secondary p-4"
@@ -32,9 +49,10 @@ export function ReferralCard({ referral }: { referral: ReferralLink }) {
           size="sm"
           variant="outline"
           className="flex-1 rounded-2xl"
-          onPress={() => Share.share({ message: referral.code })}>
-          <Icon as={Share2} className="size-3.5" />
-          <Text>Share code</Text>
+          accessibilityLabel="Copy referral code"
+          onPress={copy}>
+          <Icon as={copied ? Check : Copy} className="size-3.5" />
+          <Text>{copied ? 'Copied' : 'Copy code'}</Text>
         </Button>
         <Button
           size="sm"

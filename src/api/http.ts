@@ -17,6 +17,9 @@ export const isNetworkError = (error: unknown) => error instanceof ApiError && e
 export type HttpOptions = {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   body?: unknown;
+  // A file upload. The body is left as form data so the phone sets its own boundary.
+  form?: FormData;
+  timeoutMs?: number;
   bearer?: string | null;
   signal?: AbortSignal;
 };
@@ -33,9 +36,10 @@ function messageFrom(json: any, status: number) {
 
 // One call to the backend with no session handling. Resolves to the reply's `data` (or the body).
 export async function send<T>(path: string, options: HttpOptions = {}): Promise<T> {
-  const { method = options.body === undefined ? 'GET' : 'POST', body, bearer, signal } = options;
+  const { body, form, bearer, signal, timeoutMs = REQUEST_TIMEOUT_MS } = options;
+  const method = options.method ?? (body === undefined && !form ? 'GET' : 'POST');
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   const abort = () => controller.abort();
   signal?.addEventListener('abort', abort);
 
@@ -45,10 +49,10 @@ export async function send<T>(path: string, options: HttpOptions = {}): Promise<
       method,
       headers: {
         Accept: 'application/json',
-        ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+        ...(body !== undefined && !form ? { 'Content-Type': 'application/json' } : {}),
         ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
       },
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: form ?? (body !== undefined ? JSON.stringify(body) : undefined),
       signal: controller.signal,
     });
   } catch {

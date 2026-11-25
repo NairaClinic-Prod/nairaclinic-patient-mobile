@@ -76,11 +76,14 @@ function missingFor(form: Form) {
 export function ReadingSheet({ open, editing, defaultKind, onClose }: ReadingSheetProps) {
   const [form, setForm] = React.useState(() => initialForm(editing, defaultKind));
   const [openedAt, setOpenedAt] = React.useState(() => new Date().toISOString());
+  const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (open) {
       setForm(initialForm(editing, defaultKind));
       setOpenedAt(new Date().toISOString());
+      setError(null);
     }
   }, [open, editing, defaultKind]);
 
@@ -96,30 +99,40 @@ export function ReadingSheet({ open, editing, defaultKind, onClose }: ReadingShe
     });
   }
 
-  function save() {
+  async function save() {
     const common = {
       id: editing?.id ?? newReadingId(),
       atUtc: editing ? editing.atUtc : new Date().toISOString(),
       note: form.note.trim() || undefined,
+      source: editing?.source ?? ('typed' as const),
     };
-    saveReading(
-      form.kind === 'bp'
-        ? {
-            ...common,
-            kind: 'bp',
-            systolic: Number(form.systolic),
-            diastolic: Number(form.diastolic),
-            pulse: form.pulse ? Number(form.pulse) : null,
-          }
-        : {
-            ...common,
-            kind: 'sugar',
-            sugar: fromUnit(Number(form.sugar), form.unit),
-            timing: form.timing,
-          }
-    );
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    onClose();
+    setError(null);
+    setSaving(true);
+    try {
+      await saveReading(
+        form.kind === 'bp'
+          ? {
+              ...common,
+              kind: 'bp',
+              systolic: Number(form.systolic),
+              diastolic: Number(form.diastolic),
+              pulse: form.pulse ? Number(form.pulse) : null,
+            }
+          : {
+              ...common,
+              kind: 'sugar',
+              sugar: fromUnit(Number(form.sugar), form.unit),
+              timing: form.timing,
+            }
+      );
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      onClose();
+    } catch (failure) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      setError(failure instanceof Error ? failure.message : "Couldn't save this reading.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -131,6 +144,7 @@ export function ReadingSheet({ open, editing, defaultKind, onClose }: ReadingShe
       snapPoints={['86%']}
       footer={
         <View className="gap-2">
+          {error ? <Text className="text-xs text-destructive">{error}</Text> : null}
           {missing.length ? (
             <Text className="text-xs text-muted-foreground">{`Still needed: ${missing.join(', ')}.`}</Text>
           ) : null}
@@ -144,9 +158,9 @@ export function ReadingSheet({ open, editing, defaultKind, onClose }: ReadingShe
             />
             <ActionButton
               size="md"
-              label={editing ? 'Save changes' : 'Save reading'}
+              label={saving ? 'Saving…' : editing ? 'Save changes' : 'Save reading'}
               className="flex-[2]"
-              disabled={missing.length > 0}
+              disabled={missing.length > 0 || saving}
               onPress={save}
             />
           </View>
