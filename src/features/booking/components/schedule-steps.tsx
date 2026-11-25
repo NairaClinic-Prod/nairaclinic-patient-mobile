@@ -1,0 +1,81 @@
+import { Text } from '@/components/ui/text';
+import * as React from 'react';
+import type { DayOfSlots } from '../types';
+import { longDay, timeRange } from '../utils';
+import { DayPicker } from './day-picker';
+import { StepCard } from './step-card';
+import { TimePicker } from './time-picker';
+
+type ScheduleStepsProps = {
+  days: DayOfSlots[];
+  durationMins: number;
+  dayKey: string | null;
+  slotId: string | null;
+  firstNumber: number;
+  onDay: (key: string) => void;
+  onSlot: (id: string) => void;
+};
+
+// The date step, then the time step once a date is chosen. Each folds to a line when answered.
+export function ScheduleSteps({
+  days,
+  durationMins,
+  dayKey,
+  slotId,
+  firstNumber,
+  onDay,
+  onSlot,
+}: ScheduleStepsProps) {
+  const [edit, setEdit] = React.useState<'date' | 'time' | null>(null);
+  const day = days.find((item) => item.key === dayKey);
+  const slot = day?.slots.find((item) => item.id === slotId);
+  const nextId = days[0]?.slots[0]?.id;
+
+  return (
+    <>
+      <StepCard
+        number={firstNumber}
+        title="Select a date"
+        summary={day ? longDay(day.date) : undefined}
+        done={Boolean(day)}
+        expanded={!day || edit === 'date'}
+        onEdit={() => setEdit('date')}>
+        {days.length ? (
+          <DayPicker
+            days={days}
+            selected={dayKey}
+            onChange={(key) => {
+              setEdit(null);
+              onDay(key);
+            }}
+          />
+        ) : (
+          <Text className="text-[13px] leading-5 text-muted-foreground">
+            No available times found. Check back soon.
+          </Text>
+        )}
+      </StepCard>
+
+      {day ? (
+        <StepCard
+          number={firstNumber + 1}
+          title="Select a time"
+          summary={slot ? timeRange(slot) : undefined}
+          done={Boolean(slot)}
+          expanded={!slot || edit === 'time'}
+          onEdit={() => setEdit('time')}>
+          <TimePicker
+            slots={day.slots}
+            durationMins={durationMins}
+            selected={slotId}
+            nextId={nextId}
+            onChange={(id) => {
+              setEdit(null);
+              onSlot(id);
+            }}
+          />
+        </StepCard>
+      ) : null}
+    </>
+  );
+}

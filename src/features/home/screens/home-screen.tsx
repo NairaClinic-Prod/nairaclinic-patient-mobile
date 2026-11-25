@@ -28,12 +28,20 @@ export function HomeScreen() {
       </FadeIn>
       <FadeIn index={1}>
         <QuickActions
+          onBook={() => router.push('/book')}
           onRecords={() => router.navigate('/records')}
           onOrder={() => openMakeOrder()}
         />
       </FadeIn>
       <FadeIn index={2}>
-        <CareTeamStrip members={dashboard.careTeam} />
+        <CareTeamStrip
+          members={dashboard.careTeam}
+          onSelect={(member) =>
+            router.push(member.bookingSlug ? `/book/doctor/${member.bookingSlug}` : '/book')
+          }
+          onSeeAll={() => router.push('/book')}
+          onBook={() => router.push('/book/find')}
+        />
       </FadeIn>
       {dashboard.readyNow.length ? (
         <FadeIn index={3}>

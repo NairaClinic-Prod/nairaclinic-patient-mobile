@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { ChevronDown, MapPin } from 'lucide-react-native';
 import * as React from 'react';
 import { View } from 'react-native';
-import { Choosable } from '../components/choosable';
+import { Choosable } from '@/components/shared/choosable';
 import type {
   Collection,
   LabResult,
