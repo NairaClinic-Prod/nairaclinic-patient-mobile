@@ -173,22 +173,24 @@ export async function refreshLabs() {
 // is paid again instead of starting a second one.
 export async function bookAndPay(
   body: NewLabBooking,
-  started?: LabBooking | null
+  started?: LabBooking | null,
+  onReturn?: () => void
 ): Promise<{ booking: LabBooking; outcome: PayOutcome }> {
   const booking = started ?? toBooking(await labsApi.createBooking(body));
-  const outcome = await payBooking(booking.id);
+  const outcome = await payBooking(booking.id, onReturn);
   await refreshLabs();
   return { booking, outcome };
 }
 
-export async function payBooking(id: string): Promise<PayOutcome> {
+export async function payBooking(id: string, onReturn?: () => void): Promise<PayOutcome> {
   const reply = await request<{ payment: PaymentReply }>(PAYMENT_ENDPOINTS.labBooking(id), {
     body: { callbackUrl: paymentCallback({ booking: id }) },
     timeoutMs: 45_000,
   });
   const outcome = await settlePayment(
     reply.payment,
-    "We couldn't confirm your payment yet. Open the booking again in a moment."
+    "We couldn't confirm your payment yet. Open the booking again in a moment.",
+    onReturn
   );
   await refreshLabs();
   return outcome;

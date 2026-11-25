@@ -145,7 +145,7 @@ export function useLabCheckout({ lab, collection: wanted, location, responseId }
     problems.push('Delivery address');
   }
 
-  async function submit() {
+  async function submit(onReturn?: () => void) {
     if (!input || !slot || !resultDelivery || problems.length)
       throw new Error(`Still needed: ${problems.join(', ')}.`);
     const body = {
@@ -163,7 +163,7 @@ export function useLabCheckout({ lab, collection: wanted, location, responseId }
     try {
       // A booking already started with these same choices is paid again, never started twice.
       const again = started?.key === key ? started.booking : null;
-      const result = await bookAndPay(body, again);
+      const result = await bookAndPay(body, again, onReturn);
       setStarted({ key, booking: result.booking });
       return result;
     } finally {

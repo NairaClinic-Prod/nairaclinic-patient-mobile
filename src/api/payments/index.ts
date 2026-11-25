@@ -39,13 +39,16 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // Opens Paystack's page, then checks the result a few times, because the confirmation can arrive a
 // moment after the browser closes. An auth session (not a plain browser) is used so the "Back to
 // the app" link on the callback page dismisses the browser and returns to the app: a plain in-app
-// browser swallows custom-scheme taps, which is why that button did nothing.
-async function checkout(url: string, reference: string): Promise<boolean> {
+// browser swallows custom-scheme taps, which is why that button did nothing. The session is
+// ephemeral (private) so iOS skips its "wants to use … to Sign In" consent prompt; Paystack does
+// not need the patient's Safari cookies.
+async function checkout(url: string, reference: string, onReturn?: () => void): Promise<boolean> {
   try {
-    await WebBrowser.openAuthSessionAsync(url, APP_LINK);
+    await WebBrowser.openAuthSessionAsync(url, APP_LINK, { preferEphemeralSession: true });
   } catch {
     await WebBrowser.openBrowserAsync(url, { dismissButtonStyle: 'close' });
   }
+  onReturn?.();
   for (let attempt = 0; attempt < 4; attempt++) {
     const result = await paymentsApi.verify(reference).catch(() => null);
     if (result?.paid || result?.status === 'paid') return true;
@@ -63,18 +66,21 @@ export type PayRequest = {
   callbackQuery?: Record<string, string>;
   // Said if the payment could not be confirmed.
   unconfirmed?: string;
+  // Runs when the Paystack page closes, before the result is checked.
+  onReturn?: () => void;
 };
 
 // Turns what a payment endpoint answered into a result: paid at once (wallet or saved card), or a
 // Paystack page to open and check.
 export async function settlePayment(
   reply: PaymentReply,
-  unconfirmed?: string
+  unconfirmed?: string,
+  onReturn?: () => void
 ): Promise<PayOutcome> {
   let paid: boolean;
   if (reply.paid || reply.status === 'paid') paid = true;
   else if (reply.authorizationUrl && reply.reference) {
-    paid = await checkout(reply.authorizationUrl, reply.reference);
+    paid = await checkout(reply.authorizationUrl, reply.reference, onReturn);
   } else if (reply.status === 'pending') {
     throw new ApiError("We couldn't start the payment. Please try again.", 502);
   } else paid = true;
@@ -100,7 +106,7 @@ export async function pay(input: PayRequest): Promise<PayOutcome> {
   const reply = await request<PaymentReply>(input.endpoint, {
     body: { callbackUrl: paymentCallback(input.callbackQuery), ...input.body },
   });
-  return settlePayment(reply, input.unconfirmed);
+  return settlePayment(reply, input.unconfirmed, input.onReturn);
 }
 
 // Adds a card: a small charge on Paystack's page that is refunded, after which the card is kept.

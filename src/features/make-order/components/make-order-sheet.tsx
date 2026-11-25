@@ -377,13 +377,15 @@ export function MakeOrderSheet() {
   }
 
   async function payLab() {
-    // The confirmation opens at once in a "not yet confirmed" state, then flips when the payment
-    // verifies — including after the patient returns from Paystack.
+    // The checkout stays on screen while Paystack is open. The confirmation opens only once the
+    // patient is back in the app, in a "not yet confirmed" state, then flips when the payment
+    // verifies.
     setBusy(true);
-    setSent({ mode: 'confirming', name: labChosen?.labName ?? null, reference: '' });
-    setStage('sent');
     try {
-      const result = await checkout.submit();
+      const result = await checkout.submit(() => {
+        setSent({ mode: 'confirming', name: labChosen?.labName ?? null, reference: '' });
+        setStage('sent');
+      });
       if (!result.outcome.paid) {
         setStage('checkout');
         Alert.alert('Payment not confirmed', result.outcome.message);
