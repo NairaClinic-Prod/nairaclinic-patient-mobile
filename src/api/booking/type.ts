@@ -65,6 +65,13 @@ export type DoctorSearchReply = {
   totalPages: number;
 };
 
+export type BookingTiming = {
+  minWaitMinutes: number;
+  stepMinutes: number;
+  nowUtc: string;
+  earliestAtUtc: string;
+};
+
 export type CreatedConsultation = { consultationId: string };
 
 export type PlanRow = {

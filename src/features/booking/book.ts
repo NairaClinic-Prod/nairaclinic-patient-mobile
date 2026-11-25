@@ -22,6 +22,8 @@ export function bookingMessage(error: unknown): string {
     if (error.status === 402 || error.code === 'CARD_DECLINED') {
       return `${error.message} Try another card, or pay with your wallet or Paystack.`;
     }
+    if (/too soon/i.test(error.message))
+      return 'That time is too soon. Please choose a later time.';
     if (error.status === 401) return 'Your session ended. Please log in again.';
     if (error.status >= 500)
       return 'Something went wrong on our side. Please try again in a moment.';

@@ -88,11 +88,15 @@ function windowsOf(slots: RawSlot[], durationMins: number): Slot[] {
 }
 
 // A doctor's real open times grouped by day, for the chosen visit length.
-export function daysFromSlots(slots: RawSlot[], durationMins: number): DayOfSlots[] {
+export function daysFromSlots(
+  slots: RawSlot[],
+  durationMins: number,
+  earliest: number
+): DayOfSlots[] {
   const byDay = new Map<string, Slot[]>();
-  for (const slot of windowsOf(slots, durationMins).sort((a, b) =>
-    a.startsAt.localeCompare(b.startsAt)
-  )) {
+  for (const slot of windowsOf(slots, durationMins)
+    .filter((item) => new Date(item.startsAt).getTime() >= earliest)
+    .sort((a, b) => a.startsAt.localeCompare(b.startsAt))) {
     const key = dayKey(new Date(slot.startsAt));
     byDay.set(key, [...(byDay.get(key) ?? []), slot]);
   }
@@ -103,14 +107,25 @@ export function daysFromSlots(slots: RawSlot[], durationMins: number): DayOfSlot
   });
 }
 
+export type Timing = { minWaitMinutes: number; stepMinutes: number };
+
+// What the backend uses until it has answered: at least an hour away, rounded up to the quarter hour.
+export const DEFAULT_TIMING: Timing = { minWaitMinutes: 60, stepMinutes: 15 };
+
+// The earliest time a booking can start: at least the minimum wait away, rounded up to the step.
+// Same rule as the backend, so 1:11 becomes 2:15, 1:14 becomes 2:15 and 1:16 becomes 2:30.
+export function earliestBookingAt(now: number, timing: Timing): number {
+  const step = Math.max(1, timing.stepMinutes) * 60_000;
+  const wholeMinute = Math.floor(now / 60_000) * 60_000;
+  return Math.ceil((wholeMinute + Math.max(0, timing.minWaitMinutes) * 60_000) / step) * step;
+}
+
 const REQUEST_START_HOUR = 8;
 const REQUEST_END_HOUR = 22;
-const REQUEST_LEAD_MS = 15 * 60_000;
 
 // For "find me a doctor" there is no doctor yet, so, like the website, any time from 8am to 10pm over
-// the next seven days that is more than 15 minutes away.
-export function requestDays(durationMins: number): DayOfSlots[] {
-  const now = Date.now();
+// the next seven days that is not before the earliest booking time.
+export function requestDays(durationMins: number, earliest: number): DayOfSlots[] {
   const days: DayOfSlots[] = [];
   for (let offset = 0; offset < BOOKING_DAYS; offset += 1) {
     const date = new Date();
@@ -126,7 +141,7 @@ export function requestDays(durationMins: number): DayOfSlots[] {
       at + durationMins * 60_000 <= end.getTime();
       at += durationMins * 60_000
     ) {
-      if (at <= now + REQUEST_LEAD_MS) continue;
+      if (at < earliest) continue;
       slots.push({
         id: `${dayKey(date)}-${at}`,
         startsAt: new Date(at).toISOString(),

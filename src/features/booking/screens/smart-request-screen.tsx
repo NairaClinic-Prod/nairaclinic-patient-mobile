@@ -12,6 +12,7 @@ import { AUDIO_OPTION, KindPicker, VIDEO_OPTION } from '../components/kind-picke
 import { PaymentOptions, usePayment } from '../components/payment-options';
 import { ScheduleSteps } from '../components/schedule-steps';
 import { SMART_DURATION_MINS } from '../constants';
+import { useEarliestBooking } from '../earliest';
 import { useBookingIdentity } from '../identity';
 import type { PayChoice } from '../types';
 import { clock, longDay, requestDays } from '../utils';
@@ -20,6 +21,7 @@ type SmartKind = 'video' | 'audio';
 
 export function SmartRequestScreen() {
   const identity = useBookingIdentity();
+  const earliest = useEarliestBooking();
   const [kind, setKind] = React.useState<SmartKind>('video');
   const [dayKey, setDayKey] = React.useState<string | null>(null);
   const [slotId, setSlotId] = React.useState<string | null>(null);
@@ -32,7 +34,7 @@ export function SmartRequestScreen() {
   const [created, setCreated] = React.useState<{ key: string; id: string } | null>(null);
   const [sent, setSent] = React.useState(false);
 
-  const days = React.useMemo(() => requestDays(SMART_DURATION_MINS), []);
+  const days = React.useMemo(() => requestDays(SMART_DURATION_MINS, earliest), [earliest]);
   const day = days.find((item) => item.key === dayKey);
   const slot = day?.slots.find((item) => item.id === slotId);
   // The price is set by NairaClinic when the request is sent, so no total is shown up front.

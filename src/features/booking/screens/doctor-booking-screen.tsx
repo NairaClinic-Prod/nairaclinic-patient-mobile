@@ -22,6 +22,7 @@ import { PriceSummary, totalOf } from '../components/price-summary';
 import { RatePicker } from '../components/rate-picker';
 import { ScheduleSteps } from '../components/schedule-steps';
 import { StepCard } from '../components/step-card';
+import { useEarliestBooking } from '../earliest';
 import { useBookingIdentity } from '../identity';
 import type { ConsultKind, PayChoice } from '../types';
 import { clock, daysFromSlots, longDay, naira } from '../utils';
@@ -35,6 +36,7 @@ export function DoctorBookingScreen() {
   const slotsQuery = useOpenSlots(slug, Boolean(doctor?.acceptingBookings));
   const plansQuery = useMyDoctorPlans(doctor?.userId ?? null);
   const identity = useBookingIdentity();
+  const earliest = useEarliestBooking();
 
   const plan = plansQuery.data?.find(
     (item) => item.status === 'active' || item.status === 'ending'
@@ -76,8 +78,8 @@ export function DoctorBookingScreen() {
   const rate = activeRateIndex === null ? undefined : shown[activeRateIndex];
 
   const days = React.useMemo(
-    () => (rate ? daysFromSlots(slotsQuery.data ?? [], rate.durationMins) : []),
-    [rate, slotsQuery.data]
+    () => (rate ? daysFromSlots(slotsQuery.data ?? [], rate.durationMins, earliest) : []),
+    [rate, slotsQuery.data, earliest]
   );
   const day = days.find((item) => item.key === dayKey);
   const slot = day?.slots.find((item) => item.id === slotId);

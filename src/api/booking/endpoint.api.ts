@@ -1,6 +1,7 @@
 import { request } from '../client';
 import type {
   BookingProfile,
+  BookingTiming,
   CreatedConsultation,
   DoctorBooking,
   DoctorPlanSubscription,
@@ -110,6 +111,9 @@ export const bookingApi = {
     request<DoctorSearchReply>(
       `/doctors/search?page=1&limit=${SEARCH_PAGE_SIZE}&match=name&q=${encodeURIComponent(query.slice(0, 100))}`
     ),
+
+  // The admin's minimum notice before a booking, and the step it is rounded up to.
+  timing: () => request<BookingTiming>('/consultations/booking-timing', { auth: 'none' }),
 
   profile: () =>
     request<{ patientProfile: BookingProfile | null }>('/patient/me').then(
