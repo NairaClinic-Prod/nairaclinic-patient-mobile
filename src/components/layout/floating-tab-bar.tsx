@@ -29,12 +29,22 @@ export function FloatingTabBar({ state, emitter, navigateToTab }: BottomTabBarPr
   const color = useColor();
   const insets = useSafeAreaInsets();
   const [width, setWidth] = React.useState(0);
+  // The tab the patient just touched. It lights up at once, even while a heavy screen is still
+  // mounting, and clears when the navigation state catches up.
+  const [touched, setTouched] = React.useState<number | null>(null);
+  const active = touched ?? state.index;
+  // True once a touch has already switched tabs, so the release doesn't switch a second time.
+  const switched = React.useRef(false);
   const position = useSharedValue(state.index);
   const slot = (width - PADDING * 2) / state.routes.length;
 
   React.useEffect(() => {
-    position.set(withSpring(state.index, SPRING));
-  }, [state.index, position]);
+    position.set(withSpring(active, SPRING));
+  }, [active, position]);
+
+  React.useEffect(() => {
+    setTouched(null);
+  }, [state.index]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
     opacity: width ? 1 : 0,
@@ -70,16 +80,27 @@ export function FloatingTabBar({ state, emitter, navigateToTab }: BottomTabBarPr
       {state.routes.map((route, index) => {
         const tab = TABS[route.name];
         if (!tab) return null;
-        const focused = index === state.index;
-        const onPress = () => {
+        const focused = index === active;
+        const go = () => {
           const event = emitter.emit({
             type: 'tabPress',
             target: route.key,
             canPreventDefault: true,
           });
-          if (focused || event.defaultPrevented) return;
+          if (index === state.index || event.defaultPrevented) return false;
           Haptics.selectionAsync();
+          setTouched(index);
           navigateToTab(route.key);
+          return true;
+        };
+        // Respond on touch-down, not on release: the tab switches the moment the finger lands.
+        const onPressIn = () => {
+          switched.current = go();
+        };
+        // Screen readers and keyboards only send a press, so switch here if touch-down didn't.
+        const onPress = () => {
+          if (switched.current) switched.current = false;
+          else go();
         };
         return (
           <Pressable
@@ -87,7 +108,9 @@ export function FloatingTabBar({ state, emitter, navigateToTab }: BottomTabBarPr
             role="tab"
             accessibilityLabel={tab.label}
             accessibilityState={{ selected: focused }}
+            onPressIn={onPressIn}
             onPress={onPress}
+            hitSlop={{ top: 8, bottom: 8 }}
             style={styles.slot}>
             <tab.icon
               size={20}
