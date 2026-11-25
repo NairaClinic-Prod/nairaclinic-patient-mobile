@@ -259,7 +259,7 @@ function Chip({
 function Money({ label, value, strong }: { label: string; value: number; strong?: boolean }) {
   return (
     <View className="flex-row items-baseline justify-between gap-3">
-      <Text className={cn(strong ? 'text-base font-bold' : 'text-muted-foreground text-[13px]')}>
+      <Text className={cn(strong ? 'text-base font-bold' : 'text-[13px] text-muted-foreground')}>
         {label}
       </Text>
       <Text className={cn(strong ? 'text-xl font-extrabold' : 'text-[13px] font-semibold')}>
@@ -275,8 +275,8 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
 
   if (checkout.quote.isError) {
     return (
-      <View className="bg-muted rounded-2xl px-4 py-5">
-        <Text className="text-muted-foreground text-center text-[13px] leading-5">
+      <View className="rounded-2xl bg-muted px-4 py-5">
+        <Text className="text-center text-[13px] leading-5 text-muted-foreground">
           {checkout.quote.error instanceof Error
             ? checkout.quote.error.message
             : "We couldn't price these tests. Go back and try again."}
@@ -298,11 +298,11 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
     <View className="gap-6">
       <View className="gap-1">
         <Text className="text-[15px] font-bold">{`${lab.labName} · ${lab.branchName}`}</Text>
-        <Text className="text-muted-foreground text-xs leading-4.5">{lab.address}</Text>
+        <Text className="text-xs leading-4.5 text-muted-foreground">{lab.address}</Text>
         {priced.lines.map((line) => (
           <View key={line.name} className="mt-1 flex-row justify-between gap-3">
             <Text className="min-w-0 flex-1 text-[13px]">{line.name}</Text>
-            <Text className="text-muted-foreground text-[13px]">{formatNaira(line.priceKobo)}</Text>
+            <Text className="text-[13px] text-muted-foreground">{formatNaira(line.priceKobo)}</Text>
           </View>
         ))}
       </View>
@@ -316,7 +316,7 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
                 label="At the lab"
                 onPress={() => checkout.setCollection('lab_visit')}>
                 <Text className="text-[14px] font-bold">At the lab</Text>
-                <Text className="text-muted-foreground text-xs">You visit the facility</Text>
+                <Text className="text-xs text-muted-foreground">You visit the facility</Text>
               </Choosable>
             ) : null}
             {lab.homeCollection ? (
@@ -326,7 +326,7 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
                 label="At home"
                 onPress={() => checkout.setCollection('home')}>
                 <Text className="text-[14px] font-bold">At home</Text>
-                <Text className="text-muted-foreground text-xs">
+                <Text className="text-xs text-muted-foreground">
                   {homeBlocked
                     ? `Not possible: ${priced.blockingTests.map((test) => test.name).join(', ')} must be done at the lab.`
                     : `A collector visits you · ${formatNaira(priced.fees.homeCollectionKobo)}`}
@@ -367,7 +367,7 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
             ))}
           </View>
         ) : (
-          <Text className="text-muted-foreground text-[13px] leading-5">
+          <Text className="text-[13px] leading-5 text-muted-foreground">
             No times are open on this day. Try another day.
           </Text>
         )}
@@ -405,7 +405,7 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
               label="Soft copy"
               onPress={() => checkout.setResultDelivery('collection')}>
               <Text className="text-[14px] font-bold">Soft copy in the app</Text>
-              <Text className="text-muted-foreground text-xs">
+              <Text className="text-xs text-muted-foreground">
                 Free. You can collect a printed copy at the lab.
               </Text>
             </Choosable>
@@ -416,7 +416,7 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
               label="Hard copy delivered"
               onPress={() => checkout.setResultDelivery('delivery')}>
               <Text className="text-[14px] font-bold">Printed copy delivered</Text>
-              <Text className="text-muted-foreground text-xs">
+              <Text className="text-xs text-muted-foreground">
                 {`Brought to your address, plus a soft copy in the app${priced.fees.resultDeliveryKobo ? ` · ${formatNaira(priced.fees.resultDeliveryKobo)}` : ''}`}
               </Text>
             </Choosable>
@@ -452,7 +452,7 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
         />
       </Block>
 
-      <View className="border-border bg-secondary/30 gap-2 rounded-2xl border p-4">
+      <View className="gap-2 rounded-2xl border border-border bg-secondary/30 p-4">
         <Money label="Tests" value={priced.pricing.testsSubtotalKobo} />
         {priced.pricing.collectionFeeKobo ? (
           <Money label="Home collection" value={priced.pricing.collectionFeeKobo} />
@@ -463,7 +463,7 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
         {priced.pricing.serviceFeeKobo ? (
           <Money label="Service fee" value={priced.pricing.serviceFeeKobo} />
         ) : null}
-        <View className="bg-border my-1 h-px" />
+        <View className="my-1 h-px bg-border" />
         <Money strong label="Total" value={priced.pricing.totalKobo} />
       </View>
     </View>

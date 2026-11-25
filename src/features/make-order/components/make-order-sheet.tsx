@@ -39,7 +39,7 @@ import {
 import { StepTabs } from './step-tabs';
 
 type Stage = 'type' | 'pick' | 'items' | 'where' | 'results' | 'checkout' | 'sent';
-type SentMode = 'all' | 'ask' | 'order' | 'engine' | 'booked';
+type SentMode = 'all' | 'ask' | 'order' | 'booked';
 
 const STEP_LABELS: Record<OrderKind, string[]> = {
   medication: ['Choose medicines', 'Delivery', 'Compare'],
@@ -245,7 +245,7 @@ export function MakeOrderSheet() {
       } else {
         if (!source) throw new Error('Choose a prescription first.');
         const { state, lga } = matchArea(location);
-        const { raw, detail } = await createRequest({
+        const { raw } = await createRequest({
           ...(source.external
             ? { externalRecordId: source.id }
             : { prescriptionId: source.prescriptionId as string }),
@@ -257,9 +257,13 @@ export function MakeOrderSheet() {
           deliveryLocation: toDeliveryLocation(location),
         });
         setRequestId(raw.id);
-        // The newer way: the server is already asking the pharmacies, and replies arrive in Orders.
+        // The newer way: show the suggested pharmacies in Orders, as the website does. Nothing more
+        // is sent until the patient chooses a pharmacy or taps "Ask all pharmacies".
         if (raw.engine) {
-          finish('engine', null, detail.reference, raw.id);
+          const id = raw.id;
+          closeMakeOrder();
+          router.navigate('/orders');
+          setTimeout(() => showRequest(id), 350);
           return;
         }
         const legacy = toLegacyResults(raw);
@@ -387,13 +391,13 @@ export function MakeOrderSheet() {
     footer = (
       <View className="gap-3">
         {wanted.length === 0 ? (
-          <Text className="text-destructive text-xs">
+          <Text className="text-xs text-destructive">
             {`Choose at least one ${lab ? 'test' : 'medicine'} to continue.`}
           </Text>
         ) : (
           <View className="flex-row items-center gap-2">
-            <Icon as={Lock} className="text-muted-foreground size-3.5" />
-            <Text className="text-muted-foreground flex-1 text-xs leading-4.5">
+            <Icon as={Lock} className="size-3.5 text-muted-foreground" />
+            <Text className="flex-1 text-xs leading-4.5 text-muted-foreground">
               {pickNote(kind ?? 'medication')}
             </Text>
           </View>
@@ -429,10 +433,10 @@ export function MakeOrderSheet() {
           onPress={() => setConsent((current) => !current)}
           className="flex-row items-center gap-3">
           <CheckBox checked={consent} />
-          <Text className="text-muted-foreground flex-1 text-[13px] leading-5">
+          <Text className="flex-1 text-[13px] leading-5 text-muted-foreground">
             {'I agree to the '}
             <Text
-              className="text-primary text-[13px] font-semibold"
+              className="text-[13px] font-semibold text-primary"
               onPress={() => Linking.openURL(TERMS_URL)}>
               terms and conditions
             </Text>
@@ -440,7 +444,7 @@ export function MakeOrderSheet() {
           </Text>
         </PressableScale>
         {missing.length ? (
-          <Text className="text-muted-foreground text-xs">{`Still needed: ${missing.join(', ')}.`}</Text>
+          <Text className="text-xs text-muted-foreground">{`Still needed: ${missing.join(', ')}.`}</Text>
         ) : null}
         <View className="flex-row gap-2">
           <ActionButton
@@ -537,7 +541,7 @@ export function MakeOrderSheet() {
 
     footer = (
       <View className="gap-3">
-        <Text className="text-muted-foreground text-xs leading-4.5">{hint}</Text>
+        <Text className="text-xs leading-4.5 text-muted-foreground">{hint}</Text>
         <View className="flex-row gap-2">
           <ActionButton
             size="md"
@@ -554,7 +558,7 @@ export function MakeOrderSheet() {
     footer = (
       <View className="gap-3">
         {checkout.problems.length && checkout.priced ? (
-          <Text className="text-muted-foreground text-xs">{`Still needed: ${checkout.problems.join(', ')}.`}</Text>
+          <Text className="text-xs text-muted-foreground">{`Still needed: ${checkout.problems.join(', ')}.`}</Text>
         ) : null}
         <View className="flex-row gap-2">
           <ActionButton
@@ -584,24 +588,7 @@ export function MakeOrderSheet() {
   } else if (stage === 'sent') {
     footer = (
       <View className="gap-2">
-        {sent?.mode === 'engine' && sent.requestId ? (
-          <ActionButton
-            size="md"
-            label="See pharmacy replies"
-            onPress={() => {
-              const id = sent.requestId as string;
-              closeMakeOrder();
-              router.navigate('/orders');
-              setTimeout(() => showRequest(id), 350);
-            }}
-          />
-        ) : null}
-        <ActionButton
-          size="md"
-          variant={sent?.mode === 'engine' ? 'outline' : 'primary'}
-          label="Done"
-          onPress={closeMakeOrder}
-        />
+        <ActionButton size="md" label="Done" onPress={closeMakeOrder} />
       </View>
     );
   }

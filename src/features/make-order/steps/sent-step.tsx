@@ -6,7 +6,7 @@ import type { OrderKind } from '../types';
 
 type SentStepProps = {
   kind: OrderKind;
-  mode: 'all' | 'ask' | 'order' | 'engine' | 'booked';
+  mode: 'all' | 'ask' | 'order' | 'booked';
   name: string | null;
   reference: string;
 };
@@ -25,26 +25,24 @@ export function SentStep({ kind, mode, name, reference }: SentStepProps) {
   const text =
     mode === 'booked'
       ? `${name ?? 'The laboratory'} has your booking. We'll remind you before it's time, and your results appear on your record.`
-      : mode === 'engine'
-        ? 'We are asking the pharmacies near you. Their prices appear in your orders as they reply, and you choose who to pay.'
-        : mode === 'all'
-          ? `Sent to every nearby ${who === 'pharmacies' ? 'pharmacy' : 'laboratory'} around you. The first one to accept takes your request and sends its price.`
-          : mode === 'ask'
-            ? `${name ?? 'The pharmacy'} will send you an itemised price.`
-            : lab
-              ? `${name ?? 'The laboratory'} will confirm your booking and send you a time.`
-              : `${name ?? 'The pharmacy'} will accept or reject your order. If it rejects, you are refunded in full.`;
+      : mode === 'all'
+        ? `Sent to every nearby ${who === 'pharmacies' ? 'pharmacy' : 'laboratory'} around you. The first one to accept takes your request and sends its price.`
+        : mode === 'ask'
+          ? `${name ?? 'The pharmacy'} will send you an itemised price.`
+          : lab
+            ? `${name ?? 'The laboratory'} will confirm your booking and send you a time.`
+            : `${name ?? 'The pharmacy'} will accept or reject your order. If it rejects, you are refunded in full.`;
 
   return (
     <View className="items-center gap-3 pt-6 pb-2">
-      <View className="bg-primary size-16 items-center justify-center rounded-full">
-        <Icon as={Check} strokeWidth={2.5} className="text-primary-foreground size-8" />
+      <View className="size-16 items-center justify-center rounded-full bg-primary">
+        <Icon as={Check} strokeWidth={2.5} className="size-8 text-primary-foreground" />
       </View>
       <Text className="text-[22px] font-extrabold tracking-tight">{title}</Text>
-      <Text className="text-muted-foreground max-w-xs text-center text-[13px] leading-5">
-        {`${text}${mode === 'order' || mode === 'booked' || mode === 'engine' ? '' : ' You only pay once you accept the price.'}`}
+      <Text className="max-w-xs text-center text-[13px] leading-5 text-muted-foreground">
+        {`${text}${mode === 'order' || mode === 'booked' ? '' : ' You only pay once you accept the price.'}`}
       </Text>
-      {reference ? <Text className="text-muted-foreground text-xs">{reference}</Text> : null}
+      {reference ? <Text className="text-xs text-muted-foreground">{reference}</Text> : null}
     </View>
   );
 }

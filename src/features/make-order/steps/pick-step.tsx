@@ -44,26 +44,26 @@ export function PickStep({ kind, sources, source, picked, onPickSource, onPacks 
               scaleTo={0.985}
               role="button"
               onPress={() => onPickSource(entry)}
-              className="border-border bg-card gap-1.5 rounded-2xl border p-4">
+              className="gap-1.5 rounded-2xl border border-border bg-card p-4">
               <View className="flex-row items-start gap-3">
                 <Text className="min-w-0 flex-1 text-[15px] leading-5 font-bold">
                   {entry.title}
                 </Text>
                 {entry.external ? (
-                  <View className="bg-warning-soft rounded-full px-2.5 py-1">
-                    <Text className="text-warning text-[11px] font-bold">Added by you</Text>
+                  <View className="rounded-full bg-warning-soft px-2.5 py-1">
+                    <Text className="text-[11px] font-bold text-warning">Added by you</Text>
                   </View>
                 ) : null}
               </View>
-              <Text className="text-muted-foreground text-xs leading-4.5">{entry.meta}</Text>
+              <Text className="text-xs leading-4.5 text-muted-foreground">{entry.meta}</Text>
               <Text className="text-[13px] leading-5 font-medium">
                 {entry.items.map((item) => item.name).join(', ')}
               </Text>
             </PressableScale>
           ))
         ) : (
-          <View className="border-border rounded-2xl border border-dashed px-4 py-6">
-            <Text className="text-muted-foreground text-center text-[13px] leading-5">
+          <View className="rounded-2xl border border-dashed border-border px-4 py-6">
+            <Text className="text-center text-[13px] leading-5 text-muted-foreground">
               {copy.empty}
             </Text>
           </View>
@@ -83,7 +83,7 @@ export function PickStep({ kind, sources, source, picked, onPickSource, onPacks 
               key={item.name}
               className={cn(
                 'flex-row items-center gap-3 py-3.5',
-                index > 0 && 'border-border border-t'
+                index > 0 && 'border-t border-border'
               )}>
               <PressableScale
                 scaleTo={0.98}
@@ -102,7 +102,7 @@ export function PickStep({ kind, sources, source, picked, onPickSource, onPacks 
                     {item.name}
                   </Text>
                   {item.detail ? (
-                    <Text className="text-muted-foreground mt-0.5 text-xs leading-4.5">
+                    <Text className="mt-0.5 text-xs leading-4.5 text-muted-foreground">
                       {item.detail}
                     </Text>
                   ) : null}
