@@ -18,6 +18,7 @@ import { defaultOpenEncounter } from '@/features/care-plan/utils';
 import { ChevronsDownUp, Download, Layers } from 'lucide-react-native';
 import * as React from 'react';
 import { View } from 'react-native';
+import { ActionButton } from '@/components/shared/action-button';
 
 const EMPTY: Record<Exclude<CarePlanTab, 'all'>, string> = {
   test: 'No lab orders on record.',
@@ -69,12 +70,8 @@ export function CarePlanSection({ handlers = carePlanHandlers }: CarePlanSection
       />
 
       {visible.length ? (
-        <View className="flex-row items-center justify-between">
-          <View className="flex-row items-center gap-1.5">
-            <Icon as={Layers} className="size-3.5 text-muted-foreground" />
-            <Text className="text-xs text-muted-foreground">By consultation</Text>
-          </View>
-          <View className="flex-row items-center gap-1">
+        <View className="flex-row items-center justify-between w-full">
+          <View className="flex-row w-full items-center justify-between">
             <PdfButton
               pdfKey={pdfKeys.summary}
               label="Summary"
@@ -82,13 +79,13 @@ export function CarePlanSection({ handlers = carePlanHandlers }: CarePlanSection
               variant="ghost"
               onPress={() => downloadSummary(encounters, referrals)}
             />
-            {/* <ActionButton
+            <ActionButton
               label="Collapse all"
               icon={ChevronsDownUp}
               variant="ghost"
               disabled={!openId}
               onPress={() => setOpen(null)}
-            /> */}
+            />
           </View>
         </View>
       ) : null}

@@ -119,7 +119,7 @@ export function EncounterAccordion({
                     <View className="min-w-0 flex-1 flex-row items-center gap-1.5">
                       <Icon as={CalendarDays} className="size-3.5 shrink-0 text-muted-foreground" />
                       <Text className="flex-1 text-xs text-muted-foreground" numberOfLines={1}>
-                        {`#${encounter.ref} · ${formatDate(encounter.dateIso)}`}
+                        {`${formatDate(encounter.dateIso)}`}
                       </Text>
                     </View>
 
