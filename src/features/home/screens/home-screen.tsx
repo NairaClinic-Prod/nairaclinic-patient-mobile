@@ -25,8 +25,7 @@ export function HomeScreen() {
       tabBar
       fixedHeader
       className="gap-5"
-      onRefresh={home.refresh}
-      refreshing={home.refreshing}>
+      onRefresh={home.refresh}>
       <HomeHeader
         firstName={home.firstName}
         unreadCount={home.unreadCount}

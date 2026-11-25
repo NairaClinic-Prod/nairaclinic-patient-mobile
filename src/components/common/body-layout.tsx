@@ -9,13 +9,19 @@ import { cn } from '@/lib/utils';
 import { useScreenInsets } from '@/hooks/use-screen-insets';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as React from 'react';
-import { KeyboardAvoidingView, RefreshControl, StyleSheet, View } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import { KeyboardAvoidingView, Platform, RefreshControl, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedRef,
   useAnimatedScrollHandler,
   useSharedValue,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
+import { RefreshContext } from './refresh-context';
 import { ScrollContext } from './scroll-context';
+
+const PULL_DISTANCE = 70;
+const MIN_SPIN_MS = 600;
 
 type BodyLayoutProps = {
   inset?: boolean;
@@ -26,8 +32,8 @@ type BodyLayoutProps = {
   collapsingHeader?: boolean;
   fixedHeader?: boolean;
   footer?: React.ReactNode;
-  onRefresh?: () => void | Promise<void>;
-  refreshing?: boolean;
+  // Pull down to refresh. The spinner shows under the page description, not above the page.
+  onRefresh?: () => unknown;
   className?: string;
   children?: React.ReactNode;
 };
@@ -42,7 +48,6 @@ export function BodyLayout({
   fixedHeader = false,
   footer,
   onRefresh,
-  refreshing = false,
   className,
   children,
 }: BodyLayoutProps) {
@@ -68,8 +73,35 @@ export function BodyLayout({
     }),
     [scrollY, scrollRef]
   );
-  const onScroll = useAnimatedScrollHandler((event) => {
-    scrollY.set(event.contentOffset.y);
+  const [pulling, setPulling] = React.useState(false);
+  const latest = React.useRef({ onRefresh, pulling });
+  latest.current = { onRefresh, pulling };
+
+  const refresh = React.useCallback(async () => {
+    const { onRefresh: run, pulling: busy } = latest.current;
+    if (!run || busy) return;
+    setPulling(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const started = Date.now();
+    try {
+      await run();
+    } catch {
+      // the page shows its own error
+    }
+    const wait = MIN_SPIN_MS - (Date.now() - started);
+    if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
+    setPulling(false);
+  }, []);
+
+  // iOS: letting go past the pull distance refreshes. Android uses its own pull gesture with the circle hidden.
+  const customPull = Platform.OS === 'ios' && Boolean(onRefresh);
+  const onScroll = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.set(event.contentOffset.y);
+    },
+    onEndDrag: (event) => {
+      if (customPull && event.contentOffset.y < -PULL_DISTANCE) scheduleOnRN(refresh);
+    },
   });
 
   const spacing = {
@@ -90,10 +122,12 @@ export function BodyLayout({
           contentContainerStyle={[{ flexGrow: 1 }, spacing]}
           keyboardShouldPersistTaps="handled"
           refreshControl={
-            onRefresh ? (
+            onRefresh && Platform.OS !== 'ios' ? (
               <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
+                refreshing={pulling}
+                onRefresh={refresh}
+                colors={['transparent']}
+                progressBackgroundColor="transparent"
                 tintColor={color.primary}
               />
             ) : undefined
@@ -121,25 +155,27 @@ export function BodyLayout({
   return (
     <HeaderBarContext.Provider value={active ? headerBar : null}>
       <ScrollContext.Provider value={scrollApi}>
-        <View className="flex-1 bg-background">
-          {gradient ? (
-            <LinearGradient
-              pointerEvents="none"
-              colors={[color.gradientStart, color.gradientMid, color.gradientEnd]}
-              locations={[0, 0.5, 1]}
-              style={StyleSheet.absoluteFill}
-            />
-          ) : null}
-          {body}
-          {active && info && (fixed ? info.content : info.title) ? (
-            <HeaderBar
-              scrollY={scrollY}
-              info={info}
-              fixed={fixed}
-              gutter={padding ? SCREEN_PADDING_X : 0}
-            />
-          ) : null}
-        </View>
+        <RefreshContext.Provider value={pulling}>
+          <View className="flex-1 bg-background">
+            {gradient ? (
+              <LinearGradient
+                pointerEvents="none"
+                colors={[color.gradientStart, color.gradientMid, color.gradientEnd]}
+                locations={[0, 0.5, 1]}
+                style={StyleSheet.absoluteFill}
+              />
+            ) : null}
+            {body}
+            {active && info && (fixed ? info.content : info.title) ? (
+              <HeaderBar
+                scrollY={scrollY}
+                info={info}
+                fixed={fixed}
+                gutter={padding ? SCREEN_PADDING_X : 0}
+              />
+            ) : null}
+          </View>
+        </RefreshContext.Provider>
       </ScrollContext.Provider>
     </HeaderBarContext.Provider>
   );

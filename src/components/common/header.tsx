@@ -2,7 +2,25 @@ import { useHeaderBar } from '@/components/common/collapsing-header';
 import { Text } from '@/components/ui/text';
 import { SCREEN_PADDING_X } from '@/constants/ui';
 import * as React from 'react';
-import { View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
+import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { RefreshContext } from './refresh-context';
+
+const INDICATOR_HEIGHT = 44;
+
+// The pull-to-refresh spinner. It opens up under the page description and pushes the page down.
+function RefreshIndicator() {
+  const refreshing = React.useContext(RefreshContext);
+  const style = useAnimatedStyle(() => ({
+    height: withTiming(refreshing ? INDICATOR_HEIGHT : 0, { duration: 180 }),
+    opacity: withTiming(refreshing ? 1 : 0, { duration: 180 }),
+  }));
+  return (
+    <Animated.View style={[{ overflow: 'hidden', justifyContent: 'center' }, style]}>
+      <ActivityIndicator />
+    </Animated.View>
+  );
+}
 
 type TabHeaderProps = {
   title: React.ReactNode;
@@ -42,15 +60,18 @@ const TabHeader = ({ title, compactTitle, subtitle, right, gutter = false }: Tab
   });
 
   return (
-    <View
-      pointerEvents={fixed ? 'none' : 'auto'}
-      style={fixed ? { opacity: 0 } : undefined}
-      onLayout={(event) => {
-        const { y, height } = event.nativeEvent.layout;
-        register?.({ bottom: y + height });
-      }}>
-      {row}
-    </View>
+    <>
+      <View
+        pointerEvents={fixed ? 'none' : 'auto'}
+        style={fixed ? { opacity: 0 } : undefined}
+        onLayout={(event) => {
+          const { y, height } = event.nativeEvent.layout;
+          register?.({ bottom: y + height });
+        }}>
+        {row}
+      </View>
+      <RefreshIndicator />
+    </>
   );
 };
 

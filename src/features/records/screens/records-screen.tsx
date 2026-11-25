@@ -23,7 +23,7 @@ const gutter = { paddingHorizontal: SCREEN_PADDING_X };
 
 export function RecordsScreen() {
   const readings = useVitals();
-  const { refresh, refreshing } = useRecordsRefresh();
+  const { refresh } = useRecordsRefresh();
   const { dashboard } = useHome();
   const [kind, setKind] = React.useState<VitalView>('bp');
   const [listOpen, setListOpen] = React.useState(false);
@@ -40,13 +40,7 @@ export function RecordsScreen() {
   }
 
   return (
-    <BodyLayout
-      scrollView
-      padding={false}
-      tabBar
-      className="gap-5"
-      onRefresh={refresh}
-      refreshing={refreshing}>
+    <BodyLayout scrollView padding={false} tabBar className="gap-5" onRefresh={refresh}>
       <TabHeader gutter title="Health records" subtitle={RECORDS_SUBTITLE} />
       <View
         className="gap-5"
