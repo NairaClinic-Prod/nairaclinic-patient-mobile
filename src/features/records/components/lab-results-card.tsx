@@ -42,8 +42,9 @@ export function LabResultsCard({ onViewAll }: LabResultsCardProps) {
                 {result.testNames.join(', ')}
               </Text>
               <Text className="text-muted-foreground text-[11px]" numberOfLines={1}>
-                {`${result.labName} · ${result.reference}${result.releasedAt ? ` · ${formatDay(result.releasedAt)}` : ''
-                  }`}
+                {`${result.labName} · ${result.reference}${
+                  result.releasedAt ? ` · ${formatDay(result.releasedAt)}` : ''
+                }`}
               </Text>
             </View>
             {result.url ? (

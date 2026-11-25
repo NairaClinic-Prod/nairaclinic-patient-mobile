@@ -156,30 +156,30 @@ export function VitalsCard({
   const chartSeries: ChartSeries[] =
     view === 'bp'
       ? [
-        {
-          key: 'sys',
-          color: COLORS.systolic,
-          values: (series as BpReading[]).map((r) => r.systolic),
-        },
-        {
-          key: 'dia',
-          color: COLORS.diastolic,
-          values: (series as BpReading[]).map((r) => r.diastolic),
-        },
-        {
-          key: 'pulse',
-          color: COLORS.pulse,
-          dashed: true,
-          values: (series as BpReading[]).map((r) => r.pulse),
-        },
-      ]
+          {
+            key: 'sys',
+            color: COLORS.systolic,
+            values: (series as BpReading[]).map((r) => r.systolic),
+          },
+          {
+            key: 'dia',
+            color: COLORS.diastolic,
+            values: (series as BpReading[]).map((r) => r.diastolic),
+          },
+          {
+            key: 'pulse',
+            color: COLORS.pulse,
+            dashed: true,
+            values: (series as BpReading[]).map((r) => r.pulse),
+          },
+        ]
       : [
-        {
-          key: 'sugar',
-          color: COLORS.sugar,
-          values: (series as SugarReading[]).map((r) => toUnit(r.sugar, unit)),
-        },
-      ];
+          {
+            key: 'sugar',
+            color: COLORS.sugar,
+            values: (series as SugarReading[]).map((r) => toUnit(r.sugar, unit)),
+          },
+        ];
 
   const step = (delta: number) => {
     const next = series[position + delta];
@@ -243,8 +243,9 @@ export function VitalsCard({
               {view === 'bp' ? 'Blood pressure & pulse' : 'Blood sugar'}
             </Text>
             <Text className="text-muted-foreground text-xs">
-              {`${series.length} ${series.length === 1 ? 'reading' : 'readings'}${series.length ? ' · Tap for values' : ''
-                }`}
+              {`${series.length} ${series.length === 1 ? 'reading' : 'readings'}${
+                series.length ? ' · Tap for values' : ''
+              }`}
             </Text>
           </View>
           <InlineSelect

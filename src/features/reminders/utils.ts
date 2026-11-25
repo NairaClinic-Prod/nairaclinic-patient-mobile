@@ -34,7 +34,8 @@ export function dateLabel(date: string) {
 
 export function formatNext(date: Date) {
   const wat = new Date(date.getTime() + WAT_OFFSET);
-  const days = Math.floor((date.getTime() + WAT_OFFSET) / DAY) - Math.floor((Date.now() + WAT_OFFSET) / DAY);
+  const days =
+    Math.floor((date.getTime() + WAT_OFFSET) / DAY) - Math.floor((Date.now() + WAT_OFFSET) / DAY);
   const day = days <= 0 ? 'Today' : days === 1 ? 'Tomorrow' : WEEKDAY.format(wat);
   return `${day} ${wat.toISOString().slice(11, 16)}`;
 }

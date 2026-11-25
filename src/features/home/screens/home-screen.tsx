@@ -1,7 +1,7 @@
 import { FadeIn } from '@/components/shared/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
 import { openMakeOrder } from '@/features/make-order/store';
-import { notificationsStore } from '@/features/profile/pages-data';
+import { useUnreadCount } from '@/features/notifications/store';
 import { router } from 'expo-router';
 import { AppointmentsSection } from '../components/appointments-section';
 import { CareTeamStrip } from '../components/care-team-strip';
@@ -14,14 +14,14 @@ import { useHome } from '../hooks/use-home';
 export function HomeScreen() {
   const home = useHome();
   const { dashboard } = home;
-  const unread = notificationsStore.use().rows.filter((row) => !row.isRead).length;
+  const unread = useUnreadCount();
 
   return (
     <BodyLayout scrollView padding={false} tabBar fixedHeader className="gap-5">
       <HomeHeader
         firstName={home.firstName}
         unreadCount={unread}
-        onBellPress={() => router.push('/account/notifications')}
+        onBellPress={() => router.push('/notifications')}
       />
       <FadeIn index={0}>
         <ReferralCard referral={home.referral} />

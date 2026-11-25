@@ -22,20 +22,23 @@ import { View } from 'react-native';
 import { MenuList } from '../components/menu-list';
 import { CompletionCard, DetailsCard } from '../components/profile-summary';
 import { ProfileHero } from '../components/profile-hero';
-import { WalletCard } from '../components/wallet-card';
+import { WalletCard } from '@/features/wallet/components/wallet-card';
+import { useWallet } from '@/features/wallet/store';
+import { useUnreadCount } from '@/features/notifications/store';
 import { ageOf, completion, fullName, initialsOf, useProfile } from '../hooks/use-profile';
 import { usePhoto } from '../hooks/use-photo';
-import { notificationsStore } from '../pages-data';
-import type { AccountSection } from '../types';
+import type { ProfileDetailSection } from '../types';
 
-const open = (section: AccountSection) => router.push(`/account/${section}` as Href);
+const open = (path: Href) => router.push(path);
+const details = (section: ProfileDetailSection) => router.push(`/details/${section}`);
 
 const DOB = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
 export function ProfileScreen() {
-  const { profile, wallet } = useProfile();
+  const { profile } = useProfile();
+  const { wallet } = useWallet();
   const photo = usePhoto();
-  const unread = notificationsStore.use().rows.filter((row) => !row.isRead).length;
+  const unread = useUnreadCount();
   const progress = completion(profile, Boolean(photo));
   const age = ageOf(profile.dob);
 
@@ -48,7 +51,7 @@ export function ProfileScreen() {
             scaleTo={0.92}
             role="button"
             accessibilityLabel="Settings"
-            onPress={() => open('settings')}
+            onPress={() => open('/settings')}
             className="bg-card size-11 items-center justify-center rounded-full">
             <Icon as={Settings} className="text-foreground size-5" />
           </PressableScale>
@@ -72,21 +75,21 @@ export function ProfileScreen() {
             percent={progress.percent}
             missing={progress.missing}
             onComplete={() =>
-              open(progress.missing.includes('A profile photo') ? 'personal' : 'health')
+              details(progress.missing.includes('A profile photo') ? 'personal' : 'health')
             }
           />
         </FadeIn>
       ) : null}
 
       <FadeIn index={2}>
-        <WalletCard wallet={wallet} onPress={() => open('wallet')} />
+        <WalletCard wallet={wallet} onPress={() => open('/wallet')} />
       </FadeIn>
 
       <FadeIn index={3}>
         <DetailsCard
           title="Your details"
           editLabel="Edit email"
-          onEdit={() => open('personal')}
+          onEdit={() => details('personal')}
           details={[
             { label: 'Full name', value: fullName(profile), locked: true },
             {
@@ -105,7 +108,7 @@ export function ProfileScreen() {
       <FadeIn index={4}>
         <DetailsCard
           title="Health snapshot"
-          onEdit={() => open('health')}
+          onEdit={() => details('health')}
           details={[
             { label: 'Blood group', value: profile.bloodGroup },
             { label: 'Genotype', value: profile.genotype },
@@ -126,21 +129,21 @@ export function ProfileScreen() {
                 title: 'Lab tests',
                 text: 'Bookings, results and price requests',
                 icon: FlaskConical,
-                onPress: () => open('lab-tests'),
+                onPress: () => open('/lab-tests'),
               },
               {
                 key: 'membership',
                 title: 'Membership',
                 text: 'Your plan and what it includes',
                 icon: IdCard,
-                onPress: () => open('membership'),
+                onPress: () => open('/membership'),
               },
               {
                 key: 'doctor-plans',
                 title: 'My doctor plans',
                 text: 'Monthly plans and visits left',
                 icon: Stethoscope,
-                onPress: () => open('doctor-plans'),
+                onPress: () => open('/doctor-plans'),
               },
             ]}
           />
@@ -155,28 +158,28 @@ export function ProfileScreen() {
                 title: 'Wallet',
                 text: 'Balance and every naira in and out',
                 icon: Wallet,
-                onPress: () => open('wallet'),
+                onPress: () => open('/wallet'),
               },
               {
                 key: 'payment-methods',
                 title: 'Payment methods',
                 text: 'Your saved cards',
                 icon: CreditCard,
-                onPress: () => open('payment-methods'),
+                onPress: () => open('/payment-methods'),
               },
               {
                 key: 'transactions',
                 title: 'Transactions',
                 text: 'Payments for visits, orders and plans',
                 icon: Receipt,
-                onPress: () => open('transactions'),
+                onPress: () => open('/transactions'),
               },
               {
                 key: 'refer',
                 title: 'Refer someone',
                 text: 'Share your code and earn coins',
                 icon: Gift,
-                onPress: () => open('refer'),
+                onPress: () => open('/refer'),
               },
             ]}
           />
@@ -192,21 +195,21 @@ export function ProfileScreen() {
                 text: unread ? `${unread} unread` : 'Updates, reminders and follow-through',
                 icon: Bell,
                 badge: unread ? String(unread) : undefined,
-                onPress: () => open('notifications'),
+                onPress: () => open('/notifications'),
               },
               {
                 key: 'settings',
                 title: 'Settings',
                 text: 'PIN, notifications and appearance',
                 icon: Settings,
-                onPress: () => open('settings'),
+                onPress: () => open('/settings'),
               },
               {
                 key: 'support',
                 title: 'Privacy and security',
                 text: 'Devices and record privacy',
                 icon: HeartHandshake,
-                onPress: () => open('security'),
+                onPress: () => open('/security'),
               },
             ]}
           />

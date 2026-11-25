@@ -196,7 +196,12 @@ export const DUMMY_CARE_PLAN: CarePlanData = {
     },
   ],
   todos: [
-    { id: 'todo-1', title: 'Drink two litres of water', note: 'Keep a bottle on your desk.', done: false },
+    {
+      id: 'todo-1',
+      title: 'Drink two litres of water',
+      note: 'Keep a bottle on your desk.',
+      done: false,
+    },
     { id: 'todo-2', title: 'Evening walk', note: '', done: true },
   ],
   done: {},

@@ -20,6 +20,7 @@ type BodyLayoutProps = {
   gradient?: boolean;
   collapsingHeader?: boolean;
   fixedHeader?: boolean;
+  footer?: React.ReactNode;
   className?: string;
   children?: React.ReactNode;
 };
@@ -32,12 +33,13 @@ export function BodyLayout({
   gradient = tabBar,
   collapsingHeader = COLLAPSING_TAB_HEADER,
   fixedHeader = false,
+  footer,
   className,
   children,
 }: BodyLayoutProps) {
   const { top, bottom, tabBar: tabBarSpace } = useScreenInsets();
   const color = useColor();
-  const fixed = fixedHeader && scrollView && tabBar;
+  const fixed = fixedHeader && scrollView;
   const collapsing = collapsingHeader && scrollView && tabBar && !fixed;
   const active = fixed || collapsing;
   const scrollY = useSharedValue(0);
@@ -55,7 +57,7 @@ export function BodyLayout({
 
   const spacing = {
     paddingTop: inset ? top : 0,
-    paddingBottom: tabBar ? tabBarSpace : inset ? bottom : 0,
+    paddingBottom: footer ? 16 : tabBar ? tabBarSpace : inset ? bottom : 0,
     paddingHorizontal: padding ? SCREEN_PADDING_X : 0,
   };
 
@@ -77,6 +79,15 @@ export function BodyLayout({
           {children}
         </View>
       )}
+      {footer ? (
+        <View
+          style={{
+            paddingHorizontal: padding ? SCREEN_PADDING_X : 0,
+            paddingBottom: inset ? bottom : 0,
+          }}>
+          {footer}
+        </View>
+      ) : null}
     </KeyboardAvoidingView>
   );
 

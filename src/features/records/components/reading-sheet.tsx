@@ -105,18 +105,18 @@ export function ReadingSheet({ open, editing, defaultKind, onClose }: ReadingShe
     saveReading(
       form.kind === 'bp'
         ? {
-          ...common,
-          kind: 'bp',
-          systolic: Number(form.systolic),
-          diastolic: Number(form.diastolic),
-          pulse: form.pulse ? Number(form.pulse) : null,
-        }
+            ...common,
+            kind: 'bp',
+            systolic: Number(form.systolic),
+            diastolic: Number(form.diastolic),
+            pulse: form.pulse ? Number(form.pulse) : null,
+          }
         : {
-          ...common,
-          kind: 'sugar',
-          sugar: fromUnit(Number(form.sugar), form.unit),
-          timing: form.timing,
-        }
+            ...common,
+            kind: 'sugar',
+            sugar: fromUnit(Number(form.sugar), form.unit),
+            timing: form.timing,
+          }
     );
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     onClose();

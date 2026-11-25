@@ -15,7 +15,9 @@ export function useReminders() {
     if (!nextOccurrence(draft)) return 'Choose a time in the future.';
     setGroups((rows) =>
       replacesId
-        ? rows.map((row) => (row.id === replacesId ? { id: row.id, paused: false, meta: draft } : row))
+        ? rows.map((row) =>
+            row.id === replacesId ? { id: row.id, paused: false, meta: draft } : row
+          )
         : [{ id: `rem-${Date.now()}`, paused: false, meta: draft }, ...rows]
     );
     return null;

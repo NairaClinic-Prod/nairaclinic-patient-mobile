@@ -8,7 +8,13 @@ import Animated, {
 } from 'react-native-reanimated';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const SPRING = { damping: 34, stiffness: 420, mass: 0.6, overshootClamping: true, reduceMotion: ReduceMotion.System };
+const SPRING = {
+  damping: 34,
+  stiffness: 420,
+  mass: 0.6,
+  overshootClamping: true,
+  reduceMotion: ReduceMotion.System,
+};
 
 type PressableScaleProps = Omit<PressableProps, 'style'> & {
   className?: string;
