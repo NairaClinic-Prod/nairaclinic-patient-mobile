@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useScreenInsets } from '@/hooks/use-screen-insets';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as React from 'react';
-import { KeyboardAvoidingView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, RefreshControl, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedRef,
   useAnimatedScrollHandler,
@@ -26,6 +26,8 @@ type BodyLayoutProps = {
   collapsingHeader?: boolean;
   fixedHeader?: boolean;
   footer?: React.ReactNode;
+  onRefresh?: () => void | Promise<void>;
+  refreshing?: boolean;
   className?: string;
   children?: React.ReactNode;
 };
@@ -39,6 +41,8 @@ export function BodyLayout({
   collapsingHeader = COLLAPSING_TAB_HEADER,
   fixedHeader = false,
   footer,
+  onRefresh,
+  refreshing = false,
   className,
   children,
 }: BodyLayoutProps) {
@@ -85,6 +89,15 @@ export function BodyLayout({
           contentContainerClassName={className}
           contentContainerStyle={[{ flexGrow: 1 }, spacing]}
           keyboardShouldPersistTaps="handled"
+          refreshControl={
+            onRefresh ? (
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={color.primary}
+              />
+            ) : undefined
+          }
           showsVerticalScrollIndicator={false}>
           {children}
         </Animated.ScrollView>

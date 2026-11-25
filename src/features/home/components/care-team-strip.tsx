@@ -41,7 +41,7 @@ export function CareTeamStrip({ members, onSelect, onSeeAll, onBook }: CareTeamS
               )}
               <View className="h-8 justify-center">
                 <Text className="text-center text-xs leading-4 font-bold" numberOfLines={2}>
-                  {drName(member.name)}
+                  {member.kind === 'nairaclinic' ? member.name : drName(member.name)}
                 </Text>
               </View>
               <View className="h-4 justify-center">
