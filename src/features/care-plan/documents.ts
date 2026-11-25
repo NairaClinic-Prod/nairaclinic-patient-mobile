@@ -1,6 +1,6 @@
 import { recordsApi } from '@/api/records';
 import { openReply, runDocument, type DocumentSection } from '@/lib/documents';
-import { recordSections } from '@/features/records/export-record';
+import { recordPayload } from '@/features/records/export-record';
 import type { CareMedication, CareReferral, CareTest, Encounter } from './types';
 import { formatDate, plural } from './utils';
 
@@ -104,10 +104,9 @@ export function downloadReferralLetter(referral: CareReferral) {
   ]);
 }
 
-// The whole record as one document from the backend's personal document endpoint.
+// The whole record: the app sends the charts and lists, the backend draws the document.
 export function downloadAllRecords() {
   return runDocument(pdfKeys.records, async () => {
-    const { title, sections } = await recordSections();
-    await openReply(await recordsApi.personalPdf(title, sections), title);
+    await openReply(await recordsApi.medicalRecordPdf(await recordPayload()), 'Medical record');
   });
 }

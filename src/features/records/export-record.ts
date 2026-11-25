@@ -1,16 +1,13 @@
 import { recordsApi, type ConsultationRecord } from '@/api/records';
 import { drName } from '@/features/care-plan/build-names';
-import type { DocumentSection } from '@/lib/documents';
-import { TIMING_LABEL } from './constants';
+import type { MedicalRecordBody, RecordChart, RecordGroup, RecordSection } from '@/api/records';
+import { COLORS, TIMING_LABEL } from './constants';
+import type { Reading } from './types';
 import { readingsFromVitals } from './vitals-map';
 
 const day = new Intl.DateTimeFormat('en-NG', { day: 'numeric', month: 'short', year: 'numeric' });
-const long = new Intl.DateTimeFormat('en-NG', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: 'Africa/Lagos',
-});
+
+const short = new Intl.DateTimeFormat('en-NG', { day: 'numeric', month: 'short' });
 
 const when = (value?: string | null) => {
   const date = value ? new Date(value) : null;
@@ -18,6 +15,52 @@ const when = (value?: string | null) => {
 };
 
 const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
+
+function vitalsCharts(readings: Reading[]): RecordChart[] {
+  const bp = readings
+    .filter((reading): reading is Extract<Reading, { kind: 'bp' }> => reading.kind === 'bp')
+    .slice(-20);
+  const sugar = readings
+    .filter((reading): reading is Extract<Reading, { kind: 'sugar' }> => reading.kind === 'sugar')
+    .slice(-20);
+  return [
+    {
+      title: 'Blood pressure & pulse',
+      unit: 'mmHg (pulse in bpm)',
+      labels: bp.map((reading) => short.format(new Date(reading.atUtc))),
+      series: [
+        {
+          label: 'Systolic',
+          color: COLORS.systolic,
+          values: bp.map((reading) => reading.systolic),
+        },
+        {
+          label: 'Diastolic',
+          color: COLORS.diastolic,
+          values: bp.map((reading) => reading.diastolic),
+        },
+        {
+          label: 'Pulse',
+          color: COLORS.pulse,
+          values: bp.map((reading) => reading.pulse),
+          dashed: true,
+        },
+      ],
+    },
+    {
+      title: 'Blood sugar',
+      unit: 'mg/dL',
+      labels: sugar.map((reading) => short.format(new Date(reading.atUtc))),
+      series: [
+        {
+          label: 'Blood sugar',
+          color: COLORS.sugar,
+          values: sugar.map((reading) => reading.sugar),
+        },
+      ],
+    },
+  ];
+}
 
 function ageOf(dateOfBirth: string): string {
   const born = dateOfBirth ? new Date(dateOfBirth) : null;
@@ -70,26 +113,28 @@ function prescriptionItems(itemsJson: unknown): { name: string; detail?: string 
   });
 }
 
-// One consultation as a single line: date and doctor, diagnosis, then its medication and lab tests.
-function visitLine(record: ConsultationRecord): string {
+// One consultation as "30 Oct 2026 · Dr. Name", then its medication and lab investigation lists.
+function visitGroup(record: ConsultationRecord): RecordGroup {
   const medicines = prescriptionItems(record.prescription?.itemsJson).map((item) =>
     [item.name, item.detail].filter(Boolean).join(' · ')
   );
   const tests = record.labTests ?? [];
-  return [
-    `${when(record.scheduledAtUtc ?? record.createdAt)} · ${drName(record.doctor?.name, 'NairaClinic doctor')}`,
-    record.diagnosis ? `Diagnosis: ${record.diagnosis}` : '',
-    medicines.length ? `Medication: ${medicines.join('; ')}` : '',
-    tests.length ? `Lab Investigation: ${tests.join('; ')}` : '',
-    medicines.length || tests.length ? '' : statusNote(record),
-  ]
-    .filter(Boolean)
-    .join(' — ');
+  return {
+    title: `${when(record.scheduledAtUtc ?? record.createdAt)} · ${drName(record.doctor?.name, 'NairaClinic doctor')}`,
+    notes: [
+      ...(record.diagnosis ? [`Diagnosis: ${record.diagnosis}`] : []),
+      ...(medicines.length || tests.length ? [] : [statusNote(record)]),
+    ],
+    lists: [
+      { label: 'Medication', items: medicines },
+      { label: 'Lab Investigation', items: tests },
+    ],
+  };
 }
 
-// Gathers every consultation page, the profile and the patient's own records, in the same order as the
-// website's record. The backend lays it out and signs it.
-export async function recordSections(): Promise<{ title: string; sections: DocumentSection[] }> {
+// Gathers every consultation page, the vitals and the patient's own records, in the same order as the
+// website's download. The backend adds the patient's details and draws the whole document.
+export async function recordPayload(): Promise<MedicalRecordBody> {
   const consultations: ConsultationRecord[] = [];
   for (let page = 1; page <= 25; page++) {
     const reply = await recordsApi.consultations(page);
@@ -103,28 +148,12 @@ export async function recordSections(): Promise<{ title: string; sections: Docum
     recordsApi.carePlan(),
   ]);
   const profile = me.patientProfile ?? {};
-  const user = me.user ?? {};
   const readings = readingsFromVitals(vitalsJson).sort((a, b) => a.atUtc.localeCompare(b.atUtc));
-  const name =
-    [text(profile.firstName), text(profile.lastName)].filter(Boolean).join(' ') || 'Patient';
   const conditions = Array.isArray(profile.medicalConditions)
     ? (profile.medicalConditions as unknown[]).map(String)
     : [];
 
-  const sections: DocumentSection[] = [
-    {
-      heading: 'Patient',
-      lines: [
-        `Patient Name: ${name}`,
-        ageOf(text(profile.dateOfBirth)) && `Age: ${ageOf(text(profile.dateOfBirth))}`,
-        text(profile.sexAtBirth) && `Sex: ${text(profile.sexAtBirth)}`,
-        when(text(profile.dateOfBirth)) && `Date of birth: ${when(text(profile.dateOfBirth))}`,
-        text(user.phone) && `Phone: ${text(user.phone)}`,
-        text(profile.bloodGroup) && `Blood group: ${text(profile.bloodGroup)}`,
-        text(profile.genotype) && `Genotype: ${text(profile.genotype)}`,
-        `Date: ${long.format(new Date())}`,
-      ].filter(Boolean) as string[],
-    },
+  const sections: RecordSection[] = [
     {
       heading: 'Health profile',
       lines: [
@@ -158,10 +187,8 @@ export async function recordSections(): Promise<{ title: string; sections: Docum
     },
     {
       heading: 'NairaClinic consultations',
-      lines: consultations
-        .filter((record) => PAST.has(stageOf(record)))
-        .map(visitLine)
-        .slice(0, 200),
+      groups: consultations.filter((record) => PAST.has(stageOf(record))).map(visitGroup),
+      empty: 'No consultations yet.',
     },
     {
       heading: 'Records you added',
@@ -185,5 +212,5 @@ export async function recordSections(): Promise<{ title: string; sections: Docum
       }),
     },
   ];
-  return { title: `${name} - medical record`, sections };
+  return { charts: vitalsCharts(readings), sections };
 }

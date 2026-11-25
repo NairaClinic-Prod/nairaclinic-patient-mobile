@@ -3,6 +3,7 @@ import type {
   CarePlanStore,
   ConsultationsReply,
   MeReply,
+  MedicalRecordBody,
   Extraction,
   ExtractedReading,
   LabLink,
@@ -107,6 +108,10 @@ export const recordsApi = {
           })),
       },
     }),
+
+  // The whole record as the website's "Download all records": the backend adds the patient's details and draws it.
+  medicalRecordPdf: (body: MedicalRecordBody) =>
+    requestFile('/documents/medical-record', { body, timeoutMs: 90_000 }),
 
   resultFile: (resultId: string) =>
     requestFile(`/patient/me/care-plan/results/${encodeURIComponent(resultId)}/file`),

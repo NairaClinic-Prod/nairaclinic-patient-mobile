@@ -212,3 +212,30 @@ export type Extraction = {
   transcript?: string;
   warnings?: ScanWarning[];
 };
+
+export type RecordChartSeries = {
+  label: string;
+  color: string;
+  values: (number | null)[];
+  dashed?: boolean;
+};
+
+export type RecordChart = {
+  title: string;
+  unit: string;
+  labels: string[];
+  series: RecordChartSeries[];
+};
+
+export type RecordList = { label: string; items: string[] };
+
+export type RecordGroup = { title: string; notes?: string[]; lists: RecordList[] };
+
+export type RecordSection = {
+  heading: string;
+  lines?: string[];
+  groups?: RecordGroup[];
+  empty?: string;
+};
+
+export type MedicalRecordBody = { charts: RecordChart[]; sections: RecordSection[] };
