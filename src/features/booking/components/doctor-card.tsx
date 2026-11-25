@@ -4,10 +4,10 @@ import { Text } from '@/components/ui/text';
 import { drName } from '@/features/home/utils';
 import { BadgeCheck, ChevronRight, Star } from 'lucide-react-native';
 import { View } from 'react-native';
-import type { DoctorProfile } from '../types';
+import type { DoctorSummary } from '../types';
 import { DoctorAvatar } from './doctor-avatar';
 
-export function DoctorCard({ doctor, onPress }: { doctor: DoctorProfile; onPress: () => void }) {
+export function DoctorCard({ doctor, onPress }: { doctor: DoctorSummary; onPress: () => void }) {
   return (
     <PressableScale
       scaleTo={0.985}
@@ -15,7 +15,7 @@ export function DoctorCard({ doctor, onPress }: { doctor: DoctorProfile; onPress
       accessibilityLabel={`${drName(doctor.name)}, ${doctor.specialty}`}
       onPress={onPress}
       className="flex-row items-center gap-3.5 rounded-2xl bg-card p-3.5">
-      <DoctorAvatar name={doctor.name} online={doctor.isOnline} />
+      <DoctorAvatar name={doctor.name} online={Boolean(doctor.isOnline)} />
       <View className="min-w-0 flex-1 gap-0.5">
         <View className="flex-row items-center gap-1.5">
           <Text className="shrink text-[15px] font-bold" numberOfLines={1}>

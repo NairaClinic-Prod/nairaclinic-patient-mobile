@@ -1,15 +1,19 @@
+import { useDoctor, useDoctorSearch } from '@/api/booking';
+import { ApiError } from '@/api/client';
+import { ActionButton } from '@/components/shared/action-button';
 import { EmptyState } from '@/components/shared/empty-state';
 import { SegmentedControl } from '@/components/shared/segmented-control';
 import { SubScreen } from '@/components/shared/sub-screen';
 import { TextField } from '@/components/shared/text-field';
 import { Text } from '@/components/ui/text';
 import { router } from 'expo-router';
-import { SearchX } from 'lucide-react-native';
+import { CloudOff, SearchX } from 'lucide-react-native';
 import * as React from 'react';
-import { View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { DoctorCard } from '../components/doctor-card';
 import { MIN_QUERY } from '../constants';
-import { findDoctor, searchDoctors, slugFromLink } from '../utils';
+import { slugFromLink } from '../utils';
+import type { DoctorSummary } from '../types';
 
 type Mode = 'name' | 'link';
 
@@ -28,16 +32,44 @@ export function FindDoctorScreen() {
 
   const query = name.trim();
   const slug = slugFromLink(link);
-  const linked = slug ? findDoctor(slug) : undefined;
-  const results =
+  const [debounced, setDebounced] = React.useState('');
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebounced(query), 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const searching = mode === 'name' && debounced.length >= MIN_QUERY;
+  const search = useDoctorSearch(debounced, searching);
+  const linked = useDoctor(mode === 'link' ? slug : null);
+
+  const results: DoctorSummary[] =
     mode === 'name'
-      ? query.length >= MIN_QUERY
-        ? searchDoctors(query)
-        : []
-      : linked?.acceptingBookings
-        ? [linked]
+      ? (search.data?.doctors ?? []).flatMap((doctor) =>
+          doctor.bookingSlug
+            ? [
+                {
+                  slug: doctor.bookingSlug,
+                  name: doctor.name,
+                  specialty: doctor.specialty?.replace(/_/g, ' ') || 'General practice',
+                  languages: doctor.languages,
+                  isOnline: doctor.isOnline,
+                },
+              ]
+            : []
+        )
+      : linked.data?.acceptingBookings
+        ? [linked.data]
         : [];
   const idle = mode === 'name' ? query.length < MIN_QUERY : !link.trim();
+  const loading =
+    mode === 'name'
+      ? query.length >= MIN_QUERY && (search.isFetching || debounced !== query)
+      : Boolean(slug) && linked.isFetching;
+  const failed =
+    mode === 'name'
+      ? search.isError
+      : linked.isError && !(linked.error instanceof ApiError && linked.error.status === 404);
+  const retry = () => (mode === 'name' ? search.refetch() : linked.refetch());
 
   const open = (target: string) => router.push(`/book/doctor/${target}`);
 
@@ -86,10 +118,23 @@ export function FindDoctorScreen() {
           </Hint>
         ) : mode === 'link' && !slug ? (
           <Hint>That doesn't look like a doctor's link. It should contain /doctor/.</Hint>
+        ) : loading ? (
+          <View className="items-center py-10">
+            <ActivityIndicator />
+          </View>
+        ) : failed ? (
+          <View className="rounded-2xl bg-card">
+            <EmptyState
+              icon={CloudOff}
+              title="Couldn't search"
+              text="Check your connection and try again."
+              action={<ActionButton size="md" label="Try again" onPress={retry} />}
+            />
+          </View>
         ) : results.length ? (
           <View className="gap-3">
             {results.map((doctor) => (
-              <DoctorCard key={doctor.userId} doctor={doctor} onPress={() => open(doctor.slug)} />
+              <DoctorCard key={doctor.slug} doctor={doctor} onPress={() => open(doctor.slug)} />
             ))}
           </View>
         ) : (
@@ -99,7 +144,7 @@ export function FindDoctorScreen() {
               text={
                 mode === 'name'
                   ? `No doctors named “${query}”. Check the spelling or try their link.`
-                  : linked && !linked.acceptingBookings
+                  : linked.data && !linked.data.acceptingBookings
                     ? "This doctor hasn't set up any times yet, so they can't be booked right now."
                     : "We couldn't find a doctor at that link."
               }

@@ -30,6 +30,7 @@ export type DashboardResponse = {
   upcoming: DashboardAppointment[];
   healthTips: string[];
   careTeam: CareTeamMember[];
+  metrics?: { walletBalanceTokens?: number };
 };
 
 export type HomeProfileResponse = {

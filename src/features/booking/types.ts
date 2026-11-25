@@ -1,27 +1,11 @@
+export type { DoctorProfile } from '@/api/booking';
+
 export type ConsultKind = 'video' | 'in_person';
 
 export type Rate = {
   durationMins: number;
   amountNgn: number;
-  label?: string;
-};
-
-export type DoctorProfile = {
-  userId: string;
-  slug: string;
-  name: string;
-  specialty: string;
-  bio: string | null;
-  workplace: string | null;
-  languages: string[];
-  rating: number | null;
-  ratingCount: number;
-  isOnline: boolean;
-  videoRates: Rate[];
-  inPersonRates: Rate[];
-  practiceAddress: string | null;
-  serviceFeeNgn: number;
-  acceptingBookings: boolean;
+  label?: string | null;
 };
 
 export type Slot = {
@@ -36,10 +20,14 @@ export type DayOfSlots = {
   slots: Slot[];
 };
 
-export type PayChoice = 'wallet' | 'card';
+export type PayChoice = 'wallet' | 'card' | 'paystack';
 
-export type Promo = {
-  code: string;
-  discountNgn: number;
-  description: string;
+// What the doctor cards need, so a search result and a full profile look the same.
+export type DoctorSummary = {
+  slug: string;
+  name: string;
+  specialty: string;
+  languages: string[];
+  rating?: number | null;
+  isOnline?: boolean;
 };

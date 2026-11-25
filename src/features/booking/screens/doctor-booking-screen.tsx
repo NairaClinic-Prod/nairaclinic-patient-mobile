@@ -1,17 +1,18 @@
+import { useDoctor, useMyDoctorPlans, useOpenSlots } from '@/api/booking';
+import { ApiError } from '@/api/client';
 import { ActionButton } from '@/components/shared/action-button';
 import { EmptyState } from '@/components/shared/empty-state';
-import { SegmentedControl } from '@/components/shared/segmented-control';
 import { Reveal } from '@/components/shared/reveal';
+import { SegmentedControl } from '@/components/shared/segmented-control';
 import { SubScreen } from '@/components/shared/sub-screen';
 import { Text } from '@/components/ui/text';
-import { useDoctorPlans } from '@/features/doctor-plans/store';
 import { drName } from '@/features/home/utils';
-import { fullName, useProfile } from '@/features/profile/hooks/use-profile';
 import * as Haptics from 'expo-haptics';
-import { Redirect, useLocalSearchParams } from 'expo-router';
-import { CalendarOff } from 'lucide-react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { CalendarOff, CloudOff, UserRoundX } from 'lucide-react-native';
 import * as React from 'react';
-import { View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
+import { bookDoctorVisit, bookingMessage, payForBooking, toPhotos } from '../book';
 import { BookingSuccess } from '../components/booking-success';
 import { DetailsCard } from '../components/details-card';
 import { DoctorHeader } from '../components/doctor-header';
@@ -21,24 +22,25 @@ import { PriceSummary, totalOf } from '../components/price-summary';
 import { RatePicker } from '../components/rate-picker';
 import { ScheduleSteps } from '../components/schedule-steps';
 import { StepCard } from '../components/step-card';
-import type { ConsultKind, PayChoice, Promo } from '../types';
-import { clock, findDoctor, longDay, naira, openDays } from '../utils';
+import { useBookingIdentity } from '../identity';
+import type { ConsultKind, PayChoice } from '../types';
+import { clock, daysFromSlots, longDay, naira } from '../utils';
 
 type Mode = 'visit' | 'plan';
 
 export function DoctorBookingScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const doctor = findDoctor(slug);
-  const { profile } = useProfile();
-  const { plans } = useDoctorPlans();
+  const doctorQuery = useDoctor(slug);
+  const doctor = doctorQuery.data;
+  const slotsQuery = useOpenSlots(slug, Boolean(doctor?.acceptingBookings));
+  const plansQuery = useMyDoctorPlans(doctor?.userId ?? null);
+  const identity = useBookingIdentity();
 
-  const plan = doctor
-    ? plans.find((item) => item.status === 'active' && item.doctor.includes(doctor.name))
-    : undefined;
-  const included = plan?.remaining.find(
-    (row) => row.remaining > 0 && row.label.startsWith('Video')
+  const plan = plansQuery.data?.find(
+    (item) => item.status === 'active' || item.status === 'ending'
   );
-  const includedMins = included ? Number(included.label.match(/(\d+) min/)?.[1] ?? 0) : 0;
+  const included = plan?.remaining.find((row) => row.type === 'video' && row.remaining > 0);
+  const includedMins = included?.durationMins ?? 0;
 
   const [mode, setMode] = React.useState<Mode>('visit');
   const [kind, setKind] = React.useState<ConsultKind | null>(null);
@@ -49,9 +51,11 @@ export function DoctorBookingScreen() {
   const [reason, setReason] = React.useState('');
   const [symptoms, setSymptoms] = React.useState('');
   const [photos, setPhotos] = React.useState<string[]>([]);
-  const [promo, setPromo] = React.useState<Promo | null>(null);
-  const [choice, setChoice] = React.useState<PayChoice>('wallet');
+  const [promo, setPromo] = React.useState('');
+  const [picked, setPicked] = React.useState<PayChoice | null>(null);
   const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [created, setCreated] = React.useState<{ key: string; id: string } | null>(null);
   const [booked, setBooked] = React.useState(false);
 
   const planMode = mode === 'plan' && Boolean(included);
@@ -63,7 +67,7 @@ export function DoctorBookingScreen() {
     : [];
   const activeKind: ConsultKind | null = planMode
     ? 'video'
-    : (kind ?? (kinds.length === 1 ? kinds[0] : null));
+    : (kind ?? (kinds.length === 1 ? kinds[0]! : null));
   const rates =
     !doctor || !activeKind ? [] : activeKind === 'video' ? doctor.videoRates : doctor.inPersonRates;
   const shown = planMode ? rates.filter((rate) => rate.durationMins === includedMins) : rates;
@@ -72,30 +76,113 @@ export function DoctorBookingScreen() {
   const rate = activeRateIndex === null ? undefined : shown[activeRateIndex];
 
   const days = React.useMemo(
-    () => (rate && doctor ? openDays(rate.durationMins, doctor.slug) : []),
-    [rate, doctor]
+    () => (rate ? daysFromSlots(slotsQuery.data ?? [], rate.durationMins) : []),
+    [rate, slotsQuery.data]
   );
   const day = days.find((item) => item.key === dayKey);
   const slot = day?.slots.find((item) => item.id === slotId);
 
   const covered = planMode;
-  const total = rate && doctor ? totalOf(rate.amountNgn, doctor.serviceFeeNgn, covered, promo) : 0;
-  const payment = usePayment(total, choice);
+  const total = rate && doctor ? totalOf(rate.amountNgn, doctor.serviceFeeNgn, covered) : 0;
+  const payment = usePayment(covered ? 0 : total, picked);
   const missing = [
     ...(!slot ? ['A time'] : []),
     ...(slot && !reason ? ['Reason for visit'] : []),
-    ...(total > 0 && choice === 'card' && !payment.hasCard ? ['A saved card'] : []),
+    ...(slot ? identity.missing : []),
   ];
 
-  if (!doctor) return <Redirect href="/book" />;
-
-  function book() {
+  async function book() {
+    if (!doctor || !slot || !rate || !activeKind) return;
     setBusy(true);
-    setTimeout(() => {
+    setError(null);
+    const key = `${slot.id}|${rate.durationMins}|${activeKind}`;
+    try {
+      let id = created?.key === key ? created.id : null;
+      if (!id) {
+        const reply = await bookDoctorVisit({
+          doctorId: doctor.userId,
+          slotId: slot.id,
+          inPerson: activeKind === 'in_person',
+          type: activeKind === 'in_person' ? 'audio' : 'video',
+          durationMins: rate.durationMins,
+          reason,
+          symptoms,
+          photos: toPhotos(photos),
+          identity: { name: identity.name, age: identity.age, sex: identity.sex },
+        });
+        id = reply.consultationId;
+        setCreated({ key, id });
+      }
+      const result = await payForBooking(id, {
+        promoCode: !covered && promo ? promo : undefined,
+        paymentMethodId: covered ? undefined : payment.paymentMethodId,
+        subscriptionId: covered && plan ? plan.id : undefined,
+      });
+      if (result.status === 'booked') {
+        setBooked(true);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      } else {
+        setError(result.message);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
+    } catch (failure) {
+      const message = bookingMessage(failure);
+      setError(
+        covered && created
+          ? `${message} Switch to "Pay per visit" to pay for this visit instead.`
+          : message
+      );
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      if (/just taken/i.test(message)) {
+        setSlotId(null);
+        setCreated(null);
+        slotsQuery.refetch();
+      }
+    } finally {
       setBusy(false);
-      setBooked(true);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }, 900);
+    }
+  }
+
+  if (doctorQuery.isPending) {
+    return (
+      <SubScreen title="Book a visit">
+        <View className="items-center py-24">
+          <ActivityIndicator />
+        </View>
+      </SubScreen>
+    );
+  }
+
+  if (!doctor) {
+    const notFound = doctorQuery.error instanceof ApiError && doctorQuery.error.status === 404;
+    return (
+      <SubScreen title="Book a visit">
+        <View className="rounded-2xl bg-card">
+          <EmptyState
+            icon={notFound ? UserRoundX : CloudOff}
+            title={notFound ? "We couldn't find this doctor" : "Couldn't load this doctor"}
+            text={
+              notFound
+                ? 'The link may be wrong, or the doctor is not taking bookings.'
+                : doctorQuery.error instanceof Error
+                  ? doctorQuery.error.message
+                  : 'Check your connection and try again.'
+            }
+            action={
+              notFound ? (
+                <ActionButton
+                  size="md"
+                  label="Find a doctor"
+                  onPress={() => router.replace('/book/find')}
+                />
+              ) : (
+                <ActionButton size="md" label="Try again" onPress={() => doctorQuery.refetch()} />
+              )
+            }
+          />
+        </View>
+      </SubScreen>
+    );
   }
 
   if (booked && slot && rate) {
@@ -118,12 +205,27 @@ export function DoctorBookingScreen() {
 
   const footer = (
     <View className="gap-2 rounded-3xl bg-card p-3">
+      {error ? (
+        <Text role="alert" className="text-center text-xs leading-4.5 text-destructive">
+          {error}
+        </Text>
+      ) : null}
       {missing.length ? (
         <Text className="text-center text-xs text-muted-foreground">{`Still needed: ${missing.join(', ')}`}</Text>
       ) : null}
       <ActionButton
         size="md"
-        label={busy ? 'Processing…' : slot ? payment.label : 'Choose a time'}
+        label={
+          busy
+            ? 'Processing…'
+            : slot
+              ? created?.key === `${slot.id}|${rate?.durationMins}|${activeKind}` && error
+                ? 'Try payment again'
+                : covered
+                  ? 'Book with my plan'
+                  : payment.label
+              : 'Choose a time'
+        }
         disabled={busy || missing.length > 0}
         onPress={book}
       />
@@ -154,6 +256,7 @@ export function DoctorBookingScreen() {
                     setRateIndex(null);
                     setDayKey(null);
                     setSlotId(null);
+                    setError(null);
                   }}
                   options={[
                     { value: 'visit', label: 'Pay per visit' },
@@ -162,7 +265,7 @@ export function DoctorBookingScreen() {
                 />
                 <Text className="text-xs leading-4.5 text-muted-foreground">
                   {planMode
-                    ? `This visit uses your ${plan.name} plan. ${included.remaining} of ${included.count} included visits left, no payment needed.`
+                    ? `This visit uses your ${plan.terms.name} plan. ${included.remaining} of ${included.count} included visits left, no payment needed.`
                     : `You have a plan with this doctor. Switch to "My subscription" to use an included visit.`}
                 </Text>
               </View>
@@ -218,7 +321,28 @@ export function DoctorBookingScreen() {
               </StepCard>
             ) : null}
 
-            {rate ? (
+            {rate && slotsQuery.isPending ? (
+              <View className="items-center py-6">
+                <ActivityIndicator />
+              </View>
+            ) : null}
+            {rate && slotsQuery.isError ? (
+              <View className="rounded-2xl bg-card">
+                <EmptyState
+                  icon={CloudOff}
+                  title="Couldn't load times"
+                  text="Check your connection and try again."
+                  action={
+                    <ActionButton
+                      size="md"
+                      label="Try again"
+                      onPress={() => slotsQuery.refetch()}
+                    />
+                  }
+                />
+              </View>
+            ) : null}
+            {rate && slotsQuery.data ? (
               <ScheduleSteps
                 days={days}
                 durationMins={rate.durationMins}
@@ -237,7 +361,7 @@ export function DoctorBookingScreen() {
               <>
                 <Reveal>
                   <DetailsCard
-                    forName={fullName(profile)}
+                    identity={identity}
                     reason={reason}
                     onReason={setReason}
                     symptoms={symptoms}
@@ -255,8 +379,8 @@ export function DoctorBookingScreen() {
                   onPromo={setPromo}
                   allowPromo={!planMode}
                 />
-                {total > 0 ? (
-                  <PaymentOptions totalNgn={total} choice={choice} onChoice={setChoice} />
+                {total > 0 && !covered ? (
+                  <PaymentOptions payment={payment} onChoice={setPicked} />
                 ) : null}
                 <Text className="px-1 text-center text-xs leading-4.5 text-muted-foreground">
                   After you book, we'll send a reminder and a link to join at the time.

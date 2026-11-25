@@ -11,7 +11,7 @@ import { BRAND_NAME, detectBrand } from '../card-brand';
 import { CardFace } from './card-face';
 import { fullName, useProfile } from '@/features/profile/hooks/use-profile';
 import { useWallet } from '@/features/wallet/store';
-import { makeDefaultCard, removeCard, useCards } from '../store';
+import { makeDefaultCard, removeCard, startAddCard, useCards } from '../store';
 import type { SavedCard } from '../types';
 
 const label = (card: Pick<SavedCard, 'brand' | 'last4'>) =>
@@ -24,7 +24,7 @@ function confirmRemove(card: SavedCard) {
   ]);
 }
 
-export function PaymentMethodsView({ onAddCard }: { onAddCard?: () => void }) {
+export function PaymentMethodsView({ onAddCard = startAddCard }: { onAddCard?: () => void }) {
   const { cards } = useCards();
   const { wallet } = useWallet();
   const { profile } = useProfile();
