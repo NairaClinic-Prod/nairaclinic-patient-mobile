@@ -74,7 +74,7 @@ type ReminderFormSheetProps = {
   draft: ReminderDraft;
   editing: boolean;
   onClose: () => void;
-  onSave: (draft: ReminderDraft) => string | null;
+  onSave: (draft: ReminderDraft) => Promise<string | null>;
 };
 
 export function ReminderFormSheet({
@@ -101,12 +101,19 @@ export function ReminderFormSheet({
   const patch = (change: Partial<ReminderDraft>) =>
     setDraft((current) => ({ ...current, ...change }));
 
-  function save() {
-    const failure = onSave(draft);
-    if (failure) setError(failure);
-    else {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      onClose();
+  const [saving, setSaving] = React.useState(false);
+
+  async function save() {
+    setSaving(true);
+    try {
+      const failure = await onSave(draft);
+      if (failure) setError(failure);
+      else {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        onClose();
+      }
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -369,9 +376,9 @@ export function ReminderFormSheet({
             <Button
               variant="default"
               className="flex-[1.6] rounded-full"
-              disabled={missing.length > 0}
+              disabled={missing.length > 0 || saving}
               onPress={save}>
-              <Text>Save reminder</Text>
+              <Text>{saving ? 'Saving…' : 'Save reminder'}</Text>
             </Button>
           </View>
         </View>

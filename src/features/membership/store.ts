@@ -1,15 +1,28 @@
+import {
+  cancelMembershipRenewal,
+  toCurrentPlan,
+  useMembershipAccount,
+  type CurrentPlan,
+} from '@/api/membership';
 import { createStore } from '@/lib/store';
-import { DUMMY_CURRENT_PLAN } from './dummy';
-import type { CurrentPlan } from './types';
+import * as React from 'react';
 
-const store = createStore<{ current: CurrentPlan | null }>(
-  { current: DUMMY_CURRENT_PLAN },
-  { persist: 'membership', scope: 'account' }
+export type { CurrentPlan };
+
+// The last membership the server sent, so the screen has something to show while offline.
+const saved = createStore<{ current: CurrentPlan | null }>(
+  { current: null },
+  { persist: 'membership-v2', scope: 'account' }
 );
 
-export const useMembership = store.useValue;
+export function useMembership() {
+  const snapshot = saved.useValue();
+  const query = useMembershipAccount();
+  const current = query.data ? toCurrentPlan(query.data) : snapshot.current;
+  React.useEffect(() => {
+    if (query.data) saved.set({ current: toCurrentPlan(query.data) });
+  }, [query.data]);
+  return { current };
+}
 
-export const cancelRenewal = () =>
-  store.set((state) =>
-    state.current ? { current: { ...state.current, renewalCancelled: true } } : state
-  );
+export const cancelRenewal = () => cancelMembershipRenewal();

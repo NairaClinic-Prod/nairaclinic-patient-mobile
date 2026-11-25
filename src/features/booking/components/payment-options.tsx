@@ -1,4 +1,5 @@
-import { useMethodsQuery, useWalletQuery } from '@/api/payments';
+import { useMethodsQuery } from '@/api/payments';
+import { useWalletAccount } from '@/api/wallet';
 import { Choosable } from '@/components/shared/choosable';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
@@ -11,7 +12,7 @@ import { naira } from '../utils';
 // What the patient can pay with, read from the wallet and saved cards on the server. A null total
 // means the price is set after the request is sent (find me a doctor).
 export function usePayment(totalNgn: number | null, picked: PayChoice | null) {
-  const wallet = useWalletQuery();
+  const wallet = useWalletAccount();
   const methods = useMethodsQuery();
   const balanceNgn = Math.floor(Number(wallet.data?.wallet?.balanceKobo ?? 0) / 100);
   const cards = methods.data ?? [];

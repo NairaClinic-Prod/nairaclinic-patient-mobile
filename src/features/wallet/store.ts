@@ -1,5 +1,5 @@
 import { useDashboard } from '@/api/home';
-import { useWalletHistory, useWalletQuery, type WalletEntryRow } from '@/api/payments';
+import { useWalletAccount, useWalletHistory, type WalletEntryRow } from '@/api/wallet';
 import { createStore } from '@/lib/store';
 import * as React from 'react';
 import type { WalletEntry, WalletInfo } from './types';
@@ -24,7 +24,7 @@ const titleOf = (row: WalletEntryRow) => {
 
 export function useWallet() {
   const snapshot = saved.useValue();
-  const wallet = useWalletQuery();
+  const wallet = useWalletAccount();
   const history = useWalletHistory();
   const dashboard = useDashboard();
 

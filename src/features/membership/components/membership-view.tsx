@@ -1,3 +1,6 @@
+import { ApiError } from '@/api/client';
+import { checkoutMembership, useMembershipPlans, useMembershipQuote } from '@/api/membership';
+import { paymentCallback, settlePayment } from '@/api/payments';
 import { ActionButton } from '@/components/shared/action-button';
 import { SegmentedControl } from '@/components/shared/segmented-control';
 import { Sheet } from '@/components/shared/sheet';
@@ -9,7 +12,6 @@ import { Check, HeartPulse, Wallet } from 'lucide-react-native';
 import * as React from 'react';
 import { Alert, Linking, View } from 'react-native';
 import { PLAN_AUDIENCES } from '../constants';
-import { TIERS } from '../dummy';
 import { cancelRenewal, useMembership } from '../store';
 import type { MembershipTier, PlanAudience } from '../types';
 
@@ -68,17 +70,56 @@ function TierCard({
 
 export function MembershipView() {
   const { current } = useMembership();
-  const plan = current ? TIERS.find((tier) => tier.id === current.tierId) : undefined;
+  const plansQuery = useMembershipPlans();
+  const tiers = plansQuery.data ?? [];
+  const plan = current ? tiers.find((tier) => tier.id === current.tierId) : undefined;
   const [audience, setAudience] = React.useState<PlanAudience>(plan?.audience ?? 'individual');
   const [paying, setPaying] = React.useState<MembershipTier | null>(null);
+  const [busy, setBusy] = React.useState(false);
+  const [problem, setProblem] = React.useState<string | null>(null);
+  const quote = useMembershipQuote(paying?.id ?? null);
+
+  async function pay() {
+    if (!paying) return;
+    setBusy(true);
+    setProblem(null);
+    try {
+      const reply = await checkoutMembership({
+        planId: paying.id,
+        callbackUrl: paymentCallback({ plan: paying.id }),
+      });
+      if (reply.payment) {
+        const outcome = await settlePayment(
+          reply.payment,
+          "We couldn't confirm your payment. If you were charged, it will show up shortly."
+        );
+        if (!outcome.paid) {
+          setProblem(outcome.message);
+          return;
+        }
+      } else if (reply.note) {
+        Alert.alert('Plan updated', reply.note);
+      }
+      setPaying(null);
+    } catch (error) {
+      setProblem(
+        error instanceof ApiError
+          ? error.message
+          : "We couldn't start this plan. Check your connection and try again."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const price = plan?.priceNgn ?? 0;
-  const tiers = TIERS.filter(
+  const shown = tiers.filter(
     (tier) =>
       tier.audience === audience &&
       (!plan || (tier.id !== plan.id && (tier.priceNgn ?? Infinity) > price))
   );
   const left = current ? current.includedVisits - current.usedVisits : 0;
+  const dueToday = quote.data?.amountDueKobo ?? (paying?.priceNgn ?? 0) * 100;
 
   return (
     <View className="gap-5">
@@ -121,7 +162,19 @@ export function MembershipView() {
                   `You keep ${plan.name} until ${formatDay(current.activeUntil)}, then it ends.`,
                   [
                     { text: 'Keep it', style: 'cancel' },
-                    { text: 'Cancel renewal', style: 'destructive', onPress: cancelRenewal },
+                    {
+                      text: 'Cancel renewal',
+                      style: 'destructive',
+                      onPress: () =>
+                        cancelRenewal().catch((error: unknown) =>
+                          Alert.alert(
+                            "Couldn't cancel renewal",
+                            error instanceof ApiError
+                              ? error.message
+                              : 'Check your connection and try again.'
+                          )
+                        ),
+                    },
                   ]
                 )
               }
@@ -140,12 +193,12 @@ export function MembershipView() {
         <Text className="text-lg font-extrabold">
           {current ? 'Upgrade your plan' : 'Choose a plan'}
         </Text>
-        {tiers.length ? (
-          tiers.map((tier, index) => (
+        {shown.length ? (
+          shown.map((tier, index) => (
             <TierCard
               key={tier.id}
               tier={tier}
-              featured={!tier.contact && tiers.length > 1 && index === 0}
+              featured={!tier.contact && shown.length > 1 && index === 0}
               onChoose={setPaying}
             />
           ))
@@ -174,24 +227,29 @@ export function MembershipView() {
               </View>
               <View className="flex-row items-baseline justify-between">
                 <Text className="text-[13px] text-muted-foreground">Due today</Text>
-                <Text className={cn('text-xl font-extrabold')}>
-                  {formatNaira((paying.priceNgn ?? 0) * 100)}
-                </Text>
+                <Text className={cn('text-xl font-extrabold')}>{formatNaira(dueToday)}</Text>
               </View>
             </View>
+            {problem ? (
+              <Text role="alert" className="text-xs leading-4.5 text-destructive">
+                {problem}
+              </Text>
+            ) : null}
             <View className="flex-row gap-2">
               <ActionButton
                 size="md"
                 variant="outline"
                 label="Cancel"
                 className="flex-1"
+                disabled={busy}
                 onPress={() => setPaying(null)}
               />
               <ActionButton
                 size="md"
-                label={`Pay ${formatNaira((paying.priceNgn ?? 0) * 100)}`}
+                label={busy ? 'Starting…' : `Pay ${formatNaira(dueToday)}`}
                 className="flex-[1.6]"
-                onPress={() => setPaying(null)}
+                disabled={busy}
+                onPress={pay}
               />
             </View>
           </>

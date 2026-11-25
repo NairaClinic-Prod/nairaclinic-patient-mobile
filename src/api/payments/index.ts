@@ -6,31 +6,33 @@ import { ApiError } from '../http';
 import { request } from '../client';
 import { paymentsApi } from './endpoint.api';
 import { PAYMENT_ENDPOINTS } from './endpoints';
+import { refreshWallet, walletKeys } from '../wallet';
 import type { PaymentMethod, PaymentReply, PayOutcome } from './type';
 
 export * from './type';
 export { paymentsApi } from './endpoint.api';
 export { PAYMENT_ENDPOINTS } from './endpoints';
+// The wallet lives in its own domain; these stay working for existing imports.
+export {
+  useWalletAccount as useWalletQuery,
+  useWalletHistory,
+  refreshWallet,
+  walletApi,
+  walletKeys,
+  WALLET_ENDPOINTS,
+} from '../wallet';
 
 export const paymentKeys = {
-  wallet: ['payments', 'wallet'] as const,
-  history: ['payments', 'history'] as const,
   methods: ['payments', 'methods'] as const,
 };
-
-export const useWalletQuery = () =>
-  useQuery({ queryKey: paymentKeys.wallet, queryFn: paymentsApi.wallet, staleTime: 15_000 });
-
-export const useWalletHistory = () =>
-  useQuery({ queryKey: paymentKeys.history, queryFn: paymentsApi.walletHistory });
 
 export const useMethodsQuery = () =>
   useQuery({ queryKey: paymentKeys.methods, queryFn: paymentsApi.methods, staleTime: 30_000 });
 
 export const refreshPayments = () =>
   Promise.all([
-    queryClient.invalidateQueries({ queryKey: paymentKeys.wallet }),
-    queryClient.invalidateQueries({ queryKey: paymentKeys.history }),
+    queryClient.invalidateQueries({ queryKey: walletKeys.account }),
+    queryClient.invalidateQueries({ queryKey: walletKeys.history }),
     queryClient.invalidateQueries({ queryKey: paymentKeys.methods }),
   ]);
 

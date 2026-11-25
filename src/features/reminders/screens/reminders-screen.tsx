@@ -9,7 +9,7 @@ import { Text } from '@/components/ui/text';
 import { CalendarClock, Plus, Search } from 'lucide-react-native';
 import { useFocusEffect } from 'expo-router';
 import * as React from 'react';
-import { View } from 'react-native';
+import { Alert, View } from 'react-native';
 import { NextUpCard } from '../components/next-up-card';
 import { CalendarPromptSheet } from '../components/calendar-prompt-sheet';
 import { CalendarRow } from '../components/calendar-row';
@@ -120,7 +120,11 @@ export function RemindersScreen() {
                 group={group}
                 state={state}
                 last={index === shown.length - 1}
-                onToggle={() => toggle(group.id)}
+                onToggle={() => {
+                  toggle(group.id).then((failure) => {
+                    if (failure) Alert.alert("Couldn't update the reminder", failure);
+                  });
+                }}
                 onOpen={() => openEditor({ draft: group.meta, id: group.id })}
               />
             ))
@@ -151,8 +155,8 @@ export function RemindersScreen() {
           draft={editing?.draft ?? fallbackDraft}
           editing={Boolean(editing?.id)}
           onClose={() => setSheetOpen(false)}
-          onSave={(draft) => {
-            const failure = save(draft, editing?.id);
+          onSave={async (draft) => {
+            const failure = await save(draft, editing?.id);
             if (!failure) {
               setTimeout(() => {
                 if (shouldAskNow()) setCalendarOpen(true);

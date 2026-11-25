@@ -8,7 +8,7 @@ import { ChevronDown, Heart, Link2, LockKeyhole, Share2, Users } from 'lucide-re
 import * as React from 'react';
 import { Share, View } from 'react-native';
 import { REFERRAL_FAQ, REFERRAL_STEPS } from '../constants';
-import { DUMMY_REFERRAL } from '../dummy';
+import { useReferralLink } from '@/api/referrals';
 
 function Faq({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = React.useState(false);
@@ -34,7 +34,8 @@ function Faq({ question, answer }: { question: string; answer: string }) {
 }
 
 export function ReferView() {
-  const { code, shareUrl, joined } = DUMMY_REFERRAL;
+  const link = useReferralLink();
+  const { code, shareUrl, joined } = link.data ?? { code: '', shareUrl: '', joined: 0 };
   const { coins } = useWallet();
 
   return (

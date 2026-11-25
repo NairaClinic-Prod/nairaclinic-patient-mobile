@@ -1,9 +1,19 @@
+import { useTransactionsQuery, type Transaction } from '@/api/transactions';
 import { createStore } from '@/lib/store';
-import { DUMMY_TRANSACTIONS } from './dummy';
+import * as React from 'react';
 
-const store = createStore(
-  { transactions: DUMMY_TRANSACTIONS },
-  { persist: 'transactions', scope: 'account' }
+// The last transactions the server sent, so the list has something to show while offline.
+const saved = createStore<{ transactions: Transaction[] }>(
+  { transactions: [] },
+  { persist: 'transactions-v2', scope: 'account' }
 );
 
-export const useTransactions = store.useValue;
+export function useTransactions() {
+  const snapshot = saved.useValue();
+  const query = useTransactionsQuery();
+  React.useEffect(() => {
+    if (query.data) saved.set({ transactions: query.data.transactions });
+  }, [query.data]);
+  const transactions = query.data?.transactions ?? snapshot.transactions;
+  return { transactions, totalKobo: query.data?.totalKobo ?? null };
+}

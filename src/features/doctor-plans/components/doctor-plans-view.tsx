@@ -1,8 +1,10 @@
+import { ApiError } from '@/api/client';
 import { ActionButton } from '@/components/shared/action-button';
 import { EmptyState } from '@/components/shared/empty-state';
 import { StatusPill } from '@/components/shared/status-pill';
 import { Text } from '@/components/ui/text';
 import { formatDay, formatNaira } from '@/features/orders/utils';
+import { router } from 'expo-router';
 import { Stethoscope } from 'lucide-react-native';
 import { Alert, View } from 'react-native';
 import { turnOffAutoRenew, useDoctorPlans } from '../store';
@@ -78,6 +80,10 @@ export function DoctorPlansView() {
             <ActionButton
               size="md"
               label={plan.status === 'lapsed' ? 'Subscribe again' : 'Book an included visit'}
+              disabled={!plan.doctorSlug}
+              onPress={() =>
+                plan.doctorSlug ? router.push(`/book/doctor/${plan.doctorSlug}`) : undefined
+              }
             />
             {plan.status === 'active' ? (
               <ActionButton
@@ -93,7 +99,15 @@ export function DoctorPlansView() {
                       {
                         text: 'Turn off',
                         style: 'destructive',
-                        onPress: () => turnOffAutoRenew(plan.id),
+                        onPress: () =>
+                          turnOffAutoRenew(plan.id).catch((error: unknown) =>
+                            Alert.alert(
+                              "Couldn't turn off auto renew",
+                              error instanceof ApiError
+                                ? error.message
+                                : 'Check your connection and try again.'
+                            )
+                          ),
                       },
                     ]
                   )

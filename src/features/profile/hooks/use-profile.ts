@@ -1,14 +1,30 @@
+import { EMPTY_PROFILE, saveProfileData, useProfileQuery, type ProfileData } from '@/api/profile';
 import { createStore } from '@/lib/store';
-import { DUMMY_PROFILE } from '../dummy';
-import type { ProfileData } from '../types';
+import * as React from 'react';
 
-const store = createStore({ profile: DUMMY_PROFILE }, { persist: 'profile', scope: 'account' });
+export type { ProfileData };
 
-export const useProfile = store.useValue;
+// The last profile the server sent, so the screen has something to show while offline.
+const snapshot = createStore<{ profile: ProfileData }>(
+  { profile: EMPTY_PROFILE },
+  { persist: 'profile-v2', scope: 'account' }
+);
 
-export function saveProfile(profile: ProfileData) {
-  store.set({ profile });
+export function useProfile() {
+  const saved = snapshot.useValue();
+  const query = useProfileQuery();
+  React.useEffect(() => {
+    if (query.data) snapshot.set({ profile: query.data });
+  }, [query.data]);
+  return {
+    profile: query.data ?? saved.profile,
+    isPending: query.isPending && !saved.profile.firstName && !saved.profile.email,
+    isError: query.isError && !query.data && !saved.profile.firstName && !saved.profile.email,
+    refetch: query.refetch,
+  };
 }
+
+export const saveProfile = (profile: ProfileData) => saveProfileData(profile);
 
 export function initialsOf(profile: ProfileData) {
   return (

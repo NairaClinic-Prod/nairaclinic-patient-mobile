@@ -1,12 +1,8 @@
 import { request } from '../client';
 import { PAYMENT_ENDPOINTS as URL } from './endpoints';
-import type { PaymentMethod, PaymentVerify, WalletHistoryReply, WalletReply } from './type';
+import type { PaymentMethod, PaymentVerify } from './type';
 
 export const paymentsApi = {
-  wallet: () => request<WalletReply>(URL.wallet),
-
-  walletHistory: () => request<WalletHistoryReply>(URL.walletHistory),
-
   methods: () => request<{ methods: PaymentMethod[] }>(URL.methods).then((reply) => reply.methods),
 
   makeDefault: (methodId: string) =>

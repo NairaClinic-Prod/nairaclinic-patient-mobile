@@ -108,3 +108,33 @@ const LONG_DATE = new Intl.DateTimeFormat('en-NG', {
 export function longDateLabel(date: string) {
   return LONG_DATE.format(new Date(`${date}T12:00:00Z`));
 }
+
+// Every future firing inside the horizon, so a repeating phone schedule can be mirrored to the
+// server as one-shot reminders (push and the calendar feed keep working with the app closed).
+export function occurrencesOf(
+  meta: Pick<ReminderMeta, 'startDate' | 'endDate' | 'times' | 'repeat' | 'weekdays'>,
+  horizonDays = 14,
+  now = Date.now()
+): Date[] {
+  const out: Date[] = [];
+  const today = todayKey();
+  for (let offset = 0; offset < horizonDays; offset++) {
+    const key = addDays(today, offset);
+    if (meta.repeat === 'once') {
+      if (key !== meta.startDate) continue;
+    } else {
+      if (key < meta.startDate || key > meta.endDate) continue;
+      if (
+        meta.repeat === 'days' &&
+        !meta.weekdays.includes(new Date(`${key}T00:00:00Z`).getUTCDay())
+      )
+        continue;
+    }
+    for (const time of meta.times) {
+      if (!isTime(time)) continue;
+      const at = new Date(`${key}T${time}:00+01:00`);
+      if (at.getTime() > now) out.push(at);
+    }
+  }
+  return out.sort((a, b) => a.getTime() - b.getTime());
+}

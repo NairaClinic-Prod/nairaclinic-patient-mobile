@@ -1,16 +1,22 @@
+import { cancelDoctorPlan, useMyDoctorSubscriptions, type DoctorPlan } from '@/api/doctor-plans';
 import { createStore } from '@/lib/store';
-import { DUMMY_DOCTOR_PLANS } from './dummy';
+import * as React from 'react';
 
-const store = createStore(
-  { plans: DUMMY_DOCTOR_PLANS },
-  { persist: 'doctor-plans', scope: 'account' }
+export type { DoctorPlan };
+
+// The last plans the server sent, so the screen has something to show while offline.
+const saved = createStore<{ plans: DoctorPlan[] }>(
+  { plans: [] },
+  { persist: 'doctor-plans-v2', scope: 'account' }
 );
 
-export const useDoctorPlans = store.useValue;
+export function useDoctorPlans() {
+  const snapshot = saved.useValue();
+  const query = useMyDoctorSubscriptions();
+  React.useEffect(() => {
+    if (query.data) saved.set({ plans: query.data });
+  }, [query.data]);
+  return { plans: query.data ?? snapshot.plans };
+}
 
-export const turnOffAutoRenew = (id: string) =>
-  store.set((state) => ({
-    plans: state.plans.map((plan) =>
-      plan.id === id ? { ...plan, status: 'ending', nextChargeKobo: null } : plan
-    ),
-  }));
+export const turnOffAutoRenew = (id: string) => cancelDoctorPlan(id);

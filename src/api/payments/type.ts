@@ -7,26 +7,13 @@ export type PaymentMethod = {
   createdAt?: string;
 };
 
-export type WalletReply = {
-  wallet: {
-    balanceKobo: string;
-    account_number?: string;
-    account_name?: string;
-    bank_name?: string;
-  } | null;
-  walletStatus: 'ready' | 'needs_name' | 'pending';
-};
-
-export type WalletEntryRow = {
-  id: string;
-  direction: 'in' | 'out';
-  amountKobo: string;
-  reason: string;
-  description: string | null;
-  createdAt: string;
-};
-
-export type WalletHistoryReply = { entries: WalletEntryRow[] };
+export type {
+  WalletAccount,
+  WalletEntryRow,
+  WalletHistoryReply,
+  WalletReply,
+  WalletStatus,
+} from '../wallet/type';
 
 // What any payment endpoint may answer: paid at once (wallet or saved card), or a Paystack page to open.
 export type PaymentReply = {

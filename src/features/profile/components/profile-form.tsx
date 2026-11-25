@@ -1,3 +1,4 @@
+import { ApiError } from '@/api/client';
 import { BodyLayout } from '@/components/common/body-layout';
 import { ActionButton } from '@/components/shared/action-button';
 import { ChoiceChips } from '@/components/shared/choice-chips';
@@ -31,11 +32,19 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export function ProfileForm({ section }: { section: ProfileDetailSection }) {
   const { profile: saved } = useProfile();
   const [draft, setDraft] = React.useState<ProfileData>(saved);
+  const [touched, setTouched] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
   const [message, setMessage] = React.useState<Message | null>(null);
   const age = ageOf(saved.dob);
   const copy = DETAIL_COPY[section];
 
+  // The server profile can land after the sheet opens; take it until the patient edits.
+  React.useEffect(() => {
+    if (!touched) setDraft(saved);
+  }, [saved, touched]);
+
   const patch = (change: Partial<ProfileData>) => {
+    setTouched(true);
     setMessage(null);
     setDraft((current) => ({ ...current, ...change }));
   };
@@ -47,10 +56,24 @@ export function ProfileForm({ section }: { section: ProfileDetailSection }) {
   ];
   const changed = JSON.stringify(draft) !== JSON.stringify(saved);
 
-  function save() {
-    saveProfile(draft);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    setMessage({ kind: 'success', text: 'Your profile has been updated.' });
+  async function save() {
+    setSaving(true);
+    try {
+      await saveProfile(draft);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setMessage({ kind: 'success', text: 'Your profile has been updated.' });
+    } catch (error) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      setMessage({
+        kind: 'error',
+        text:
+          error instanceof ApiError
+            ? error.message
+            : "Couldn't save your profile. Check your connection and try again.",
+      });
+    } finally {
+      setSaving(false);
+    }
   }
 
   const footer = (
@@ -66,17 +89,18 @@ export function ProfileForm({ section }: { section: ProfileDetailSection }) {
           label="Discard changes"
           variant="outline"
           className="flex-1"
-          disabled={!changed}
+          disabled={!changed || saving}
           onPress={() => {
             setDraft(saved);
+            setTouched(false);
             setMessage(null);
           }}
         />
         <ActionButton
           size="md"
-          label="Save changes"
+          label={saving ? 'Saving…' : 'Save changes'}
           className="flex-1"
-          disabled={!changed || missing.length > 0}
+          disabled={!changed || missing.length > 0 || saving}
           onPress={save}
         />
       </View>
