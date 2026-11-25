@@ -2,6 +2,7 @@ import { request, requestFile } from '../client';
 import type {
   CarePlanStore,
   ConsultationsReply,
+  MeReply,
   Extraction,
   ExtractedReading,
   LabLink,
@@ -33,6 +34,8 @@ function fileForm(file: UploadFile, fields: Record<string, string> = {}) {
 }
 
 export const recordsApi = {
+  me: () => request<MeReply>('/patient/me'),
+
   vitals: () =>
     request<ProfileVitalsReply>('/patient/me').then(
       (reply) => reply.patientProfile?.vitalsJson ?? null

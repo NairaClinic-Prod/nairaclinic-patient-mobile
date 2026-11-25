@@ -33,6 +33,8 @@ export type ConsultationRecord = {
   scheduledAtUtc?: string | null;
   createdAt?: string | null;
   status?: string | null;
+  // Where the backend says it stands: upcoming, rescheduled, in_progress, missed, expired, ended…
+  lifecycle?: string | null;
   diagnosis?: string | null;
   reason?: string | null;
   labTests?: string[] | null;
@@ -46,6 +48,11 @@ export type ConsultationsReply = { consultations: ConsultationRecord[]; meta?: P
 export type ReferralsReply = { referrals: unknown[]; meta?: PageMeta };
 
 export type ProfileVitalsReply = { patientProfile: { vitalsJson: unknown } | null };
+
+export type MeReply = {
+  user: { phone?: string | null } | null;
+  patientProfile: Record<string, unknown> | null;
+};
 
 export type HealthRecordsPage = {
   vitalsJson: unknown;

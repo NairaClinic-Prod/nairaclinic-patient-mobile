@@ -1,9 +1,9 @@
 import type * as React from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
-import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
+import Animated, { FadeIn as FadeInAnimation, ReduceMotion } from 'react-native-reanimated';
 
-const STAGGER_MS = 45;
-const MAX_DELAY_MS = 360;
+const STAGGER_MS = 30;
+const MAX_DELAY_MS = 120;
 
 type FadeInProps = {
   index?: number;
@@ -12,17 +12,15 @@ type FadeInProps = {
   children: React.ReactNode;
 };
 
-// Sections rise into place once, a beat after each other, with a critically damped spring so nothing overshoots.
+// Sections fade in once, a beat after each other. Opacity only: it needs no layout work, and Reanimated
+// runs it on the UI thread, so it stays smooth even while the screen is still filling with data.
 export function FadeIn({ index = 0, className, style, children }: FadeInProps) {
   return (
     <Animated.View
       className={className}
       style={style}
-      entering={FadeInDown.springify()
-        .damping(36)
-        .stiffness(220)
+      entering={FadeInAnimation.duration(180)
         .delay(Math.min(index * STAGGER_MS, MAX_DELAY_MS))
-        .withInitialValues({ opacity: 0, transform: [{ translateY: 12 }] })
         .reduceMotion(ReduceMotion.System)}>
       {children}
     </Animated.View>

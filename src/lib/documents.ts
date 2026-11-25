@@ -1,7 +1,6 @@
 import type { BinaryReply } from '@/api/http';
 import { createStore } from '@/lib/store';
 import { File, Paths } from 'expo-file-system';
-import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { Alert } from 'react-native';
 
@@ -57,31 +56,4 @@ export async function openReply(reply: BinaryReply, fallbackName: string) {
   file.create({ overwrite: true });
   file.write(reply.bytes);
   await share(file.uri, type);
-}
-
-const escape = (text: string) =>
-  text.replace(
-    /[&<>"]/g,
-    (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[char]!
-  );
-
-// A plain copy of something the patient added themselves: no NairaClinic letterhead.
-export async function openPlainPdf(title: string, sections: DocumentSection[]) {
-  const body = sections
-    .filter((section) => section.lines.length)
-    .map(
-      (section) =>
-        `<h2>${escape(section.heading)}</h2><ul>${section.lines
-          .map((line) => `<li>${escape(line)}</li>`)
-          .join('')}</ul>`
-    )
-    .join('');
-  const html = `<html><head><meta name="viewport" content="width=device-width"/><style>
-    body{font-family:-apple-system,Helvetica,Arial,sans-serif;color:#1a1a1a;padding:40px;}
-    h1{font-size:22px;margin:0 0 6px}.note{color:#6b6b6b;font-size:12px;margin-bottom:28px}
-    h2{font-size:15px;margin:22px 0 8px}ul{margin:0;padding-left:18px}li{font-size:14px;line-height:1.5;margin-bottom:4px}
-  </style></head><body><h1>${escape(title)}</h1>
-  <div class="note">Added by the patient. Not issued or verified by NairaClinic.</div>${body}</body></html>`;
-  const { uri } = await Print.printToFileAsync({ html });
-  await share(uri, 'application/pdf');
 }

@@ -11,6 +11,7 @@ import {
 import { FileClock, FlaskConical, Pill } from 'lucide-react-native';
 import { openMakeOrder } from '@/features/make-order/store';
 import { ITEM_ENTER } from '@/lib/motion';
+import { openExternalRecord } from '@/features/care-plan/external-store';
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
 import { View } from 'react-native';
@@ -31,7 +32,7 @@ type OrdersViewProps = {
   onBookLab?: () => void;
 };
 
-export function OrdersView({ onAddExternal, onBookLab }: OrdersViewProps) {
+export function OrdersView({ onAddExternal = openExternalRecord, onBookLab }: OrdersViewProps) {
   const data = useOrdersData();
   const [view, setView] = React.useState<OrderView>('requests');
   const [selectedId, setSelectedId] = React.useState<string | null>(null);

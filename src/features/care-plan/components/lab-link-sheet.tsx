@@ -139,7 +139,7 @@ export function LabLinkSheet() {
           ? `Send the link to ${created.labName}. Share the access code separately, for example by phone call.`
           : 'Let a laboratory upload results for these tests without an account.'
       }
-      snapPoints={['90%']}
+      snapPoints={['76%']}
       footer={
         created ? (
           <ActionButton size="md" label="Done" onPress={closeCarePlanSheet} />

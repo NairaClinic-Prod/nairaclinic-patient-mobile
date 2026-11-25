@@ -1,5 +1,6 @@
 import { recordsApi } from '@/api/records';
-import { openPlainPdf, openReply, runDocument, type DocumentSection } from '@/lib/documents';
+import { openReply, runDocument, type DocumentSection } from '@/lib/documents';
+import { recordSections } from '@/features/records/export-record';
 import type { CareMedication, CareReferral, CareTest, Encounter } from './types';
 import { formatDate, plural } from './utils';
 
@@ -19,19 +20,21 @@ const medLine = (med: CareMedication) =>
 const personal = (key: string, title: string, sections: DocumentSection[]) =>
   runDocument(key, async () => openReply(await recordsApi.personalPdf(title, sections), title));
 
-// A consultation's prescription comes signed by the doctor; one the patient added is their own plain copy.
+const ADDED_BY_PATIENT = 'Added by the patient. Not issued or verified by NairaClinic.';
+
+// A consultation's prescription comes signed by the doctor from the backend. One the patient added from
+// another clinic has no consultation, so the backend lays out the patient's own copy.
 export function downloadPrescription(encounter: Encounter) {
   const key = pdfKeys.prescription(encounter.id);
   if (encounter.external) {
-    return runDocument(key, () =>
-      openPlainPdf(`Prescription — ${encounter.clinic || 'External'}`, [
-        {
-          heading: 'Details',
-          lines: [`Date: ${formatDate(encounter.dateIso)}`, `Prescribed by: ${encounter.doctor}`],
-        },
-        { heading: 'Medications', lines: encounter.medications.map(medLine) },
-      ])
-    );
+    return personal(key, `Prescription — ${encounter.clinic || 'External'}`, [
+      { heading: 'Note', lines: [ADDED_BY_PATIENT] },
+      {
+        heading: 'Details',
+        lines: [`Date: ${formatDate(encounter.dateIso)}`, `Prescribed by: ${encounter.doctor}`],
+      },
+      { heading: 'Medications', lines: encounter.medications.map(medLine) },
+    ]);
   }
   return runDocument(key, async () =>
     openReply(
@@ -44,15 +47,14 @@ export function downloadPrescription(encounter: Encounter) {
 export function downloadTestForm(encounter: Encounter, tests: CareTest[] = encounter.tests) {
   const key = pdfKeys.tests(encounter.id);
   if (encounter.external) {
-    return runDocument(key, () =>
-      openPlainPdf(`Test request — ${encounter.clinic || 'External'}`, [
-        {
-          heading: 'Details',
-          lines: [`Date: ${formatDate(encounter.dateIso)}`, `Requested by: ${encounter.doctor}`],
-        },
-        { heading: 'Tests', lines: tests.map((test) => `${test.name} (${test.sample})`) },
-      ])
-    );
+    return personal(key, `Test request — ${encounter.clinic || 'External'}`, [
+      { heading: 'Note', lines: [ADDED_BY_PATIENT] },
+      {
+        heading: 'Details',
+        lines: [`Date: ${formatDate(encounter.dateIso)}`, `Requested by: ${encounter.doctor}`],
+      },
+      { heading: 'Tests', lines: tests.map((test) => `${test.name} (${test.sample})`) },
+    ]);
   }
   return runDocument(key, async () =>
     openReply(
@@ -102,14 +104,10 @@ export function downloadReferralLetter(referral: CareReferral) {
   ]);
 }
 
-// Everything on the Records screen in one document: vitals, consultations and referrals.
-export function downloadAllRecords(
-  vitals: DocumentSection[],
-  encounters: Encounter[],
-  referrals: CareReferral[]
-) {
-  return personal(pdfKeys.records, 'Health records', [
-    ...vitals,
-    ...summarySections(encounters, referrals),
-  ]);
+// The whole record as one document from the backend's personal document endpoint.
+export function downloadAllRecords() {
+  return runDocument(pdfKeys.records, async () => {
+    const { title, sections } = await recordSections();
+    await openReply(await recordsApi.personalPdf(title, sections), title);
+  });
 }

@@ -1,3 +1,4 @@
+import { ExternalRecordSheet } from '@/features/care-plan/components/external-record-sheet';
 import { MakeOrderSheet } from '@/features/make-order/components/make-order-sheet';
 import { useSession } from '@/lib/auth/session';
 import { Redirect, Stack } from 'expo-router';
@@ -22,6 +23,7 @@ export default function ProtectedLayout() {
         }}
       />
       <MakeOrderSheet />
+      <ExternalRecordSheet />
     </>
   );
 }

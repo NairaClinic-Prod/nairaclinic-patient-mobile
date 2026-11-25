@@ -184,7 +184,6 @@ export function UploadResultsSheet() {
           ? `${plural(done, 'file')} added to this consultation.`
           : 'Attach reports to the right tests in this consultation.'
       }
-      snapPoints={['90%']}
       footer={
         done ? (
           <View className="flex-row gap-2">
