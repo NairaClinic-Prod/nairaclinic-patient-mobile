@@ -147,6 +147,7 @@ export type OrdersData = {
   orders: PharmacyOrder[];
   requests: ShoppingRequest[];
   labBookings: LabBooking[];
+  labRequests: import('../labs/type').PriceRequest[];
 };
 
 // What the server sends. These are only the fields the screens use.
@@ -156,7 +157,13 @@ export type RawOrder = {
   shoppingRequestId?: string | null;
   status: OrderStatus;
   createdAt: string;
-  pharmacy: { id: string; name: string; address?: string | null; state?: string | null; phone?: string | null };
+  pharmacy: {
+    id: string;
+    name: string;
+    address?: string | null;
+    state?: string | null;
+    phone?: string | null;
+  };
   fulfilment: 'pickup' | 'delivery';
   deliveryArea?: string | null;
   deliveryAddress?: string | null;
@@ -176,7 +183,12 @@ export type RawOrder = {
     status: string;
     trackingUrl?: string | null;
     rider?: { name?: string; phone?: string } | null;
-    eta?: { phase?: string; minutesLeft?: number | null; at?: string | null; rough?: boolean } | null;
+    eta?: {
+      phase?: string;
+      minutesLeft?: number | null;
+      at?: string | null;
+      rough?: boolean;
+    } | null;
   } | null;
   timeline?: { status: OrderStatus; at: string }[];
 };

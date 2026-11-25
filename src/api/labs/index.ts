@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { ApiError } from '../http';
 import { queryClient } from '../query-client';
 import { request } from '../client';
@@ -105,6 +105,9 @@ export const useLabQuote = (input: LabQuoteInput | null) =>
     enabled: Boolean(input),
     retry: false,
     staleTime: 10_000,
+    // Switching sample collection or result delivery re-prices on the server, but the step
+    // keeps showing the last price until the new one lands.
+    placeholderData: keepPreviousData,
   });
 
 export const usePlatformPackages = () =>
@@ -198,7 +201,9 @@ export async function cancelBooking(id: string, reason?: string) {
 
 export async function askLabs(input: NewPriceRequest) {
   const rows = await labsApi.createRequest(input);
-  queryClient.setQueryData(labKeys.requests, rows.map(toPriceRequest));
+  const mapped = rows.map(toPriceRequest);
+  queryClient.setQueryData(labKeys.requests, mapped);
+  return mapped;
 }
 
 export async function closeRequest(id: string) {

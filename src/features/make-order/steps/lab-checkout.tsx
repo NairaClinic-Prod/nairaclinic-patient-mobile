@@ -13,30 +13,21 @@ import { Choosable } from '@/components/shared/choosable';
 import { PressableScale } from '@/components/shared/pressable-scale';
 import { TextField } from '@/components/shared/text-field';
 import { Text } from '@/components/ui/text';
+import { ScheduleSteps } from '@/features/booking/components/schedule-steps';
+import type { DayOfSlots } from '@/features/booking/types';
 import { formatNaira } from '@/features/orders/utils';
 import { validatePhone } from '@/lib/validation';
 import { cn } from '@/lib/utils';
 import * as Haptics from 'expo-haptics';
 import * as React from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import type { LocationDraft } from '../types';
 
 const DAYS_AHEAD = 14;
 const DAY_MS = 86_400_000;
-const ZONE = 'Africa/Lagos';
 
 // The Lagos calendar day, as the server expects it (YYYY-MM-DD).
 const dayKey = (date: Date) => new Date(date.getTime() + 3_600_000).toISOString().slice(0, 10);
-
-const part = (iso: string, options: Intl.DateTimeFormatOptions) => {
-  try {
-    return new Intl.DateTimeFormat('en-GB', { timeZone: ZONE, ...options }).format(new Date(iso));
-  } catch {
-    return new Intl.DateTimeFormat('en-GB', options).format(new Date(iso));
-  }
-};
-
-const slotTime = (iso: string) => part(iso, { hour: '2-digit', minute: '2-digit', hour12: false });
 
 type CheckoutInput = {
   // Null until a laboratory is chosen; the step only shows once there is one.
@@ -284,7 +275,10 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
       </View>
     );
   }
+  // Only the very first price shows a full-screen spinner. Later re-prices (after changing the
+  // sample collection or result delivery) keep the content on screen and spin on the option pressed.
   if (!priced) {
+    if (!checkout.quote.isPending) return null;
     return (
       <View className="items-center py-16">
         <ActivityIndicator />
@@ -293,6 +287,20 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
   }
 
   const homeBlocked = !priced.allowedCollectionOptions.includes('home');
+  const reprice = Boolean(priced) && checkout.quote.isFetching;
+
+  // The same date and time steps as a consultation booking: each answered step folds to a line.
+  const labDays: DayOfSlots[] = checkout.days.map((key) => ({
+    key,
+    date: new Date(`${key}T12:00:00Z`),
+    slots:
+      key === checkout.date
+        ? (checkout.slots.data ?? [])
+            .filter((item) => item.remaining > 0)
+            .map((item) => ({ id: item.start, startsAt: item.start, endsAt: item.end }))
+        : [],
+  }));
+  const visibleSlots = labDays.find((day) => day.key === checkout.date)?.slots.length ?? 0;
 
   return (
     <View className="gap-6">
@@ -313,6 +321,7 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
             {lab.labVisits ? (
               <Choosable
                 selected={collection === 'lab_visit'}
+                loading={reprice}
                 label="At the lab"
                 onPress={() => checkout.setCollection('lab_visit')}>
                 <Text className="text-[14px] font-bold">At the lab</Text>
@@ -323,6 +332,7 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
               <Choosable
                 selected={collection === 'home'}
                 disabled={homeBlocked}
+                loading={reprice}
                 label="At home"
                 onPress={() => checkout.setCollection('home')}>
                 <Text className="text-[14px] font-bold">At home</Text>
@@ -337,41 +347,21 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
         </Block>
       ) : null}
 
-      <Block
-        title={collection === 'home' ? 'When should the collector come?' : 'When will you visit?'}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerClassName="gap-2">
-          {checkout.days.map((day) => (
-            <Chip
-              key={day}
-              label={part(`${day}T12:00:00Z`, { weekday: 'short', day: 'numeric', month: 'short' })}
-              selected={checkout.date === day}
-              onPress={() => checkout.setDate(day)}
-            />
-          ))}
-        </ScrollView>
-        {checkout.slots.isPending ? (
-          <ActivityIndicator />
-        ) : checkout.slots.data?.length ? (
-          <View className="flex-row flex-wrap gap-2">
-            {checkout.slots.data.map((slot) => (
-              <Chip
-                key={slot.start}
-                label={slotTime(slot.start)}
-                selected={checkout.slot === slot.start}
-                disabled={slot.remaining < 1}
-                onPress={() => checkout.setSlot(slot.start)}
-              />
-            ))}
-          </View>
-        ) : (
-          <Text className="text-[13px] leading-5 text-muted-foreground">
-            No times are open on this day. Try another day.
-          </Text>
-        )}
-      </Block>
+      <ScheduleSteps
+        days={labDays}
+        caption={collection === 'home' ? 'Showing arrival windows' : 'Showing appointment times'}
+        timeLoading={checkout.slots.isPending}
+        dayKey={checkout.date}
+        slotId={checkout.slot}
+        firstNumber={1}
+        onDay={checkout.setDate}
+        onSlot={checkout.setSlot}
+      />
+      {!checkout.slots.isPending && visibleSlots === 0 ? (
+        <Text className="text-[13px] leading-5 text-muted-foreground">
+          No times are open on this day. Try another day.
+        </Text>
+      ) : null}
 
       {collection === 'home' ? (
         <Block title="Collection address">
@@ -402,6 +392,7 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
           {priced.allowedResultDelivery.includes('collection') ? (
             <Choosable
               selected={resultDelivery === 'collection'}
+              loading={reprice}
               label="Soft copy"
               onPress={() => checkout.setResultDelivery('collection')}>
               <Text className="text-[14px] font-bold">Soft copy in the app</Text>
@@ -413,6 +404,7 @@ export function LabCheckoutStep({ checkout }: { checkout: LabCheckout }) {
           {priced.allowedResultDelivery.includes('delivery') ? (
             <Choosable
               selected={resultDelivery === 'delivery'}
+              loading={reprice}
               label="Hard copy delivered"
               onPress={() => checkout.setResultDelivery('delivery')}>
               <Text className="text-[14px] font-bold">Printed copy delivered</Text>

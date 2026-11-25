@@ -1,5 +1,6 @@
 import { Text } from '@/components/ui/text';
 import * as React from 'react';
+import { ActivityIndicator } from 'react-native';
 import type { DayOfSlots } from '../types';
 import { longDay, timeRange } from '../utils';
 import { DayPicker } from './day-picker';
@@ -8,7 +9,9 @@ import { TimePicker } from './time-picker';
 
 type ScheduleStepsProps = {
   days: DayOfSlots[];
-  durationMins: number;
+  durationMins?: number;
+  caption?: string;
+  timeLoading?: boolean;
   dayKey: string | null;
   slotId: string | null;
   firstNumber: number;
@@ -20,6 +23,8 @@ type ScheduleStepsProps = {
 export function ScheduleSteps({
   days,
   durationMins,
+  caption,
+  timeLoading,
   dayKey,
   slotId,
   firstNumber,
@@ -65,16 +70,21 @@ export function ScheduleSteps({
           done={Boolean(slot)}
           expanded={!slot || edit === 'time'}
           onEdit={() => setEdit('time')}>
-          <TimePicker
-            slots={day.slots}
-            durationMins={durationMins}
-            selected={slotId}
-            nextId={nextId}
-            onChange={(id) => {
-              setEdit(null);
-              onSlot(id);
-            }}
-          />
+          {timeLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <TimePicker
+              slots={day.slots}
+              durationMins={durationMins}
+              caption={caption}
+              selected={slotId}
+              nextId={nextId}
+              onChange={(id) => {
+                setEdit(null);
+                onSlot(id);
+              }}
+            />
+          )}
         </StepCard>
       ) : null}
     </>

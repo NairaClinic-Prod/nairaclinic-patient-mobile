@@ -27,6 +27,7 @@ export function useOrdersData(): OrdersState {
     orders: orders.data ?? NONE,
     requests: requests.data ?? NONE,
     labBookings: labs.data ?? NONE,
+    labRequests: labRequests.data ?? NONE,
     loading: orders.isPending,
     failed: orders.isError && !orders.data,
     refresh,

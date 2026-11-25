@@ -1,4 +1,5 @@
-import { askLabs, labsApi, toLabOption } from '@/api/labs';
+import { askLabs, labKeys, labsApi, toLabOption, type PriceRequest } from '@/api/labs';
+import { queryClient } from '@/api/query-client';
 import { PriceChangedError, createRequest, orderFromPharmacies, sendRequest } from '@/api/orders';
 import { ActionButton } from '@/components/shared/action-button';
 import { CheckBox } from '@/components/shared/check-box';
@@ -10,7 +11,7 @@ import { Lock } from 'lucide-react-native';
 import { useCarePlan } from '@/features/care-plan/store';
 import { useHomeProfile } from '@/api/home';
 import { messageOf } from '@/features/orders/actions';
-import { showRequest } from '@/features/orders/ui-store';
+import { showLabRequest, showRequest } from '@/features/orders/ui-store';
 import { formatNaira } from '@/features/orders/utils';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -39,7 +40,7 @@ import {
 import { StepTabs } from './step-tabs';
 
 type Stage = 'type' | 'pick' | 'items' | 'where' | 'results' | 'checkout' | 'sent';
-type SentMode = 'all' | 'ask' | 'order' | 'booked';
+type SentMode = 'all' | 'ask' | 'order' | 'booked' | 'confirming';
 
 const STEP_LABELS: Record<OrderKind, string[]> = {
   medication: ['Choose medicines', 'Delivery', 'Compare'],
@@ -341,9 +342,13 @@ export function MakeOrderSheet() {
 
   async function askEveryone() {
     if (lab) {
+      const before = new Set(
+        (queryClient.getQueryData<PriceRequest[]>(labKeys.requests) ?? []).map((row) => row.id)
+      );
+      let created: string | null = null;
       await act("Couldn't send your request", async () => {
         const row = profile.data;
-        await askLabs({
+        const rows = await askLabs({
           area: areaOf(location),
           collection: collection === 'home' ? 'home' : 'lab_visit',
           tests: wanted.map((item) => item.name),
@@ -354,8 +359,14 @@ export function MakeOrderSheet() {
               .join(' ') || 'Patient',
           contactPhone: row?.user.phone ?? '',
         });
-        finish('all', null, '');
+        created = rows.find((entry) => !before.has(entry.id))?.id ?? null;
       });
+      if (!created) return;
+      // Like a medicine order: land on Orders with the new request's replies open.
+      closeMakeOrder();
+      router.navigate('/orders');
+      const id = created;
+      setTimeout(() => showLabRequest(id), 350);
       return;
     }
     if (!requestId) return;
@@ -366,14 +377,25 @@ export function MakeOrderSheet() {
   }
 
   async function payLab() {
-    await act("Couldn't place the booking", async () => {
+    // The confirmation opens at once in a "not yet confirmed" state, then flips when the payment
+    // verifies — including after the patient returns from Paystack.
+    setBusy(true);
+    setSent({ mode: 'confirming', name: labChosen?.labName ?? null, reference: '' });
+    setStage('sent');
+    try {
       const result = await checkout.submit();
       if (!result.outcome.paid) {
+        setStage('checkout');
         Alert.alert('Payment not confirmed', result.outcome.message);
         return;
       }
       finish('booked', labChosen?.labName ?? null, result.booking.reference);
-    });
+    } catch (error) {
+      setStage('checkout');
+      Alert.alert("Couldn't place the booking", messageOf(error));
+    } finally {
+      setBusy(false);
+    }
   }
 
   const selectedOffer = offers.find((offer) => offer.id === selection);
@@ -579,16 +601,27 @@ export function MakeOrderSheet() {
                   : 'Pay'
             }
             className="flex-[1.4]"
-            disabled={checkout.busy || checkout.problems.length > 0}
+            disabled={
+              checkout.busy ||
+              checkout.problems.length > 0 ||
+              checkout.quote.isFetching ||
+              checkout.slots.isFetching
+            }
             onPress={payLab}
           />
         </View>
       </View>
     );
   } else if (stage === 'sent') {
+    const confirming = sent?.mode === 'confirming';
     footer = (
       <View className="gap-2">
-        <ActionButton size="md" label="Done" onPress={closeMakeOrder} />
+        <ActionButton
+          size="md"
+          label={confirming ? 'Confirming your payment…' : 'Done'}
+          disabled={confirming || busy}
+          onPress={closeMakeOrder}
+        />
       </View>
     );
   }

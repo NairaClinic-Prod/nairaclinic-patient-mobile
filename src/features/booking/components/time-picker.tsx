@@ -9,18 +9,27 @@ import { PairRows } from './pair-rows';
 
 type TimePickerProps = {
   slots: Slot[];
-  durationMins: number;
+  durationMins?: number;
+  caption?: string;
   selected: string | null;
   nextId?: string;
   onChange: (id: string) => void;
 };
 
-export function TimePicker({ slots, durationMins, selected, nextId, onChange }: TimePickerProps) {
+export function TimePicker({
+  slots,
+  durationMins,
+  caption,
+  selected,
+  nextId,
+  onChange,
+}: TimePickerProps) {
+  const text =
+    caption ??
+    (durationMins ? `Showing times for ${durationMins}-minute consultations` : undefined);
   return (
     <View className="gap-3">
-      <Text className="text-xs text-muted-foreground">
-        {`Showing times for ${durationMins}-minute consultations`}
-      </Text>
+      {text ? <Text className="text-xs text-muted-foreground">{text}</Text> : null}
       <PairRows gap={10}>
         {slots.map((slot) => {
           const active = selected === slot.id;

@@ -3,6 +3,10 @@ import { AddButton } from '@/components/shared/add-button';
 import { ChoiceSheet } from '@/components/shared/choice-sheet';
 import { EmptyState } from '@/components/shared/empty-state';
 import { InlineSelect } from '@/components/shared/inline-select';
+import { Sheet } from '@/components/shared/sheet';
+import { closeRequest, type PriceReply, type PriceRequest } from '@/api/labs';
+import { PriceRequestCard } from '@/features/lab-tests/components/price-request-card';
+import { BookReplySheet } from '@/features/lab-tests/components/book-reply-sheet';
 import { Text } from '@/components/ui/text';
 import {
   AddFromClinicSheet,
@@ -31,7 +35,7 @@ import {
 } from '@/api/orders';
 import { attempt } from '../actions';
 import { useOrdersData } from '../hooks/use-orders';
-import { useRequestOpener } from '../ui-store';
+import { useLabRequestOpener, useRequestOpener } from '../ui-store';
 import type { OrderView, PharmacyOrder, ShoppingRequest } from '../types';
 import { ClosedRequestCard } from './closed-request-card';
 import { LabBookingsSection } from './lab-bookings-section';
@@ -53,6 +57,11 @@ export function OrdersView({ onAddExternal = openExternalRecord, onBookLab }: Or
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [askCancel, setAskCancel] = React.useState(false);
   const [requestId, setRequestId] = React.useState<string | null>(null);
+  const [labRequestId, setLabRequestId] = React.useState<string | null>(null);
+  const [labBooking, setLabBooking] = React.useState<{
+    reply: PriceReply;
+    request: PriceRequest;
+  } | null>(null);
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [clinicOpen, setClinicOpen] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
@@ -64,6 +73,35 @@ export function OrdersView({ onAddExternal = openExternalRecord, onBookLab }: Or
     setView('requests');
     setRequestId(opener.requestId);
   }, [opener.nonce, opener.requestId]);
+
+  const labOpener = useLabRequestOpener();
+  React.useEffect(() => {
+    if (!labOpener.nonce || !labOpener.labRequestId) return;
+    setLabRequestId(labOpener.labRequestId);
+  }, [labOpener.nonce, labOpener.labRequestId]);
+
+  const openLabRequests = data.labRequests.filter((item) => item.status !== 'closed');
+  const labRequest = labRequestId
+    ? (data.labRequests.find((item) => item.id === labRequestId) ?? null)
+    : null;
+
+  const bookLabReply = (request: PriceRequest) => (reply: PriceReply) => {
+    setLabRequestId(null);
+    setLabBooking({ reply, request });
+  };
+
+  const closeLabRequest = (request: PriceRequest) => () =>
+    Alert.alert('Close this request?', 'Laboratories will stop replying to it.', [
+      { text: 'Keep it', style: 'cancel' },
+      {
+        text: 'Close request',
+        style: 'destructive',
+        onPress: () => {
+          setLabRequestId(null);
+          work("Couldn't close the request", () => closeRequest(request.id));
+        },
+      },
+    ]);
 
   const ordersIn = (value: OrderView) =>
     data.orders.filter((order) => VIEW_STATUSES[value].includes(order.status));
@@ -109,7 +147,7 @@ export function OrdersView({ onAddExternal = openExternalRecord, onBookLab }: Or
       <View className="flex-row items-start justify-between gap-4">
         <View className="min-w-0 flex-1 gap-0.5">
           <Text className="text-lg font-extrabold">Your medicines. Your choice.</Text>
-          <Text className="text-muted-foreground text-xs leading-4.5">
+          <Text className="text-xs leading-4.5 text-muted-foreground">
             Make an order, compare pharmacy offers and choose when you&apos;re ready.
           </Text>
         </View>
@@ -117,10 +155,10 @@ export function OrdersView({ onAddExternal = openExternalRecord, onBookLab }: Or
       </View>
 
       <View className="flex-row items-center justify-between gap-3">
-        <Text className="text-muted-foreground text-xs">
-          <Text className="text-foreground text-xs font-bold">{activeTotal}</Text>
+        <Text className="text-xs text-muted-foreground">
+          <Text className="text-xs font-bold text-foreground">{activeTotal}</Text>
           {' active · '}
-          <Text className="text-foreground text-xs font-bold">{pastTotal}</Text>
+          <Text className="text-xs font-bold text-foreground">{pastTotal}</Text>
           {' past'}
         </Text>
         <InlineSelect<OrderView>
@@ -166,7 +204,7 @@ export function OrdersView({ onAddExternal = openExternalRecord, onBookLab }: Or
           />
         ))}
         {showEmpty ? (
-          <View className="bg-card rounded-2xl">
+          <View className="rounded-2xl bg-card">
             <EmptyState
               icon={Pill}
               title={EMPTY[view].title}
@@ -181,7 +219,21 @@ export function OrdersView({ onAddExternal = openExternalRecord, onBookLab }: Or
         ) : null}
       </Animated.View>
 
-      <Text className="text-muted-foreground text-xs leading-4.5">{ORDERS_FOOTNOTE}</Text>
+      <Text className="text-xs leading-4.5 text-muted-foreground">{ORDERS_FOOTNOTE}</Text>
+
+      {openLabRequests.length ? (
+        <View className="gap-3">
+          <Text className="text-lg font-extrabold">Lab price requests</Text>
+          {openLabRequests.map((item) => (
+            <PriceRequestCard
+              key={item.id}
+              request={item}
+              onBook={bookLabReply(item)}
+              onClose={closeLabRequest(item)}
+            />
+          ))}
+        </View>
+      ) : null}
 
       <LabBookingsSection bookings={data.labBookings} onViewAll={onBookLab} />
 
@@ -219,6 +271,27 @@ export function OrdersView({ onAddExternal = openExternalRecord, onBookLab }: Or
         open={clinicOpen}
         onClose={() => setClinicOpen(false)}
         onPick={onAddExternal}
+      />
+      <Sheet
+        open={Boolean(labRequest)}
+        onClose={() => setLabRequestId(null)}
+        snapPoints={['85%']}
+        eyebrow="Lab tests"
+        title="Price request"
+        subtitle="Laboratories in your area reply with what they would charge.">
+        {labRequest ? (
+          <PriceRequestCard
+            request={labRequest}
+            onBook={bookLabReply(labRequest)}
+            onClose={closeLabRequest(labRequest)}
+          />
+        ) : null}
+      </Sheet>
+      <BookReplySheet
+        reply={labBooking?.reply ?? null}
+        tests={labBooking?.request.tests ?? []}
+        collection={labBooking?.request.collection ?? 'lab_visit'}
+        onClose={() => setLabBooking(null)}
       />
       <OrderDetailSheet
         order={selected}
