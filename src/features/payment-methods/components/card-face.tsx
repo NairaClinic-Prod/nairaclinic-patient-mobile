@@ -65,7 +65,7 @@ export function CardFace({ card, name, onMakeDefault, onRemove }: CardFaceProps)
         colors={BRAND_COLORS[brand]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={{ aspectRatio: 1.586, padding: 16, justifyContent: 'space-between' }}>
+        style={{ aspectRatio: 1.9, padding: 16, justifyContent: 'space-between' }}>
         <View
           pointerEvents="none"
           className="absolute -top-16 -right-12 size-44 rounded-full bg-white/10"

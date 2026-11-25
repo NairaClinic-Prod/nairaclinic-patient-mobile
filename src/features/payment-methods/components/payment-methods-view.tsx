@@ -56,7 +56,7 @@ export function PaymentMethodsView({ onAddCard }: { onAddCard?: () => void }) {
           </Pressable>
         </View>
         <Text className="text-[11px] text-primary-foreground/75" numberOfLines={1}>
-          {`${wallet.accountName} · ${wallet.bankName} · Transfer from any bank app`}
+          {`${wallet.accountName} · ${wallet.bankName}`}
         </Text>
       </View>
 
