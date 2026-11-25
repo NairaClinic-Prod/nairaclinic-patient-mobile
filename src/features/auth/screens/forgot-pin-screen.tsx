@@ -1,4 +1,6 @@
+import { useResetPin, useSendResetCode, useVerifyResetCode } from '@/api/auth';
 import { AuthLayout } from '@/features/auth/components/auth-layout';
+import { FormError, errorMessage } from '@/features/auth/components/form-error';
 import { CodeActions } from '@/features/auth/components/code-actions';
 import { Field } from '@/features/auth/components/field';
 import { PhoneField } from '@/features/auth/components/phone-field';
@@ -62,19 +64,40 @@ const COPY: Record<Step, { title: string; subtitle: string; action: string }> = 
 
 export function ForgotPinScreen() {
   const [step, setStep] = React.useState<Step>('phone');
+  const [proofToken, setProofToken] = React.useState<string | null>(null);
+  const [formError, setFormError] = React.useState<string | null>(null);
+  const sendCode = useSendResetCode();
+  const verifyCode = useVerifyResetCode();
+  const resetPin = useResetPin();
 
   const formik = useFormik({
     initialValues: INITIAL,
     validationSchema: step === 'done' ? undefined : forgotPinSchemas[step],
-    onSubmit: async (_values, helpers) => {
+    onSubmit: async (values, helpers) => {
       if (step === 'done') {
         router.replace('/auth/login');
         return;
       }
-      if (step === 'phone') setStep('code');
-      else if (step === 'code') setStep('pin');
-      else setStep('done');
-      helpers.setTouched({}, false);
+      setFormError(null);
+      const phone = validateNationalPhone(`+${values.callingCode}`, values.phone).formatted;
+      try {
+        if (step === 'phone') {
+          await sendCode.mutateAsync({ phone });
+          helpers.setFieldValue('code', '', false);
+          setStep('code');
+        } else if (step === 'code') {
+          const proof = await verifyCode.mutateAsync({ phone, otp: values.code });
+          setProofToken(proof.token);
+          setStep('pin');
+        } else if (proofToken) {
+          await resetPin.mutateAsync({ phone, newPin: values.pin, proofToken });
+          setProofToken(null);
+          setStep('done');
+        }
+        helpers.setTouched({}, false);
+      } catch (error) {
+        setFormError(errorMessage(error));
+      }
     },
   });
 
@@ -87,7 +110,20 @@ export function ForgotPinScreen() {
 
   function changeNumber() {
     formik.setTouched({}, false);
+    setProofToken(null);
+    setFormError(null);
     setStep('phone');
+  }
+
+  async function resend() {
+    setFormError(null);
+    formik.setFieldValue('code', '', false);
+    try {
+      await sendCode.mutateAsync({ phone: formattedPhone });
+    } catch (error) {
+      setFormError(errorMessage(error, "Couldn't send a new code. Please try again."));
+      throw error;
+    }
   }
 
   return (
@@ -107,7 +143,7 @@ export function ForgotPinScreen() {
         step === 'code' ? (
           <CodeActions
             disabled={values.code.length === 6}
-            onResend={() => set('code')('')}
+            onResend={resend}
             onChangeNumber={changeNumber}
           />
         ) : null
@@ -116,6 +152,7 @@ export function ForgotPinScreen() {
       footerAction="Log In"
       onFooterPress={() => router.replace('/auth/login')}>
       <Stack.Screen options={SCREEN_OPTIONS} />
+      <FormError message={formError} />
 
       {step === 'phone' ? (
         <PhoneField

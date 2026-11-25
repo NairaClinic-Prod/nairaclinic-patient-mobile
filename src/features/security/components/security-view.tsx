@@ -13,10 +13,9 @@ import * as React from 'react';
 import { Linking, View } from 'react-native';
 import { PRIVACY_URL, TERMS_URL } from '@/constants/links';
 import { PIN_LENGTH } from '../constants';
-import { addDevice, removeDevice, useDevices } from '../store';
+import { biometricLabel, biometricSupport, type BiometricSupport } from '@/lib/auth/biometrics';
+import { disableBiometrics, enableBiometrics, useSession } from '@/lib/auth/session';
 import { ChangePinSheet } from './change-pin-sheet';
-
-const DATE = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
 function InfoCard({
   icon,
@@ -72,42 +71,62 @@ function PinCard() {
   );
 }
 
+// Face ID or fingerprint only guards this phone, so the card shows just this device.
 function BiometricCard() {
-  const { devices } = useDevices();
+  const { biometrics } = useSession();
+  const [support, setSupport] = React.useState<BiometricSupport | null>(null);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    biometricSupport().then(setSupport);
+  }, []);
+
+  const label = biometricLabel(support?.kind ?? null);
+
+  async function toggle() {
+    setError(null);
+    if (biometrics) {
+      await disableBiometrics();
+      return;
+    }
+    setBusy(true);
+    const result = await enableBiometrics();
+    setBusy(false);
+    if (!result.ok && result.error) setError(result.error);
+  }
 
   return (
     <InfoCard
       icon={Fingerprint}
       title="Fingerprint or Face ID"
-      text="Sign in with your fingerprint or face instead of typing your PIN. It works on the devices you turn it on for.">
-      {devices.map((device) => (
-        <View key={device.id} className="flex-row items-center gap-3 rounded-2xl bg-muted p-3">
-          <Icon as={Smartphone} className="size-5 text-primary" />
-          <View className="min-w-0 flex-1">
-            <Text className="text-[13px] font-semibold" numberOfLines={1}>
-              {device.deviceName}
-            </Text>
-            <Text className="text-[11px] text-muted-foreground">
-              {`Added ${DATE.format(new Date(device.createdAt))}${
-                device.lastUsedAt ? ` · Last used ${DATE.format(new Date(device.lastUsedAt))}` : ''
-              }`}
-            </Text>
-          </View>
-          <ActionButton
-            icon={Trash2}
-            variant="danger"
-            accessibilityLabel={`Remove ${device.deviceName}`}
-            onPress={() => removeDevice(device.id)}
-          />
+      text="Open NairaClinic with your fingerprint or face instead of typing your PIN. The app also locks after a minute away.">
+      <View className="flex-row items-center gap-3 rounded-2xl bg-muted p-3">
+        <Icon as={Smartphone} className="size-5 text-primary" />
+        <View className="min-w-0 flex-1">
+          <Text className="text-[13px] font-semibold" numberOfLines={1}>
+            This phone
+          </Text>
+          <Text className="text-[11px] text-muted-foreground">
+            {support && !support.available
+              ? 'Set up Face ID or fingerprint in your phone settings first.'
+              : biometrics
+                ? `On · unlocks with ${label}`
+                : 'Off'}
+          </Text>
         </View>
-      ))}
-      <ActionButton
-        label={devices.length ? 'Add this device' : 'Turn on for this device'}
-        icon={Fingerprint}
-        variant="outline"
-        className="self-start"
-        onPress={addDevice}
-      />
+      </View>
+      {error ? <Text className="text-xs text-destructive">{error}</Text> : null}
+      {support?.available ? (
+        <ActionButton
+          label={biometrics ? 'Turn off' : busy ? 'Waiting…' : `Turn on ${label}`}
+          icon={biometrics ? Trash2 : Fingerprint}
+          variant={biometrics ? 'danger' : 'outline'}
+          className="self-start"
+          disabled={busy}
+          onPress={toggle}
+        />
+      ) : null}
     </InfoCard>
   );
 }

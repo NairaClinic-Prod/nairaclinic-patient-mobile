@@ -1,4 +1,6 @@
+import { usePinLogin } from '@/api/auth';
 import { AuthLayout } from '@/features/auth/components/auth-layout';
+import { FormError, errorMessage } from '@/features/auth/components/form-error';
 import { PhoneField } from '@/features/auth/components/phone-field';
 import { PinField } from '@/features/auth/components/pin-field';
 import { Button } from '@/components/ui/button';
@@ -6,8 +8,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
 import { loginSchema } from '@/features/auth/schemas';
+import { offerBiometrics } from '@/lib/auth/offer-biometrics';
+import { lastPhone, useSession } from '@/lib/auth/session';
+import { validateNationalPhone } from '@/lib/validation';
 import { Stack, router } from 'expo-router';
 import { useFormik } from 'formik';
+import * as React from 'react';
 import { View } from 'react-native';
 import type { CountryCode } from 'react-native-country-picker-modal';
 
@@ -24,24 +30,42 @@ type Values = {
 const INITIAL: Values = { countryCode: 'NG', callingCode: '234', phone: '', pin: '', keep: true };
 
 export function LoginScreen() {
+  const login = usePinLogin();
+  const { expired } = useSession();
+  const [formError, setFormError] = React.useState<string | null>(null);
+
   const formik = useFormik({
     initialValues: INITIAL,
     validationSchema: loginSchema,
-    onSubmit: async () => undefined,
+    onSubmit: async (values) => {
+      setFormError(null);
+      const phone = validateNationalPhone(`+${values.callingCode}`, values.phone).formatted;
+      try {
+        await login.mutateAsync({ phone, pin: values.pin, remember: values.keep });
+        if (values.keep) offerBiometrics();
+      } catch (error) {
+        formik.setFieldValue('pin', '', false);
+        setFormError(errorMessage(error, "Couldn't log you in. Please try again."));
+      }
+    },
   });
   const error = (name: 'phone' | 'pin') => (formik.touched[name] ? formik.errors[name] : undefined);
 
-  const handleSubmit = () => {
-    formik.handleSubmit();
-    router.replace('/home');
-  };
+  // Returning patients only need to type their PIN.
+  React.useEffect(() => {
+    lastPhone().then((phone) => {
+      if (phone?.startsWith('+234') && !formik.values.phone) {
+        formik.setFieldValue('phone', phone.slice(4), false);
+      }
+    });
+  }, []);
 
   return (
     <AuthLayout
       title="Welcome back"
       subtitle="Log in with your phone number and PIN to continue."
       actions={
-        <Button size="lg" loading={formik.isSubmitting} onPress={handleSubmit}>
+        <Button size="lg" loading={formik.isSubmitting} onPress={() => formik.handleSubmit()}>
           <Text className="text-base">Log In</Text>
         </Button>
       }
@@ -49,6 +73,9 @@ export function LoginScreen() {
       footerAction="Sign up"
       onFooterPress={() => router.replace('/auth/sign-up')}>
       <Stack.Screen options={SCREEN_OPTIONS} />
+      <FormError
+        message={formError ?? (expired ? 'Your session ended. Please log in again.' : null)}
+      />
       <PhoneField
         countryCode={formik.values.countryCode}
         callingCode={formik.values.callingCode}

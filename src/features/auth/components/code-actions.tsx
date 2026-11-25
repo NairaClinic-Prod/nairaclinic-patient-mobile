@@ -31,6 +31,8 @@ export function CodeActions({ disabled, onResend, onChangeNumber }: CodeActionsP
     try {
       await onResend();
       restart();
+    } catch {
+      // the screen shows why it failed
     } finally {
       setSending(false);
     }

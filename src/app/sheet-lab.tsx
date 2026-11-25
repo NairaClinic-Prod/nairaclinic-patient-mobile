@@ -28,7 +28,11 @@ export default function SheetLab() {
         ref.current.measureInWindow((_x, y, _w, h) => resolve(h > 0 && y < screen - 20));
       });
     let fails = 0;
-    const check = async (label: string, ref: React.RefObject<HostInstance | null>, want: boolean) => {
+    const check = async (
+      label: string,
+      ref: React.RefObject<HostInstance | null>,
+      want: boolean
+    ) => {
       const got = await seen(ref);
       if (got !== want) fails += 1;
       const line = `${got === want ? 'ok  ' : 'FAIL'} ${label} want=${want} got=${got}`;

@@ -1,4 +1,5 @@
 import { PressableScale } from '@/components/shared/pressable-scale';
+import { signOut } from '@/lib/auth/session';
 import { SegmentedControl } from '@/components/shared/segmented-control';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
@@ -21,10 +22,10 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 import * as React from 'react';
-import { Linking, Switch, View } from 'react-native';
+import { Alert, Linking, Switch, View } from 'react-native';
 import { ChangePinSheet } from '@/features/security/components/change-pin-sheet';
 import { PRIVACY_URL, TERMS_URL } from '@/constants/links';
-import { addDevice, removeDevice, useDevices } from '@/features/security/store';
+import { disableBiometrics, enableBiometrics, useSession } from '@/lib/auth/session';
 import {
   setChannel,
   setTheme,
@@ -130,7 +131,7 @@ function SwitchRow({
 }
 
 export function SettingsView() {
-  const { devices } = useDevices();
+  const { biometrics } = useSession();
   const settings = useSettings();
   const calendar = useCalendarPrompt();
   const [pinOpen, setPinOpen] = React.useState(false);
@@ -152,15 +153,13 @@ export function SettingsView() {
         />
         <SwitchRow
           title="Fingerprint or Face ID"
-          text={
-            devices.length
-              ? `On for ${devices.length === 1 ? '1 device' : `${devices.length} devices`}`
-              : 'Sign in without typing your PIN'
-          }
-          value={devices.length > 0}
-          onChange={(next) =>
-            next ? addDevice() : devices.forEach((device) => removeDevice(device.id))
-          }
+          text={biometrics ? 'On for this phone' : 'Open the app without typing your PIN'}
+          value={biometrics}
+          onChange={async (next) => {
+            if (!next) return disableBiometrics();
+            const result = await enableBiometrics();
+            if (!result.ok && result.error) Alert.alert("Couldn't turn it on", result.error);
+          }}
         />
         <Row
           icon={ShieldCheck}
@@ -244,7 +243,7 @@ export function SettingsView() {
           title="Sign out"
           text="You can sign back in with your PIN"
           danger
-          onPress={() => router.replace('/auth/login')}
+          onPress={() => signOut()}
         />
       </Group>
 

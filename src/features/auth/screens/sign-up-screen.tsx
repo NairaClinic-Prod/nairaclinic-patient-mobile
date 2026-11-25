@@ -1,4 +1,11 @@
+import {
+  useCompleteSignUp,
+  useSendSignUpCode,
+  useVerifySignUpCode,
+  type SignUpDraft,
+} from '@/api/auth';
 import { AuthLayout } from '@/features/auth/components/auth-layout';
+import { FormError, errorMessage } from '@/features/auth/components/form-error';
 import { CodeActions } from '@/features/auth/components/code-actions';
 import { Field } from '@/features/auth/components/field';
 import { PhoneField } from '@/features/auth/components/phone-field';
@@ -10,6 +17,8 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Text } from '@/components/ui/text';
 import { signUpSchemas } from '@/features/auth/schemas';
+import { offerBiometrics } from '@/lib/auth/offer-biometrics';
+import { ApiError } from '@/api/client';
 import { validateNationalPhone } from '@/lib/validation';
 import { Stack, router } from 'expo-router';
 import { useFormik } from 'formik';
@@ -71,19 +80,62 @@ const COPY: Record<Step, { title: string; subtitle: string; action: string }> = 
 
 export function SignUpScreen() {
   const [step, setStep] = React.useState<Step>('phone');
+  const [draft, setDraft] = React.useState<SignUpDraft | null>(null);
+  const [formError, setFormError] = React.useState<string | null>(null);
+  const sendCode = useSendSignUpCode();
+  const verifyCode = useVerifySignUpCode();
+  const complete = useCompleteSignUp();
 
   const formik = useFormik({
     initialValues: INITIAL,
     validationSchema: signUpSchemas[step],
-    onSubmit: async (_values, helpers) => {
-      if (step === 'phone') setStep('code');
-      else if (step === 'code') setStep('details');
-      helpers.setTouched({}, false);
+    onSubmit: async (values, helpers) => {
+      setFormError(null);
+      const phone = validateNationalPhone(`+${values.callingCode}`, values.phone).formatted;
+      try {
+        if (step === 'phone') {
+          await sendCode.mutateAsync({ phone });
+          helpers.setFieldValue('code', '', false);
+          setStep('code');
+        } else if (step === 'code') {
+          const verified = await verifyCode.mutateAsync({ phone, otp: values.code });
+          const { firstName, lastName, sexAtBirth } = verified.profile ?? {};
+          if (firstName) {
+            helpers.setFieldValue('name', [firstName, lastName].filter(Boolean).join(' '), false);
+          }
+          if (sexAtBirth === 'Female' || sexAtBirth === 'Male') {
+            helpers.setFieldValue('sex', sexAtBirth, false);
+          }
+          setDraft(verified);
+          setStep('details');
+        } else if (draft) {
+          await complete.mutateAsync({
+            draft,
+            name: values.name,
+            sex: values.sex,
+            email: values.email,
+            referral: values.referral,
+            pin: values.pin,
+          });
+          offerBiometrics();
+          return;
+        }
+        helpers.setTouched({}, false);
+      } catch (error) {
+        if (error instanceof ApiError && error.code === 'REFERRAL') {
+          helpers.setFieldError('referral', error.message);
+          helpers.setFieldTouched('referral', true, false);
+        } else {
+          setFormError(errorMessage(error));
+        }
+      }
     },
   });
 
   const values = formik.values;
   const formattedPhone = validateNationalPhone(`+${values.callingCode}`, values.phone).formatted;
+  const nameLocked = Boolean(draft?.profile?.firstName);
+  const sexLocked = values.sex !== '' && Boolean(draft?.profile?.sexAtBirth);
   const error = (name: keyof Values) =>
     formik.touched[name] ? (formik.errors[name] as string | undefined) : undefined;
   const set = (name: keyof Values) => (value: string | boolean) =>
@@ -92,7 +144,22 @@ export function SignUpScreen() {
 
   function changeNumber() {
     formik.setTouched({}, false);
+    if (nameLocked) formik.setFieldValue('name', '', false);
+    if (sexLocked) formik.setFieldValue('sex', '', false);
+    setDraft(null);
+    setFormError(null);
     setStep('phone');
+  }
+
+  async function resend() {
+    setFormError(null);
+    formik.setFieldValue('code', '', false);
+    try {
+      await sendCode.mutateAsync({ phone: formattedPhone });
+    } catch (error) {
+      setFormError(errorMessage(error, "Couldn't send a new code. Please try again."));
+      throw error;
+    }
   }
 
   return (
@@ -112,7 +179,7 @@ export function SignUpScreen() {
         step === 'code' ? (
           <CodeActions
             disabled={values.code.length === 6}
-            onResend={() => set('code')('')}
+            onResend={resend}
             onChangeNumber={changeNumber}
           />
         ) : null
@@ -121,6 +188,7 @@ export function SignUpScreen() {
       footerAction="Log In"
       onFooterPress={() => router.replace('/auth/login')}>
       <Stack.Screen options={SCREEN_OPTIONS} />
+      <FormError message={formError} />
 
       {step === 'phone' ? (
         <PhoneField
@@ -176,19 +244,28 @@ export function SignUpScreen() {
             onBlur={touch('name')}
             placeholder="Enter your full name"
             autoComplete="name"
+            editable={!nameLocked}
             autoCapitalize="words"
             maxLength={120}
           />
 
           <View className="gap-2">
             <Label nativeID="sex-label">Sex</Label>
-            <RadioGroup value={values.sex} onValueChange={set('sex')} className="flex-row gap-3">
+            <RadioGroup
+              value={values.sex}
+              onValueChange={set('sex')}
+              disabled={sexLocked}
+              className="flex-row gap-3">
               {SEXES.map((option) => (
                 <View
                   key={option}
                   className={`h-14 flex-1 flex-row items-center gap-3 rounded-full border bg-card px-5 ${values.sex === option ? 'border-primary' : 'border-input'}`}>
                   <RadioGroupItem value={option} aria-labelledby={`sex-${option}`} />
-                  <Label nativeID={`sex-${option}`} onPress={() => set('sex')(option)}>
+                  <Label
+                    nativeID={`sex-${option}`}
+                    onPress={() => {
+                      if (!sexLocked) set('sex')(option);
+                    }}>
                     {option}
                   </Label>
                 </View>

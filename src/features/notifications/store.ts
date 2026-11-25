@@ -1,7 +1,10 @@
 import { createStore } from '@/lib/store';
 import { DUMMY_NOTIFICATIONS } from './dummy';
 
-const store = createStore({ rows: DUMMY_NOTIFICATIONS });
+const store = createStore(
+  { rows: DUMMY_NOTIFICATIONS },
+  { persist: 'notifications', scope: 'account' }
+);
 
 export const useNotifications = store.use;
 

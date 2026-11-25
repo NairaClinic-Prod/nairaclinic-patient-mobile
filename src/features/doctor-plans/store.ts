@@ -1,7 +1,10 @@
 import { createStore } from '@/lib/store';
 import { DUMMY_DOCTOR_PLANS } from './dummy';
 
-const store = createStore({ plans: DUMMY_DOCTOR_PLANS });
+const store = createStore(
+  { plans: DUMMY_DOCTOR_PLANS },
+  { persist: 'doctor-plans', scope: 'account' }
+);
 
 export const useDoctorPlans = store.use;
 

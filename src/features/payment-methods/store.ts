@@ -1,7 +1,7 @@
 import { createStore } from '@/lib/store';
 import { DUMMY_CARDS } from './dummy';
 
-const store = createStore({ cards: DUMMY_CARDS });
+const store = createStore({ cards: DUMMY_CARDS }, { persist: 'payment-methods', scope: 'account' });
 
 export const useCards = store.use;
 

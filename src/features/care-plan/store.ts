@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { DUMMY_CARE_PLAN } from './dummy';
 import type { CareMedication } from './types';
 
-const store = createStore(DUMMY_CARE_PLAN);
+const store = createStore(DUMMY_CARE_PLAN, { persist: 'care-plan', scope: 'account' });
 
 export const useCarePlan = store.use;
 

@@ -4,7 +4,7 @@ import { DUMMY_READINGS } from '../dummy';
 import type { Reading } from '../types';
 import { byNewest } from '../utils';
 
-const store = createStore<Reading[]>(DUMMY_READINGS);
+const store = createStore<Reading[]>(DUMMY_READINGS, { persist: 'vitals', scope: 'account' });
 
 export function useVitals() {
   const readings = store.use();

@@ -2,7 +2,7 @@ import { createStore } from '@/lib/store';
 import { DUMMY_ORDERS } from '../dummy';
 import type { OrderStatus } from '../types';
 
-const store = createStore(DUMMY_ORDERS);
+const store = createStore(DUMMY_ORDERS, { persist: 'orders', scope: 'account' });
 
 export const useOrdersData = store.use;
 

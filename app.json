@@ -7,7 +7,9 @@
     "icon": "./assets/images/logo.png",
     "scheme": "nairaclinic-patient-mobile",
     "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -58,7 +60,19 @@
       ],
       "expo-status-bar",
       "expo-font",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": "NairaClinic uses Face ID to keep your health records locked."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "NairaClinic uses Face ID so you can open the app without typing your PIN."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

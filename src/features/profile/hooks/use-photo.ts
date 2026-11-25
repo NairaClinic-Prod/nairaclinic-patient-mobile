@@ -1,33 +1,14 @@
 import { createStore } from '@/lib/store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import * as React from 'react';
 
-const KEY = 'nairaclinic.profile-photo';
+const store = createStore<{ uri: string | null }>(
+  { uri: null },
+  { persist: 'profile-photo', scope: 'account' }
+);
 
-const store = createStore<{ ready: boolean; uri: string | null }>({ ready: false, uri: null });
+const save = (uri: string | null) => store.set({ uri });
 
-let loading: Promise<void> | null = null;
-
-function load() {
-  loading ??= AsyncStorage.getItem(KEY)
-    .then((uri) => store.set({ ready: true, uri }))
-    .catch(() => store.set((state) => ({ ...state, ready: true })));
-  return loading;
-}
-
-function save(uri: string | null) {
-  store.set((state) => ({ ...state, uri }));
-  (uri ? AsyncStorage.setItem(KEY, uri) : AsyncStorage.removeItem(KEY)).catch(() => {});
-}
-
-export function usePhoto() {
-  const state = store.use();
-  React.useEffect(() => {
-    load();
-  }, []);
-  return state.uri;
-}
+export const usePhoto = () => store.useSelect((state) => state.uri);
 
 export const removePhoto = () => save(null);
 
