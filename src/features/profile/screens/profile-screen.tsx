@@ -12,16 +12,18 @@ import {
   CreditCard,
   Gift,
   HeartHandshake,
+  HeartPulse,
   IdCard,
   LogOut,
   Receipt,
   Settings,
   Stethoscope,
+  User,
   Wallet,
 } from 'lucide-react-native';
 import { View } from 'react-native';
 import { MenuList } from '../components/menu-list';
-import { CompletionCard, DetailsCard } from '../components/profile-summary';
+import { CompletionCard } from '../components/profile-summary';
 import { ProfileHero } from '../components/profile-hero';
 import { WalletCard } from '@/features/wallet/components/wallet-card';
 import { useWallet } from '@/features/wallet/store';
@@ -33,8 +35,6 @@ import type { ProfileDetailSection } from '../types';
 const open = (path: Href) => router.push(path);
 const details = (section: ProfileDetailSection) => router.push(`/details/${section}`);
 
-const DOB = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-
 export function ProfileScreen() {
   const { profile } = useProfile();
   const { wallet } = useWallet();
@@ -42,6 +42,9 @@ export function ProfileScreen() {
   const unread = useUnreadCount();
   const progress = completion(profile, Boolean(photo));
   const age = ageOf(profile.dob);
+  const personalSummary = profile.email || profile.phone || 'Complete your personal details';
+  const healthSummary =
+    [profile.bloodGroup, profile.genotype].filter(Boolean).join(' · ') || 'Add your health details';
 
   return (
     <BodyLayout scrollView tabBar className="gap-5">
@@ -87,40 +90,27 @@ export function ProfileScreen() {
       </FadeIn>
 
       <FadeIn index={3}>
-        <DetailsCard
-          title="Your details"
-          editLabel="Edit email"
-          onEdit={() => details('personal')}
-          details={[
-            { label: 'Full name', value: fullName(profile), locked: true },
+        <MenuList
+          items={[
             {
-              label: 'Date of birth',
-              value: profile.dob ? DOB.format(new Date(profile.dob)) : '',
-              locked: true,
+              key: 'personal',
+              title: 'Personal information',
+              text: personalSummary,
+              icon: User,
+              onPress: () => details('personal'),
             },
-            { label: 'Age', value: age === null ? '' : `${age} years`, locked: true },
-            { label: 'Sex at birth', value: profile.sexAtBirth, locked: true },
-            { label: 'Phone number', value: profile.phone, locked: true },
-            { label: 'Email address', value: profile.email },
+            {
+              key: 'health',
+              title: 'Health snapshot',
+              text: healthSummary,
+              icon: HeartPulse,
+              onPress: () => details('health'),
+            },
           ]}
         />
       </FadeIn>
 
-      <FadeIn index={4}>
-        <DetailsCard
-          title="Health snapshot"
-          onEdit={() => details('health')}
-          details={[
-            { label: 'Blood group', value: profile.bloodGroup },
-            { label: 'Genotype', value: profile.genotype },
-            { label: 'Allergies', value: profile.allergies },
-            { label: 'Past conditions', value: profile.pastConditions },
-            { label: 'Current medicines', value: profile.currentMedications },
-          ]}
-        />
-      </FadeIn>
-
-      <FadeIn index={5} className="gap-5">
+      <FadeIn index={4} className="gap-5">
         <View className="gap-3">
           <Text className="text-lg font-extrabold">Care</Text>
           <MenuList

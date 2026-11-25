@@ -54,26 +54,34 @@ export function ProfileHero({ initials, name, detail, contact }: ProfileHeroProp
   }
 
   return (
-    <View className="items-center gap-1">
-      <PressableScale
-        scaleTo={0.96}
-        role="button"
-        accessibilityLabel={photo ? 'Change profile photo' : 'Add a profile photo'}
-        onPress={() => setOpen(true)}>
-        <Avatar uri={photo} initials={initials} size={104} />
-        <View className="absolute -right-1 -bottom-1 size-9 items-center justify-center rounded-full border-[3px] border-background bg-card">
-          <Icon as={Camera} className="size-4 text-foreground" />
+    <View className="gap-2">
+      <View className="flex-row items-center gap-4">
+        <PressableScale
+          scaleTo={0.96}
+          role="button"
+          accessibilityLabel={photo ? 'Change profile photo' : 'Add a profile photo'}
+          onPress={() => setOpen(true)}>
+          <Avatar uri={photo} initials={initials} size={88} />
+          <View className="absolute -right-1 -bottom-1 size-9 items-center justify-center rounded-full border-[3px] border-background bg-card">
+            <Icon as={Camera} className="size-4 text-foreground" />
+          </View>
+        </PressableScale>
+        <View className="flex-1 gap-0.5">
+          <Text className="text-xl font-extrabold tracking-tight" numberOfLines={2}>
+            {name}
+          </Text>
+          {detail ? <Text className="text-[13px] font-semibold">{detail}</Text> : null}
+          <Text className="text-[13px] text-muted-foreground" numberOfLines={1}>
+            {contact}
+          </Text>
+          <View className="mt-1.5 flex-row items-center gap-1.5 self-start rounded-full bg-secondary px-3 py-1.5">
+            <Icon as={ShieldCheck} className="size-3.5 text-success" />
+            <Text className="text-[11px] font-semibold text-success">Private and secure</Text>
+          </View>
         </View>
-      </PressableScale>
-      <Text className="mt-3 text-2xl font-extrabold tracking-tight">{name}</Text>
-      <Text className="text-[13px] font-semibold">{detail}</Text>
-      <Text className="text-[13px] text-muted-foreground">{contact}</Text>
-      <View className="mt-2 flex-row items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5">
-        <Icon as={ShieldCheck} className="size-3.5 text-success" />
-        <Text className="text-[11px] font-semibold text-success">Private and secure</Text>
       </View>
       {problem ? (
-        <Text className="mt-2 text-center text-xs leading-4.5 text-destructive">{problem}</Text>
+        <Text className="text-center text-xs leading-4.5 text-destructive">{problem}</Text>
       ) : null}
 
       <ChoiceSheet<PhotoSource | 'remove'>
