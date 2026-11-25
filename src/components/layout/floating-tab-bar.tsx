@@ -1,12 +1,13 @@
 import { TAB_BAR_HEIGHT, TAB_BAR_MIN_BOTTOM } from '@/constants/ui';
 import { useColor } from '@/hooks/use-color';
+import { usePhoto } from '@/features/profile/hooks/use-photo';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import * as Haptics from 'expo-haptics';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
-import { FileHeart, FlaskConical, House, Settings2, ShoppingBag } from 'lucide-react-native';
+import { FileHeart, FlaskConical, House, ShoppingBag, User } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import * as React from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -15,7 +16,7 @@ const TABS: Record<string, { label: string; icon: LucideIcon }> = {
   records: { label: 'Health records', icon: FileHeart },
   orders: { label: 'To-do and orders', icon: ShoppingBag },
   lab: { label: 'Lab tests', icon: FlaskConical },
-  profile: { label: 'Profile', icon: Settings2 },
+  profile: { label: 'Profile', icon: User },
 };
 
 const SIDE_MARGIN = 32;
@@ -27,6 +28,7 @@ const HAS_GLASS = Platform.OS === 'ios' && isLiquidGlassAvailable();
 // The pill is Liquid Glass on iOS 26+. Elsewhere it is a soft translucent card, since Android has no glass.
 export function FloatingTabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
   const color = useColor();
+  const photo = usePhoto();
   const insets = useSafeAreaInsets();
   const [width, setWidth] = React.useState(0);
   // The tab the patient just touched. It lights up at once, even while a heavy screen is still
@@ -112,11 +114,19 @@ export function FloatingTabBar({ state, emitter, navigateToTab }: BottomTabBarPr
             onPress={onPress}
             hitSlop={{ top: 8, bottom: 8 }}
             style={styles.slot}>
-            <tab.icon
-              size={20}
-              strokeWidth={focused ? 2.4 : 2}
-              color={focused ? color.primary : color.mutedForeground}
-            />
+            {route.name === 'profile' && photo ? (
+              <Image
+                source={{ uri: photo }}
+                accessibilityLabel="Your profile photo"
+                style={[styles.avatar, focused && { borderColor: color.primary, borderWidth: 2 }]}
+              />
+            ) : (
+              <tab.icon
+                size={20}
+                strokeWidth={focused ? 2.4 : 2}
+                color={focused ? color.primary : color.mutedForeground}
+              />
+            )}
           </Pressable>
         );
       })}
@@ -166,4 +176,5 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   slot: { flex: 1, height: '100%', alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 26, height: 26, borderRadius: 13 },
 });

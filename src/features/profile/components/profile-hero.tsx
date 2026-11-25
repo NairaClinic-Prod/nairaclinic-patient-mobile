@@ -9,13 +9,12 @@ import { pickPhoto, removePhoto, usePhoto, type PhotoSource } from '../hooks/use
 import { Avatar } from './avatar';
 
 type ProfileHeroProps = {
-  initials: string;
   name: string;
   detail: string;
   contact: string;
 };
 
-export function ProfileHero({ initials, name, detail, contact }: ProfileHeroProps) {
+export function ProfileHero({ name, detail, contact }: ProfileHeroProps) {
   const photo = usePhoto();
   const [open, setOpen] = React.useState(false);
   const [problem, setProblem] = React.useState<string | null>(null);
@@ -61,7 +60,7 @@ export function ProfileHero({ initials, name, detail, contact }: ProfileHeroProp
           role="button"
           accessibilityLabel={photo ? 'Change profile photo' : 'Add a profile photo'}
           onPress={() => setOpen(true)}>
-          <Avatar uri={photo} initials={initials} size={88} />
+          <Avatar uri={photo} size={88} />
           <View className="absolute -right-1 -bottom-1 size-9 items-center justify-center rounded-full border-[3px] border-background bg-card">
             <Icon as={Camera} className="size-4 text-foreground" />
           </View>

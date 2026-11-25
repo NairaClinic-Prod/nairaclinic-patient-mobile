@@ -28,7 +28,7 @@ import { ProfileHero } from '../components/profile-hero';
 import { WalletCard } from '@/features/wallet/components/wallet-card';
 import { useWallet } from '@/features/wallet/store';
 import { useUnreadCount } from '@/features/notifications/store';
-import { ageOf, completion, fullName, initialsOf, useProfile } from '../hooks/use-profile';
+import { ageOf, completion, fullName, useProfile } from '../hooks/use-profile';
 import { usePhoto } from '../hooks/use-photo';
 import type { ProfileDetailSection } from '../types';
 
@@ -64,7 +64,6 @@ export function ProfileScreen() {
 
       <FadeIn index={0}>
         <ProfileHero
-          initials={initialsOf(profile)}
           name={fullName(profile) || 'Your profile'}
           detail={[age === null ? '' : `${age} years`, profile.sexAtBirth]
             .filter(Boolean)
