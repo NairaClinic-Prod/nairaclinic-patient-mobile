@@ -9,11 +9,19 @@ type ChoosableProps = {
   selected: boolean;
   disabled?: boolean;
   label: string;
+  className?: string;
   onPress: () => void;
   children: React.ReactNode;
 };
 
-export function Choosable({ selected, disabled, label, onPress, children }: ChoosableProps) {
+export function Choosable({
+  selected,
+  disabled,
+  label,
+  className,
+  onPress,
+  children,
+}: ChoosableProps) {
   return (
     <PressableScale
       scaleTo={0.985}
@@ -25,7 +33,8 @@ export function Choosable({ selected, disabled, label, onPress, children }: Choo
       className={cn(
         'gap-0 rounded-2xl border p-4',
         selected ? 'border-primary bg-secondary/40' : 'border-border bg-card',
-        disabled && 'opacity-60'
+        disabled && 'opacity-60',
+        className
       )}>
       {selected ? (
         <View className="absolute top-3 right-3 size-5 items-center justify-center rounded-full bg-primary">

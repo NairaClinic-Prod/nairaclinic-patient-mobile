@@ -10,7 +10,12 @@ import { useScreenInsets } from '@/hooks/use-screen-insets';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as React from 'react';
 import { KeyboardAvoidingView, StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
+import Animated, {
+  useAnimatedRef,
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from 'react-native-reanimated';
+import { ScrollContext } from './scroll-context';
 
 type BodyLayoutProps = {
   inset?: boolean;
@@ -43,6 +48,7 @@ export function BodyLayout({
   const collapsing = collapsingHeader && scrollView && tabBar && !fixed;
   const active = fixed || collapsing;
   const scrollY = useSharedValue(0);
+  const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const [info, setInfo] = React.useState<HeaderBarInfo | null>(null);
 
   const register = React.useCallback(
@@ -51,6 +57,13 @@ export function BodyLayout({
     []
   );
   const headerBar = React.useMemo(() => ({ register, fixed }), [register, fixed]);
+  const scrollApi = React.useMemo(
+    () => ({
+      scrollY,
+      scrollTo: (y: number) => scrollRef.current?.scrollTo({ y, animated: true }),
+    }),
+    [scrollY, scrollRef]
+  );
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollY.set(event.contentOffset.y);
   });
@@ -65,8 +78,9 @@ export function BodyLayout({
     <KeyboardAvoidingView behavior="padding" className={cn('flex-1', !gradient && 'bg-background')}>
       {scrollView ? (
         <Animated.ScrollView
+          ref={scrollRef}
           className="flex-1"
-          onScroll={active ? onScroll : undefined}
+          onScroll={onScroll}
           scrollEventThrottle={16}
           contentContainerClassName={className}
           contentContainerStyle={[{ flexGrow: 1 }, spacing]}
@@ -93,25 +107,27 @@ export function BodyLayout({
 
   return (
     <HeaderBarContext.Provider value={active ? headerBar : null}>
-      <View className="flex-1 bg-background">
-        {gradient ? (
-          <LinearGradient
-            pointerEvents="none"
-            colors={[color.gradientStart, color.gradientMid, color.gradientEnd]}
-            locations={[0, 0.5, 1]}
-            style={StyleSheet.absoluteFill}
-          />
-        ) : null}
-        {body}
-        {active && info && (fixed ? info.content : info.title) ? (
-          <HeaderBar
-            scrollY={scrollY}
-            info={info}
-            fixed={fixed}
-            gutter={padding ? SCREEN_PADDING_X : 0}
-          />
-        ) : null}
-      </View>
+      <ScrollContext.Provider value={scrollApi}>
+        <View className="flex-1 bg-background">
+          {gradient ? (
+            <LinearGradient
+              pointerEvents="none"
+              colors={[color.gradientStart, color.gradientMid, color.gradientEnd]}
+              locations={[0, 0.5, 1]}
+              style={StyleSheet.absoluteFill}
+            />
+          ) : null}
+          {body}
+          {active && info && (fixed ? info.content : info.title) ? (
+            <HeaderBar
+              scrollY={scrollY}
+              info={info}
+              fixed={fixed}
+              gutter={padding ? SCREEN_PADDING_X : 0}
+            />
+          ) : null}
+        </View>
+      </ScrollContext.Provider>
     </HeaderBarContext.Provider>
   );
 }

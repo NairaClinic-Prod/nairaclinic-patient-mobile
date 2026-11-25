@@ -1,6 +1,7 @@
 import { ActionButton } from '@/components/shared/action-button';
 import { EmptyState } from '@/components/shared/empty-state';
 import { SegmentedControl } from '@/components/shared/segmented-control';
+import { Reveal } from '@/components/shared/reveal';
 import { SubScreen } from '@/components/shared/sub-screen';
 import { Text } from '@/components/ui/text';
 import { useDoctorPlans } from '@/features/doctor-plans/store';
@@ -198,6 +199,7 @@ export function DoctorBookingScreen() {
                     : undefined
                 }
                 done={Boolean(rate)}
+                reveal={false}
                 expanded={!rate || editRate}
                 onEdit={planMode ? undefined : () => setEditRate(true)}>
                 <RatePicker
@@ -233,15 +235,17 @@ export function DoctorBookingScreen() {
 
             {slot && rate ? (
               <>
-                <DetailsCard
-                  forName={fullName(profile)}
-                  reason={reason}
-                  onReason={setReason}
-                  symptoms={symptoms}
-                  onSymptoms={setSymptoms}
-                  photos={photos}
-                  onPhotos={setPhotos}
-                />
+                <Reveal>
+                  <DetailsCard
+                    forName={fullName(profile)}
+                    reason={reason}
+                    onReason={setReason}
+                    symptoms={symptoms}
+                    onSymptoms={setSymptoms}
+                    photos={photos}
+                    onPhotos={setPhotos}
+                  />
+                </Reveal>
                 <PriceSummary
                   label={`${activeKind === 'video' ? 'Video' : 'In-person'} consultation · ${rate.durationMins} min`}
                   feeNgn={rate.amountNgn}

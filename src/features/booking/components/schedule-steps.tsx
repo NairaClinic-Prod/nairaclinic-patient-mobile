@@ -38,6 +38,7 @@ export function ScheduleSteps({
         title="Select a date"
         summary={day ? longDay(day.date) : undefined}
         done={Boolean(day)}
+        reveal={firstNumber > 1}
         expanded={!day || edit === 'date'}
         onEdit={() => setEdit('date')}>
         {days.length ? (

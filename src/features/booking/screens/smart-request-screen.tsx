@@ -1,4 +1,5 @@
 import { ActionButton } from '@/components/shared/action-button';
+import { Reveal } from '@/components/shared/reveal';
 import { SubScreen } from '@/components/shared/sub-screen';
 import { Text } from '@/components/ui/text';
 import { fullName, useProfile } from '@/features/profile/hooks/use-profile';
@@ -121,15 +122,17 @@ export function SmartRequestScreen() {
 
         {slot ? (
           <>
-            <DetailsCard
-              forName={fullName(profile)}
-              reason={reason}
-              onReason={setReason}
-              symptoms={symptoms}
-              onSymptoms={setSymptoms}
-              photos={photos}
-              onPhotos={setPhotos}
-            />
+            <Reveal>
+              <DetailsCard
+                forName={fullName(profile)}
+                reason={reason}
+                onReason={setReason}
+                symptoms={symptoms}
+                onSymptoms={setSymptoms}
+                photos={photos}
+                onPhotos={setPhotos}
+              />
+            </Reveal>
             <PriceSummary
               label={`${kind === 'video' ? 'Video' : 'Audio'} consultation · ${SMART_DURATION_MINS} min`}
               feeNgn={SMART_FEE_NGN}

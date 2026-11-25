@@ -3,6 +3,7 @@ import { Text } from '@/components/ui/text';
 import { View } from 'react-native';
 import type { Rate } from '../types';
 import { naira } from '../utils';
+import { PairRows } from './pair-rows';
 
 type RatePickerProps = {
   rates: Rate[];
@@ -13,30 +14,32 @@ type RatePickerProps = {
 
 export function RatePicker({ rates, selected, included, onChange }: RatePickerProps) {
   return (
-    <View className="flex-row flex-wrap gap-3">
+    <PairRows>
       {rates.map((rate, index) => (
-        <View key={`${rate.durationMins}-${index}`} className="w-[47.5%] grow">
-          <Choosable
-            selected={selected === index}
-            label={`${rate.durationMins} minutes`}
-            onPress={() => onChange(index)}>
+        <Choosable
+          key={`${rate.durationMins}-${index}`}
+          className="flex-1"
+          selected={selected === index}
+          label={`${rate.durationMins} minutes`}
+          onPress={() => onChange(index)}>
+          <View className="h-4 justify-center">
             {rate.label ? (
-              <Text className="mb-1.5 text-[10px] font-extrabold tracking-wider text-warning uppercase">
+              <Text
+                className="text-[10px] font-extrabold tracking-wider text-warning uppercase"
+                numberOfLines={1}>
                 {rate.label}
               </Text>
             ) : null}
-            <Text className="text-lg font-bold">{`${rate.durationMins} mins`}</Text>
-            <Text className="text-[15px] font-semibold text-primary">
-              {included ? 'Included' : naira(rate.amountNgn)}
-            </Text>
-            {included ? null : (
-              <Text className="mt-0.5 text-xs text-muted-foreground">
-                {`${naira(Math.round(rate.amountNgn / rate.durationMins))}/min`}
-              </Text>
-            )}
-          </Choosable>
-        </View>
+          </View>
+          <Text className="mt-1 text-lg font-bold">{`${rate.durationMins} mins`}</Text>
+          <Text className="text-[15px] font-semibold text-primary">
+            {included ? 'Included' : naira(rate.amountNgn)}
+          </Text>
+          <Text className="mt-0.5 text-xs text-muted-foreground">
+            {included ? ' ' : `${naira(Math.round(rate.amountNgn / rate.durationMins))}/min`}
+          </Text>
+        </Choosable>
       ))}
-    </View>
+    </PairRows>
   );
 }

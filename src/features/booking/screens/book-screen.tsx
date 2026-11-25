@@ -3,11 +3,10 @@ import { SubScreen } from '@/components/shared/sub-screen';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { useHome } from '@/features/home/hooks/use-home';
-import { drName } from '@/features/home/utils';
+import { CareTeamStrip } from '@/features/home/components/care-team-strip';
 import { router } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
-import { ScrollView, View } from 'react-native';
-import { DoctorAvatar } from '../components/doctor-avatar';
+import { View } from 'react-native';
 import { BOOKING_CHOICES, type BookingChoiceKey } from '../constants';
 
 export function BookScreen() {
@@ -21,37 +20,12 @@ export function BookScreen() {
     <SubScreen title="Book an appointment" description="How would you like to find your doctor?">
       <View className="gap-6">
         {team.length ? (
-          <View className="gap-3">
-            <Text className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-              Your care team
-            </Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="-mx-6"
-              contentContainerClassName="gap-3 px-6">
-              {team.map((member) => (
-                <PressableScale
-                  key={member.doctorUserId}
-                  scaleTo={0.97}
-                  role="button"
-                  accessibilityLabel={`Book ${drName(member.name)}`}
-                  onPress={() => router.push(`/book/doctor/${member.bookingSlug}`)}
-                  className="w-36 items-center gap-2 rounded-2xl bg-card p-3.5">
-                  <DoctorAvatar name={member.name} size={48} />
-                  <View className="items-center gap-0.5 self-stretch">
-                    <Text className="text-center text-[13px] font-bold" numberOfLines={1}>
-                      {drName(member.name)}
-                    </Text>
-                    <Text
-                      className="text-center text-[11px] text-muted-foreground"
-                      numberOfLines={1}>
-                      {member.specialty ?? ' '}
-                    </Text>
-                  </View>
-                </PressableScale>
-              ))}
-            </ScrollView>
+          <View className="-mx-6">
+            <CareTeamStrip
+              members={team}
+              onSelect={(member) => router.push(`/book/doctor/${member.bookingSlug}`)}
+              onBook={() => router.push('/book/find')}
+            />
           </View>
         ) : null}
 

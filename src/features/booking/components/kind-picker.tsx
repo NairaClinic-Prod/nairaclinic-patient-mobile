@@ -45,6 +45,7 @@ export function KindPicker<T extends string>({ options, value, onChange }: KindP
         return (
           <View key={option.value} className="flex-1">
             <Choosable
+              className="flex-1"
               selected={selected}
               label={option.title}
               onPress={() => onChange(option.value)}>

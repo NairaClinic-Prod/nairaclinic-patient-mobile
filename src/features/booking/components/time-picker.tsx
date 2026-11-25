@@ -5,6 +5,7 @@ import * as Haptics from 'expo-haptics';
 import { View } from 'react-native';
 import type { Slot } from '../types';
 import { timeRange } from '../utils';
+import { PairRows } from './pair-rows';
 
 type TimePickerProps = {
   slots: Slot[];
@@ -20,7 +21,7 @@ export function TimePicker({ slots, durationMins, selected, nextId, onChange }: 
       <Text className="text-xs text-muted-foreground">
         {`Showing times for ${durationMins}-minute consultations`}
       </Text>
-      <View className="flex-row flex-wrap gap-2.5">
+      <PairRows gap={10}>
         {slots.map((slot) => {
           const active = selected === slot.id;
           const next = slot.id === nextId;
@@ -35,8 +36,7 @@ export function TimePicker({ slots, durationMins, selected, nextId, onChange }: 
                 onChange(slot.id);
               }}
               className={cn(
-                'w-[48%] grow items-center rounded-xl border px-2 pb-3',
-                next ? 'pt-6' : 'pt-3',
+                'h-14 items-center justify-center rounded-xl border',
                 active
                   ? 'border-primary bg-primary'
                   : next
@@ -44,7 +44,7 @@ export function TimePicker({ slots, durationMins, selected, nextId, onChange }: 
                     : 'border-border bg-card'
               )}>
               {next ? (
-                <View className="absolute top-1.5 rounded-full bg-primary px-2 py-0.5">
+                <View className="absolute top-1 rounded-full bg-primary px-2 py-px">
                   <Text className="text-[9px] font-bold tracking-widest text-primary-foreground uppercase">
                     Next
                   </Text>
@@ -52,7 +52,7 @@ export function TimePicker({ slots, durationMins, selected, nextId, onChange }: 
               ) : null}
               <Text
                 className={cn(
-                  'text-[13px] font-medium',
+                  'mt-1.5 text-[13px] font-medium',
                   active ? 'text-primary-foreground' : 'text-foreground'
                 )}>
                 {timeRange(slot)}
@@ -60,7 +60,7 @@ export function TimePicker({ slots, durationMins, selected, nextId, onChange }: 
             </PressableScale>
           );
         })}
-      </View>
+      </PairRows>
     </View>
   );
 }
