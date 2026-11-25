@@ -25,7 +25,7 @@ type VitalsCardProps = {
   readings: Reading[];
   onAdd: (view: VitalView) => void;
   onViewAll: (view: VitalView) => void;
-  dismissSignal?: number;
+  dismissRef?: React.RefObject<(() => void) | null>;
   chartTouch?: React.RefObject<boolean>;
 };
 
@@ -128,7 +128,7 @@ export function VitalsCard({
   readings,
   onAdd,
   onViewAll,
-  dismissSignal,
+  dismissRef,
   chartTouch,
 }: VitalsCardProps) {
   const [view, setView] = React.useState<VitalView>('bp');
@@ -137,9 +137,14 @@ export function VitalsCard({
   const [timing, setTiming] = React.useState<SugarTiming | 'all'>('all');
   const [picked, setPicked] = React.useState<string | null>(null);
 
+  // The screen calls this on any touch outside the chart; clearing an empty pick changes nothing, so nothing re-renders.
   React.useEffect(() => {
-    setPicked(null);
-  }, [dismissSignal]);
+    if (!dismissRef) return;
+    dismissRef.current = () => setPicked(null);
+    return () => {
+      dismissRef.current = null;
+    };
+  }, [dismissRef]);
 
   const bp = readings.filter((reading): reading is BpReading => reading.kind === 'bp');
   const sugar = readings.filter((reading): reading is SugarReading => reading.kind === 'sugar');

@@ -27,7 +27,7 @@ export function RecordsScreen() {
   const [listOpen, setListOpen] = React.useState(false);
   const [formOpen, setFormOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<Reading | null>(null);
-  const [dismiss, setDismiss] = React.useState(0);
+  const dismiss = React.useRef<(() => void) | null>(null);
   const chartTouch = React.useRef(false);
 
   function openForm(reading: Reading | null, view: VitalView) {
@@ -44,7 +44,7 @@ export function RecordsScreen() {
         className="gap-5"
         onTouchStart={() => {
           if (chartTouch.current) chartTouch.current = false;
-          else setDismiss((count) => count + 1);
+          else dismiss.current?.();
         }}>
         <FadeIn index={0} className="flex-row items-center gap-2" style={gutter}>
           <AddFromClinic className="flex-1" textClassName="text-[13px]" />
@@ -60,7 +60,7 @@ export function RecordsScreen() {
         <FadeIn index={1} style={gutter}>
           <VitalsCard
             readings={readings}
-            dismissSignal={dismiss}
+            dismissRef={dismiss}
             chartTouch={chartTouch}
             onAdd={(view) => openForm(null, view)}
             onViewAll={(view) => {

@@ -27,13 +27,13 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={NAV_THEME[theme ?? 'light']}>
-        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-        <BottomSheetModalProvider>
+      <BottomSheetModalProvider>
+        <ThemeProvider value={NAV_THEME[theme ?? 'light']}>
+          <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
           <Stack screenOptions={{ headerShown: false, animation: 'fade' }} />
-        </BottomSheetModalProvider>
-        <PortalHost />
-      </ThemeProvider>
+          <PortalHost />
+        </ThemeProvider>
+      </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );
 }
