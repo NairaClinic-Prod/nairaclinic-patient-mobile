@@ -1,4 +1,3 @@
-import { ActionButton } from '@/components/shared/action-button';
 import { ChipTabs } from '@/components/shared/chip-tabs';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
@@ -7,6 +6,10 @@ import {
   EncounterAccordion,
   type EncounterHandlers,
 } from '@/features/care-plan/components/encounter-accordion';
+import { carePlanHandlers, findSpecialist, openReferralLetter } from '@/features/care-plan/actions';
+import { CarePlanSheets } from '@/features/care-plan/components/care-plan-sheets';
+import { PdfButton } from '@/features/care-plan/components/pdf-button';
+import { downloadSummary, pdfKeys } from '@/features/care-plan/documents';
 import { ReferralRow } from '@/features/care-plan/components/referral-row';
 import { SectionCard } from '@/features/care-plan/components/section-card';
 import { useCarePlan } from '@/features/care-plan/store';
@@ -22,9 +25,9 @@ const EMPTY: Record<Exclude<CarePlanTab, 'all'>, string> = {
   referral: 'No referrals on record.',
 };
 
-type CarePlanSectionProps = { handlers?: EncounterHandlers; onSummary?: () => void };
+type CarePlanSectionProps = { handlers?: EncounterHandlers };
 
-export function CarePlanSection({ handlers, onSummary }: CarePlanSectionProps) {
+export function CarePlanSection({ handlers = carePlanHandlers }: CarePlanSectionProps) {
   const { encounters, referrals } = useCarePlan();
   const [tab, setTab] = React.useState<CarePlanTab>('all');
   const [open, setOpen] = React.useState<string | null | undefined>(undefined);
@@ -50,6 +53,7 @@ export function CarePlanSection({ handlers, onSummary }: CarePlanSectionProps) {
 
   return (
     <View className="gap-3">
+      <CarePlanSheets />
       <ChipTabs
         value={tab}
         onChange={(next) => {
@@ -71,7 +75,13 @@ export function CarePlanSection({ handlers, onSummary }: CarePlanSectionProps) {
             <Text className="text-xs text-muted-foreground">By consultation</Text>
           </View>
           <View className="flex-row items-center gap-1">
-            <ActionButton label="Summary" icon={Download} variant="ghost" onPress={onSummary} />
+            <PdfButton
+              pdfKey={pdfKeys.summary}
+              label="Summary"
+              icon={Download}
+              variant="ghost"
+              onPress={() => downloadSummary(encounters, referrals)}
+            />
             {/* <ActionButton
               label="Collapse all"
               icon={ChevronsDownUp}
@@ -99,7 +109,12 @@ export function CarePlanSection({ handlers, onSummary }: CarePlanSectionProps) {
         <View className="overflow-hidden rounded-2xl">
           <SectionCard title="Referrals & specialist care" count={referrals.length}>
             {referrals.map((referral) => (
-              <ReferralRow key={referral.id} referral={referral} />
+              <ReferralRow
+                key={referral.id}
+                referral={referral}
+                onFindSpecialist={findSpecialist}
+                onLetter={openReferralLetter}
+              />
             ))}
           </SectionCard>
         </View>

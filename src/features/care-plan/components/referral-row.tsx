@@ -5,7 +5,9 @@ import { Download, Search, Share2 } from 'lucide-react-native';
 import type * as React from 'react';
 import { View } from 'react-native';
 import type { CareReferral } from '../types';
+import { pdfKeys } from '../documents';
 import { formatDate } from '../utils';
+import { PdfButton } from './pdf-button';
 import { FactGrid, RecordNote, RecordRow } from './record-row';
 
 type ReferralRowProps = {
@@ -29,7 +31,8 @@ export function ReferralRow({ referral, extra, onFindSpecialist, onLetter }: Ref
               onPress={() => onFindSpecialist?.(referral)}
             />
           ) : null}
-          <ActionButton
+          <PdfButton
+            pdfKey={pdfKeys.referral(referral.id)}
             label="Referral letter"
             icon={Download}
             variant="outline"

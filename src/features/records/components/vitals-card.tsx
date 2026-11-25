@@ -49,7 +49,7 @@ function VitalTile({ selected, tint, grow, icon, title, stamp, onPress, children
       onPress={onPress}
       style={{ flexGrow: grow, flexBasis: 0 }}
       className={cn(
-        'min-w-0 gap-2 rounded-2xl border-2 p-3',
+        'min-w-0 justify-between gap-2 rounded-2xl border-2 p-3',
         selected ? 'border-primary' : 'border-transparent',
         tint ? 'bg-secondary/70' : selected ? 'bg-secondary/50' : 'bg-muted/60'
       )}>
@@ -72,11 +72,14 @@ function VitalTile({ selected, tint, grow, icon, title, stamp, onPress, children
 
 function Metric({ value, unit, color }: { value: string; unit: string; color?: string }) {
   return (
-    <View className="flex-row flex-wrap items-baseline gap-x-1.5">
-      <Text className="text-[22px] leading-7 font-extrabold" style={color ? { color } : undefined}>
+    <View>
+      <Text
+        className="text-[22px] leading-7 font-extrabold"
+        numberOfLines={1}
+        style={color ? { color } : undefined}>
         {value}
       </Text>
-      <Text className="text-xs" style={color ? { color } : undefined}>
+      <Text className="text-xs leading-4" style={color ? { color } : undefined}>
         {unit}
       </Text>
     </View>

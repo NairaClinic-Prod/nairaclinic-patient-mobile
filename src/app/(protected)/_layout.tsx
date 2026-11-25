@@ -16,6 +16,7 @@ export default function ProtectedLayout() {
         screenOptions={{
           headerShown: false,
           animation: 'slide_from_right',
+          freezeOnBlur: true,
           gestureEnabled: true,
           fullScreenGestureEnabled: true,
         }}

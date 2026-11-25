@@ -23,9 +23,11 @@ const personal = createStore<{ todos: PersonalTodo[] }>(
 );
 
 // The last care plan the server sent, so the screen opens with it while offline.
-type Snapshot = Pick<CarePlanData, 'encounters' | 'referrals' | 'done'> & { savedAt: number };
+type Snapshot = Pick<CarePlanData, 'encounters' | 'referrals' | 'done' | 'results' | 'labLinks'> & {
+  savedAt: number;
+};
 const snapshot = createStore<Snapshot>(
-  { encounters: [], referrals: [], done: {}, savedAt: 0 },
+  { encounters: [], referrals: [], done: {}, results: [], labLinks: [], savedAt: 0 },
   { persist: 'care-plan-v2', scope: 'account' }
 );
 
@@ -37,12 +39,13 @@ export type CarePlanState = CarePlanData & {
 
 let loadingPages = false;
 
-export function useCarePlan(): CarePlanState {
+// Pass false to read only the saved copy and skip the requests, for a sheet that is not open.
+export function useCarePlan(enabled = true): CarePlanState {
   const saved = snapshot.use();
   const { todos } = personal.use();
-  const consultations = useConsultations();
-  const referrals = useReferrals();
-  const store = useCarePlanStore();
+  const consultations = useConsultations(enabled);
+  const referrals = useReferrals(enabled);
+  const store = useCarePlanStore(enabled);
 
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = consultations;
   const pages = consultations.data ? Math.ceil(consultations.data.length / 20) : 0;
@@ -57,12 +60,14 @@ export function useCarePlan(): CarePlanState {
   const ready = Boolean(consultations.data && store.data && referrals.data);
   const live = React.useMemo(() => {
     if (!consultations.data || !store.data || !referrals.data) return null;
-    const { owned, externals, results, done } = store.data;
+    const { owned, externals, results, done, labLinks } = store.data;
     const resulted = new Set(results.flatMap((file) => file.testIds));
     return {
       encounters: buildEncounters(consultations.data, owned, resulted, externals),
       referrals: parseReferrals(referrals.data),
       done: Object.fromEntries(Object.keys(done).map((key) => [key, true])),
+      results,
+      labLinks,
     };
   }, [consultations.data, store.data, referrals.data]);
 
@@ -79,6 +84,8 @@ export function useCarePlan(): CarePlanState {
     encounters: data.encounters,
     referrals: data.referrals,
     done: data.done,
+    results: data.results ?? [],
+    labLinks: data.labLinks ?? [],
     todos,
     loading: empty && pending && !errored,
     failed: empty && errored,

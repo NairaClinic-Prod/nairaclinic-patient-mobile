@@ -1,3 +1,5 @@
+import type { LabLink, TestResultFile } from '@/api/records';
+
 export type MedicationState = 'available' | 'owned' | 'ordered';
 
 export type CareMedication = {
@@ -67,6 +69,8 @@ export type PersonalTodo = {
 export type CarePlanData = {
   encounters: Encounter[];
   referrals: CareReferral[];
+  results: TestResultFile[];
+  labLinks: LabLink[];
   todos: PersonalTodo[];
   done: Record<string, boolean>;
 };

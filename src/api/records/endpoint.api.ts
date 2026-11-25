@@ -1,4 +1,4 @@
-import { request } from '../client';
+import { request, requestFile } from '../client';
 import type {
   CarePlanStore,
   ConsultationsReply,
@@ -85,6 +85,28 @@ export const recordsApi = {
     request<unknown>(`/patient/me/care-plan/results/${encodeURIComponent(id)}`, {
       method: 'DELETE',
     }),
+
+  // A signed prescription or lab request from a NairaClinic consultation, as a PDF.
+  consultationPdf: (consultationId: string, kind: 'prescription' | 'lab-investigation') =>
+    requestFile(`/documents/consultations/${encodeURIComponent(consultationId)}/${kind}`),
+
+  // The patient's own summary in the NairaClinic layout, without a doctor's signature.
+  personalPdf: (title: string, sections: { heading: string; lines: string[] }[]) =>
+    requestFile('/documents/personal', {
+      body: {
+        title: title.slice(0, 120),
+        sections: sections
+          .filter((section) => section.lines.length)
+          .slice(0, 60)
+          .map((section) => ({
+            heading: section.heading.slice(0, 200),
+            lines: section.lines.slice(0, 200).map((line) => line.slice(0, 1000)),
+          })),
+      },
+    }),
+
+  resultFile: (resultId: string) =>
+    requestFile(`/patient/me/care-plan/results/${encodeURIComponent(resultId)}/file`),
 
   // Reads a blood pressure or sugar reading from a photo.
   extractReading: (file: UploadFile) =>

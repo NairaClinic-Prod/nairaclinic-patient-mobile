@@ -5,7 +5,7 @@ export default function EntryLayout() {
   return (
     <Tabs
       tabBar={(props) => <FloatingTabBar {...props} />}
-      screenOptions={{ headerShown: false, animation: 'fade' }}>
+      screenOptions={{ headerShown: false, animation: 'fade', freezeOnBlur: true }}>
       <Tabs.Screen name="home" />
       <Tabs.Screen name="records" />
       <Tabs.Screen name="orders" />

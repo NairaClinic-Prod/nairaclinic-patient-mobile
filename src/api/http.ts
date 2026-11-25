@@ -34,21 +34,30 @@ function messageFrom(json: any, status: number) {
   return 'Something went wrong. Please try again.';
 }
 
-// One call to the backend with no session handling. Resolves to the reply's `data` (or the body).
-export async function send<T>(path: string, options: HttpOptions = {}): Promise<T> {
-  const { body, form, bearer, signal, timeoutMs = REQUEST_TIMEOUT_MS } = options;
+// One call with no session handling. Network failures and timeouts become ApiError(status 0).
+async function rawFetch(
+  path: string,
+  options: HttpOptions & { accept?: string }
+): Promise<Response> {
+  const {
+    body,
+    form,
+    bearer,
+    signal,
+    timeoutMs = REQUEST_TIMEOUT_MS,
+    accept = 'application/json',
+  } = options;
   const method = options.method ?? (body === undefined && !form ? 'GET' : 'POST');
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   const abort = () => controller.abort();
   signal?.addEventListener('abort', abort);
 
-  let response: Response;
   try {
-    response = await fetch(`${API_URL}${path}`, {
+    return await fetch(`${API_URL}${path}`, {
       method,
       headers: {
-        Accept: 'application/json',
+        Accept: accept,
         ...(body !== undefined && !form ? { 'Content-Type': 'application/json' } : {}),
         ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
       },
@@ -64,11 +73,37 @@ export async function send<T>(path: string, options: HttpOptions = {}): Promise<
     clearTimeout(timer);
     signal?.removeEventListener('abort', abort);
   }
+}
 
+async function failure(response: Response) {
+  const json = await response.json().catch(() => null);
+  const code = json?.code ?? json?.message?.code;
+  return new ApiError(messageFrom(json, response.status), response.status, code);
+}
+
+// Resolves to the reply's `data` (or the body).
+export async function send<T>(path: string, options: HttpOptions = {}): Promise<T> {
+  const response = await rawFetch(path, options);
   const json = await response.json().catch(() => null);
   if (!response.ok || json?.success === false) {
     const code = json?.code ?? json?.message?.code;
     throw new ApiError(messageFrom(json, response.status), response.status, code);
   }
   return (json?.data ?? json) as T;
+}
+
+export type BinaryReply = { bytes: Uint8Array; name: string | null; type: string };
+
+// A file the backend sends back, such as a PDF.
+export async function sendBinary(path: string, options: HttpOptions = {}): Promise<BinaryReply> {
+  const response = await rawFetch(path, { timeoutMs: 60_000, ...options, accept: '*/*' });
+  if (!response.ok) throw await failure(response);
+  const name = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(
+    response.headers.get('content-disposition') ?? ''
+  )?.[1];
+  return {
+    bytes: new Uint8Array(await response.arrayBuffer()),
+    name: name ? decodeURIComponent(name) : null,
+    type: response.headers.get('content-type') ?? 'application/octet-stream',
+  };
 }

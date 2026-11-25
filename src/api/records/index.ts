@@ -19,8 +19,9 @@ const MINUTE = 60_000;
 export const useVitalsData = () =>
   useQuery({ queryKey: recordsKeys.vitals, queryFn: recordsApi.vitals });
 
-export const useConsultations = () =>
+export const useConsultations = (enabled = true) =>
   useInfiniteQuery({
+    enabled,
     queryKey: recordsKeys.consultations,
     queryFn: ({ pageParam }) => recordsApi.consultations(pageParam),
     initialPageParam: 1,
@@ -28,11 +29,12 @@ export const useConsultations = () =>
     select: (data) => data.pages.flatMap((page) => page.consultations),
   });
 
-export const useReferrals = () =>
-  useQuery({ queryKey: recordsKeys.referrals, queryFn: recordsApi.referrals });
+export const useReferrals = (enabled = true) =>
+  useQuery({ queryKey: recordsKeys.referrals, queryFn: recordsApi.referrals, enabled });
 
-export const useCarePlanStore = () =>
+export const useCarePlanStore = (enabled = true) =>
   useQuery({
+    enabled,
     queryKey: recordsKeys.carePlan,
     queryFn: recordsApi.carePlan,
     staleTime: 5 * MINUTE,

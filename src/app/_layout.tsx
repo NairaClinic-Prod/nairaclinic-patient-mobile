@@ -17,6 +17,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { enableFreeze } from 'react-native-screens';
 import { useUniwind } from 'uniwind';
 
 export {
@@ -25,6 +26,9 @@ export {
 } from 'expo-router';
 
 SplashScreen.preventAutoHideAsync();
+
+// Screens that are not showing stop rendering until they are shown again.
+enableFreeze(true);
 
 export default function RootLayout() {
   const { theme } = useUniwind();

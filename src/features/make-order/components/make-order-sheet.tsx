@@ -85,7 +85,7 @@ const newReference = () => `RQ-${Math.random().toString(36).slice(2, 10).toUpper
 
 export function MakeOrderSheet() {
   const request = useMakeOrderRequest();
-  const carePlan = useCarePlan();
+  const carePlan = useCarePlan(request.open);
 
   const [kind, setKind] = React.useState<OrderKind | null>(null);
   const [stage, setStage] = React.useState<Stage>('type');

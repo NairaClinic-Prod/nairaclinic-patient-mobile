@@ -1,3 +1,5 @@
+import { pdfKeys } from '../documents';
+import { PdfButton } from './pdf-button';
 import { openMakeOrder } from '@/features/make-order/store';
 import { ActionButton } from '@/components/shared/action-button';
 import { StatusPill } from '@/components/shared/status-pill';
@@ -188,7 +190,8 @@ export function EncounterAccordion({
                                 })
                           }
                         />
-                        <ActionButton
+                        <PdfButton
+                          pdfKey={pdfKeys.prescription(encounter.id)}
                           label="Prescription"
                           icon={FileText}
                           variant="outline"
@@ -223,7 +226,8 @@ export function EncounterAccordion({
                               : openMakeOrder({ kind: 'lab', sourceId: encounter.id })
                           }
                         />
-                        <ActionButton
+                        <PdfButton
+                          pdfKey={pdfKeys.tests(encounter.id)}
                           label="Download test form"
                           icon={Download}
                           variant="outline"

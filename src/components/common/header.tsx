@@ -55,9 +55,10 @@ const TabHeader = ({ title, compactTitle, subtitle, right, gutter = false }: Tab
     </View>
   );
 
+  // Only when something the bar shows has changed, not after every render of the page.
   React.useEffect(() => {
     register?.({ title: small, right, content: fixed ? row : undefined });
-  });
+  }, [register, small, right, fixed, fixed ? row : null]);
 
   return (
     <>

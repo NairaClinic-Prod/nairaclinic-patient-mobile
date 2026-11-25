@@ -6,6 +6,7 @@ import {
   useUnreadCount,
   type HomeData,
 } from '@/api/home';
+import { useFocusEffect } from 'expo-router';
 import * as React from 'react';
 import { savedHome } from '../store';
 
@@ -25,6 +26,20 @@ export function useHome(): HomeState {
   const profile = useHomeProfile();
   const referral = useReferralLink();
   const unread = useUnreadCount();
+
+  // Refresh every minute, but only while this screen is the one showing, so "Join now" appears
+  // when a meeting starts and nothing polls in the background.
+  const { refetch: refetchDashboard } = dashboard;
+  const { refetch: refetchUnread } = unread;
+  useFocusEffect(
+    React.useCallback(() => {
+      const timer = setInterval(() => {
+        refetchDashboard();
+        refetchUnread();
+      }, 60_000);
+      return () => clearInterval(timer);
+    }, [refetchDashboard, refetchUnread])
+  );
 
   const slugs = (dashboard.data?.careTeam ?? []).flatMap((member) =>
     member.bookingSlug ? [member.bookingSlug] : []

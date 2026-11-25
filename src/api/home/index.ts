@@ -15,13 +15,8 @@ export const homeKeys = {
 
 const MINUTE = 60_000;
 
-// Refetches every minute while Home is on screen so "Join now" appears when a meeting starts.
 export const useDashboard = () =>
-  useQuery({
-    queryKey: homeKeys.dashboard,
-    queryFn: homeApi.dashboard,
-    refetchInterval: MINUTE,
-  });
+  useQuery({ queryKey: homeKeys.dashboard, queryFn: homeApi.dashboard });
 
 export const useHomeProfile = () =>
   useQuery({ queryKey: homeKeys.profile, queryFn: homeApi.profile, staleTime: 10 * MINUTE });
@@ -33,7 +28,6 @@ export const useUnreadCount = () =>
   useQuery({
     queryKey: homeKeys.unread,
     queryFn: homeApi.notifications,
-    refetchInterval: MINUTE,
     select: (reply) => reply.notifications.filter((row) => row.target === 'single_user').length,
   });
 

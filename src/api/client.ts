@@ -1,5 +1,5 @@
 import { accessToken, tokenRejected } from '@/lib/auth/session';
-import { ApiError, send, type HttpOptions } from './http';
+import { ApiError, send, sendBinary, type HttpOptions } from './http';
 
 export { ApiError, isNetworkError } from './http';
 
@@ -9,18 +9,29 @@ type RequestOptions = Omit<HttpOptions, 'bearer'> & {
   auth?: 'session' | 'none' | { bearer: string };
 };
 
-// Every app call goes through here. Session calls refresh an expired token once and retry.
-export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+async function withAuth<T>(
+  call: (path: string, options: HttpOptions) => Promise<T>,
+  path: string,
+  options: RequestOptions
+): Promise<T> {
   const { auth = 'session', ...rest } = options;
-  if (auth === 'none') return send<T>(path, rest);
-  if (typeof auth === 'object') return send<T>(path, { ...rest, bearer: auth.bearer });
+  if (auth === 'none') return call(path, rest);
+  if (typeof auth === 'object') return call(path, { ...rest, bearer: auth.bearer });
 
   const token = await accessToken();
   try {
-    return await send<T>(path, { ...rest, bearer: token });
+    return await call(path, { ...rest, bearer: token });
   } catch (error) {
     if (!(error instanceof ApiError) || error.status !== 401) throw error;
     const fresh = await tokenRejected(token);
-    return send<T>(path, { ...rest, bearer: fresh });
+    return call(path, { ...rest, bearer: fresh });
   }
 }
+
+// Every app call goes through here. Session calls refresh an expired token once and retry.
+export const request = <T>(path: string, options: RequestOptions = {}) =>
+  withAuth<T>(send, path, options);
+
+// Same, for a file the backend sends back.
+export const requestFile = (path: string, options: RequestOptions = {}) =>
+  withAuth(sendBinary, path, options);

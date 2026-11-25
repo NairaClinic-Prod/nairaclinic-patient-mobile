@@ -1,6 +1,8 @@
 import { FadeIn } from '@/components/shared/fade-in';
 import { BodyLayout } from '@/components/common/body-layout';
-import { ActionButton } from '@/components/shared/action-button';
+import { PdfButton } from '@/features/care-plan/components/pdf-button';
+import { downloadAllRecords, pdfKeys } from '@/features/care-plan/documents';
+import { useCarePlan } from '@/features/care-plan/store';
 import TabHeader from '@/components/common/header';
 import { SCREEN_PADDING_X } from '@/constants/ui';
 import { AddFromClinic } from '@/features/care-plan/components/add-from-clinic';
@@ -15,6 +17,7 @@ import { ReadingSheet } from '../components/reading-sheet';
 import { ReadingsListSheet } from '../components/readings-list-sheet';
 import { VitalsCard } from '../components/vitals-card';
 import { RECORDS_SUBTITLE } from '../constants';
+import { vitalsSections } from '../documents';
 import { useRecordsRefresh } from '../hooks/use-records-refresh';
 import { useVitals } from '../hooks/use-vitals';
 import type { Reading, VitalView } from '../types';
@@ -24,6 +27,7 @@ const gutter = { paddingHorizontal: SCREEN_PADDING_X };
 export function RecordsScreen() {
   const readings = useVitals();
   const { refresh } = useRecordsRefresh();
+  const carePlan = useCarePlan();
   const { dashboard } = useHome();
   const [kind, setKind] = React.useState<VitalView>('bp');
   const [listOpen, setListOpen] = React.useState(false);
@@ -50,12 +54,16 @@ export function RecordsScreen() {
         }}>
         <FadeIn index={0} className="flex-row items-center gap-2" style={gutter}>
           <AddFromClinic className="flex-1" textClassName="text-[13px]" />
-          <ActionButton
+          <PdfButton
+            pdfKey={pdfKeys.records}
             size="md"
             label="Download"
             icon={Download}
             variant="outline"
             accessibilityLabel="Download all records"
+            onPress={() =>
+              downloadAllRecords(vitalsSections(readings), carePlan.encounters, carePlan.referrals)
+            }
           />
         </FadeIn>
 
