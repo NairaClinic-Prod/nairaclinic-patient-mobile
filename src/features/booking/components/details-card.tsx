@@ -150,74 +150,9 @@ export function DetailsCard({
       <View className="gap-1">
         <Text className="text-[15px] font-bold">Your details</Text>
         <Text className="text-xs text-muted-foreground">
-          {identity.locked.name ? `Booking for ${identity.name}` : 'Tell us who this visit is for.'}
+          {identity.name ? `Booking for ${identity.name}` : 'Tell us about this visit.'}
         </Text>
       </View>
-      {identity.loading ? (
-        <Text className="text-xs text-muted-foreground">Loading your details…</Text>
-      ) : null}
-      {!identity.loading && !identity.locked.name ? (
-        <TextField
-          label="Your full name"
-          required
-          tone="muted"
-          autoCapitalize="words"
-          autoComplete="name"
-          placeholder="As on your ID"
-          maxLength={120}
-          value={identity.name}
-          onChangeText={(name) => identity.set({ name })}
-        />
-      ) : null}
-      {!identity.loading && !identity.locked.age ? (
-        <TextField
-          label="Your age"
-          required
-          tone="muted"
-          keyboardType="number-pad"
-          maxLength={3}
-          placeholder="e.g. 32"
-          value={identity.age}
-          onChangeText={(age) => identity.set({ age })}
-        />
-      ) : null}
-      {!identity.loading && !identity.locked.sex ? (
-        <View className="gap-1.5">
-          <Text className="text-xs font-semibold text-muted-foreground">
-            {'Sex'}
-            <Text className="text-xs font-semibold text-destructive">{' *'}</Text>
-          </Text>
-          <View className="flex-row gap-2">
-            {['Female', 'Male'].map((option) => {
-              const selected = identity.sex === option;
-              return (
-                <PressableScale
-                  key={option}
-                  role="button"
-                  accessibilityState={{ selected }}
-                  onPress={() => identity.set({ sex: option })}
-                  className={cn(
-                    'h-11 flex-1 items-center justify-center rounded-full border',
-                    selected ? 'border-primary bg-secondary' : 'border-border bg-muted'
-                  )}>
-                  <Text
-                    className={cn(
-                      'text-[14px] font-semibold',
-                      selected ? 'text-primary' : 'text-muted-foreground'
-                    )}>
-                    {option}
-                  </Text>
-                </PressableScale>
-              );
-            })}
-          </View>
-        </View>
-      ) : null}
-      {!identity.locked.name || !identity.locked.age || !identity.locked.sex ? (
-        <Text className="text-[11px] leading-4 text-muted-foreground">
-          Saved with your first booking. After that it can't be changed.
-        </Text>
-      ) : null}
       <ReasonField value={reason} onChange={onReason} />
       <TextField
         label="Symptoms (optional)"

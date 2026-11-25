@@ -78,9 +78,9 @@ function bookingForm(booking: BookingRequest, fields: Record<string, string>) {
 
 const sourceDetail = (booking: BookingRequest, extra: Record<string, unknown>) =>
   JSON.stringify({
-    patientName: booking.identity.name.trim(),
-    patientAge: booking.identity.age,
-    patientSex: booking.identity.sex,
+    patientName: booking.identity.name.trim() || undefined,
+    patientAge: booking.identity.age || undefined,
+    patientSex: booking.identity.sex || undefined,
     symptoms: booking.symptoms.trim() || undefined,
     ...extra,
   });

@@ -62,10 +62,9 @@ export type PayRequest = {
 // The one function every payment goes through. It calls the endpoint, and if the server paid straight
 // away (wallet or saved card) it is done; if it sent a Paystack page, that page is opened and checked.
 export async function pay(input: PayRequest): Promise<PayOutcome> {
-  const query = new URLSearchParams(input.callbackQuery ?? {}).toString();
   const reply = await request<PaymentReply>(input.endpoint, {
     body: {
-      callbackUrl: `${PATIENT_APP_URL}/patients/paystack/callback${query ? `?${query}` : ''}`,
+      callbackUrl: `${PATIENT_APP_URL}/patients/paystack/callback?${new URLSearchParams({ source: 'app', ...(input.callbackQuery ?? {}) }).toString()}`,
       ...input.body,
     },
   });

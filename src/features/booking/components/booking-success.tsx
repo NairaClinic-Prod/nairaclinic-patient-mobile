@@ -1,7 +1,7 @@
 import { ActionButton } from '@/components/shared/action-button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import { router } from 'expo-router';
+import { goToMain, restartAt } from '@/lib/navigation';
 import { Check } from 'lucide-react-native';
 import { View } from 'react-native';
 
@@ -30,12 +30,12 @@ export function BookingSuccess({ title, text, rows }: BookingSuccessProps) {
         ))}
       </View>
       <View className="w-full gap-2.5">
-        <ActionButton size="md" label="Back to home" onPress={() => router.navigate('/home')} />
+        <ActionButton size="md" label="Back to home" onPress={() => goToMain('/home')} />
         <ActionButton
           size="md"
           variant="outline"
           label="Book another visit"
-          onPress={() => router.replace('/book')}
+          onPress={() => restartAt('/book')}
         />
       </View>
     </View>

@@ -32,18 +32,14 @@ export function SmartRequestScreen() {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [created, setCreated] = React.useState<{ key: string; id: string } | null>(null);
-  const [sent, setSent] = React.useState(false);
+  const [sent, setSent] = React.useState<[string, string][] | null>(null);
 
   const days = React.useMemo(() => requestDays(SMART_DURATION_MINS, earliest), [earliest]);
   const day = days.find((item) => item.key === dayKey);
   const slot = day?.slots.find((item) => item.id === slotId);
   // The price is set by NairaClinic when the request is sent, so no total is shown up front.
   const payment = usePayment(null, picked);
-  const missing = [
-    ...(!slot ? ['A time'] : []),
-    ...(slot && !reason ? ['Reason for visit'] : []),
-    ...(slot ? identity.missing : []),
-  ];
+  const missing = [...(!slot ? ['A time'] : []), ...(slot && !reason ? ['Reason for visit'] : [])];
 
   async function send() {
     if (!slot) return;
@@ -67,7 +63,12 @@ export function SmartRequestScreen() {
       }
       const result = await payForBooking(id, { paymentMethodId: payment.paymentMethodId });
       if (result.status === 'booked') {
-        setSent(true);
+        setSent([
+          ['Doctor', 'Next available'],
+          ['Type', kind === 'video' ? 'Video call' : 'Audio call'],
+          ['Date', longDay(new Date(slot.startsAt))],
+          ['Time', `${clock(slot.startsAt)} – ${clock(slot.endsAt)}`],
+        ]);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } else {
         setError(result.message);
@@ -81,18 +82,13 @@ export function SmartRequestScreen() {
     }
   }
 
-  if (sent && slot) {
+  if (sent) {
     return (
       <SubScreen title="Request sent">
         <BookingSuccess
           title="Request sent"
           text="Approved doctors who match your request can now accept it. We'll tell you the moment one does."
-          rows={[
-            ['Doctor', 'Next available'],
-            ['Type', kind === 'video' ? 'Video call' : 'Audio call'],
-            ['Date', longDay(new Date(slot.startsAt))],
-            ['Time', `${clock(slot.startsAt)} – ${clock(slot.endsAt)}`],
-          ]}
+          rows={sent}
         />
       </SubScreen>
     );

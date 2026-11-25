@@ -58,7 +58,9 @@ export function DoctorBookingScreen() {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [created, setCreated] = React.useState<{ key: string; id: string } | null>(null);
-  const [booked, setBooked] = React.useState(false);
+  // Kept as plain text when the booking succeeds, so the confirmation stays on screen no matter what the
+  // live times do afterwards (the booked time disappears from the list).
+  const [booked, setBooked] = React.useState<[string, string][] | null>(null);
 
   const planMode = mode === 'plan' && Boolean(included);
   const kinds: ConsultKind[] = doctor
@@ -87,11 +89,7 @@ export function DoctorBookingScreen() {
   const covered = planMode;
   const total = rate && doctor ? totalOf(rate.amountNgn, doctor.serviceFeeNgn, covered) : 0;
   const payment = usePayment(covered ? 0 : total, picked);
-  const missing = [
-    ...(!slot ? ['A time'] : []),
-    ...(slot && !reason ? ['Reason for visit'] : []),
-    ...(slot ? identity.missing : []),
-  ];
+  const missing = [...(!slot ? ['A time'] : []), ...(slot && !reason ? ['Reason for visit'] : [])];
 
   async function book() {
     if (!doctor || !slot || !rate || !activeKind) return;
@@ -121,7 +119,13 @@ export function DoctorBookingScreen() {
         subscriptionId: covered && plan ? plan.id : undefined,
       });
       if (result.status === 'booked') {
-        setBooked(true);
+        setBooked([
+          ['Doctor', drName(doctor.name)],
+          ['Type', activeKind === 'in_person' ? 'In person' : 'Video call'],
+          ['Date', longDay(new Date(slot.startsAt))],
+          ['Time', `${clock(slot.startsAt)} – ${clock(slot.endsAt)}`],
+          ['Paid', covered ? 'Included in your plan' : naira(total)],
+        ]);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } else {
         setError(result.message);
@@ -187,19 +191,13 @@ export function DoctorBookingScreen() {
     );
   }
 
-  if (booked && slot && rate) {
+  if (booked) {
     return (
       <SubScreen title="Booked">
         <BookingSuccess
           title="You're booked"
           text={`Your visit with ${drName(doctor.name)} is confirmed. We'll remind you before it starts.`}
-          rows={[
-            ['Doctor', drName(doctor.name)],
-            ['Type', activeKind === 'in_person' ? 'In person' : 'Video call'],
-            ['Date', longDay(new Date(slot.startsAt))],
-            ['Time', `${clock(slot.startsAt)} – ${clock(slot.endsAt)}`],
-            ['Paid', covered ? 'Included in your plan' : naira(total)],
-          ]}
+          rows={booked}
         />
       </SubScreen>
     );

@@ -1,3 +1,4 @@
+import { openPath } from '@/lib/navigation';
 import { ActionButton } from '@/components/shared/action-button';
 import { EmptyState } from '@/components/shared/empty-state';
 import { PressableScale } from '@/components/shared/pressable-scale';
@@ -50,7 +51,7 @@ export function NotificationsView() {
               role="button"
               onPress={() => {
                 if (!row.isRead) markNotificationRead(row.id);
-                if (row.path) router.navigate(row.path as Href);
+                if (row.path) openPath(row.path);
               }}
               className={cn(
                 'flex-row gap-3 px-4 py-3.5',
