@@ -59,16 +59,9 @@ export type PayRequest = {
   unconfirmed?: string;
 };
 
-// The one function every payment goes through. It calls the endpoint, and if the server paid straight
-// away (wallet or saved card) it is done; if it sent a Paystack page, that page is opened and checked.
-export async function pay(input: PayRequest): Promise<PayOutcome> {
-  const reply = await request<PaymentReply>(input.endpoint, {
-    body: {
-      callbackUrl: `${PATIENT_APP_URL}/patients/paystack/callback?${new URLSearchParams({ source: 'app', ...(input.callbackQuery ?? {}) }).toString()}`,
-      ...input.body,
-    },
-  });
-
+// Turns what a payment endpoint answered into a result: paid at once (wallet or saved card), or a
+// Paystack page to open and check.
+export async function settlePayment(reply: PaymentReply, unconfirmed?: string): Promise<PayOutcome> {
   let paid: boolean;
   if (reply.paid || reply.status === 'paid') paid = true;
   else if (reply.authorizationUrl && reply.reference) {
@@ -83,9 +76,22 @@ export async function pay(input: PayRequest): Promise<PayOutcome> {
     : {
         paid: false,
         message:
-          input.unconfirmed ??
+          unconfirmed ??
           "We couldn't confirm your payment. If you were charged, it will show up shortly. Otherwise try again.",
       };
+}
+
+// Where Paystack sends the patient back to once the app opened its page.
+export const paymentCallback = (query: Record<string, string> = {}) =>
+  `${PATIENT_APP_URL}/patients/paystack/callback?${new URLSearchParams({ source: 'app', ...query }).toString()}`;
+
+// The one function every payment goes through. It calls the endpoint, and if the server paid straight
+// away (wallet or saved card) it is done; if it sent a Paystack page, that page is opened and checked.
+export async function pay(input: PayRequest): Promise<PayOutcome> {
+  const reply = await request<PaymentReply>(input.endpoint, {
+    body: { callbackUrl: paymentCallback(input.callbackQuery), ...input.body },
+  });
+  return settlePayment(reply, input.unconfirmed);
 }
 
 // Adds a card: a small charge on Paystack's page that is refunded, after which the card is kept.

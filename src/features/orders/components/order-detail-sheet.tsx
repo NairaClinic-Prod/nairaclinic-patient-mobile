@@ -5,9 +5,9 @@ import { StatusPill } from '@/components/shared/status-pill';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
-import { Check, Download, MapPin, Package, Phone, Truck } from 'lucide-react-native';
+import { Check, ExternalLink, MapPin, Package, Phone, Truck } from 'lucide-react-native';
 import * as React from 'react';
-import { View } from 'react-native';
+import { Linking, View } from 'react-native';
 import type { OrderStatus, PharmacyOrder } from '../types';
 import { formatNaira, formatWhen, orderStatusLabel, orderTone } from '../utils';
 
@@ -67,10 +67,10 @@ function Steps({ order }: { order: PharmacyOrder }) {
               <View
                 className={cn(
                   'size-7 items-center justify-center rounded-full border',
-                  done || active ? 'border-primary/30 bg-secondary' : 'border-transparent bg-muted'
+                  done || active ? 'border-primary/30 bg-secondary' : 'bg-muted border-transparent'
                 )}>
                 {done ? (
-                  <Icon as={Check} strokeWidth={3} className="size-3.5 text-primary" />
+                  <Icon as={Check} strokeWidth={3} className="text-primary size-3.5" />
                 ) : (
                   <Text
                     className={cn(
@@ -89,12 +89,12 @@ function Steps({ order }: { order: PharmacyOrder }) {
               <Text
                 className={cn(
                   'text-[14px] leading-7 font-semibold',
-                  !done && !active && 'font-medium text-muted-foreground'
+                  !done && !active && 'text-muted-foreground font-medium'
                 )}>
                 {label}
               </Text>
               {entry && (done || active) ? (
-                <Text className="-mt-1 text-xs text-muted-foreground">{formatWhen(entry.at)}</Text>
+                <Text className="text-muted-foreground -mt-1 text-xs">{formatWhen(entry.at)}</Text>
               ) : null}
             </View>
           </View>
@@ -109,7 +109,7 @@ type RowProps = { label: string; value: string; big?: boolean };
 function Row({ label, value, big }: RowProps) {
   return (
     <View className="flex-row items-baseline justify-between gap-3">
-      <Text className={cn(big ? 'text-base font-bold' : 'text-[13px] text-muted-foreground')}>
+      <Text className={cn(big ? 'text-base font-bold' : 'text-muted-foreground text-[13px]')}>
         {label}
       </Text>
       <Text className={cn(big ? 'text-xl font-extrabold' : 'text-[13px] font-semibold')}>
@@ -125,6 +125,7 @@ type OrderDetailSheetProps = {
   onClose: () => void;
   onCancel: (id: string) => void;
   onPay?: (id: string) => void;
+  busy?: boolean;
 };
 
 export function OrderDetailSheet({
@@ -133,6 +134,7 @@ export function OrderDetailSheet({
   onClose,
   onCancel,
   onPay,
+  busy,
 }: OrderDetailSheetProps) {
   const [confirming, setConfirming] = React.useState(startCancelling);
 
@@ -171,6 +173,7 @@ export function OrderDetailSheet({
               variant="danger"
               label="Cancel order"
               className="flex-1"
+              disabled={busy}
               onPress={() => {
                 onCancel(order.id);
                 onClose();
@@ -180,7 +183,7 @@ export function OrderDetailSheet({
         </View>
       ) : (
         <>
-          <Text className="text-xs leading-4.5 text-muted-foreground">
+          <Text className="text-muted-foreground text-xs leading-4.5">
             {order.status === 'quoted'
               ? 'Prices are held for 48 hours.'
               : order.status === 'new'
@@ -200,11 +203,10 @@ export function OrderDetailSheet({
             {canPay ? (
               <ActionButton
                 size="md"
-                label={`Pay ${formatNaira(order.totalKobo ?? 0)}`}
+                label={busy ? 'Paying…' : `Pay ${formatNaira(order.totalKobo ?? 0)}`}
+                disabled={busy}
                 onPress={() => onPay?.(order.id)}
               />
-            ) : order.paid ? (
-              <ActionButton size="md" variant="outline" icon={Download} label="Order summary" />
             ) : null}
           </ButtonRow>
         </>
@@ -226,21 +228,21 @@ export function OrderDetailSheet({
         <>
           <View className="flex-row flex-wrap items-center gap-2">
             <StatusPill tone={orderTone(order.status)}>{orderStatusLabel(order)}</StatusPill>
-            <View className="rounded-full border border-border px-2.5 py-1">
-              <Text className="text-[11px] font-bold text-muted-foreground">{order.reference}</Text>
+            <View className="border-border rounded-full border px-2.5 py-1">
+              <Text className="text-muted-foreground text-[11px] font-bold">{order.reference}</Text>
             </View>
           </View>
-          <Text className="text-[13px] leading-5 text-muted-foreground">{where}</Text>
+          <Text className="text-muted-foreground text-[13px] leading-5">{where}</Text>
 
           {order.collectionCode ? (
-            <View className="items-center gap-1.5 rounded-2xl border border-dashed border-primary/30 bg-secondary/50 px-4 py-5">
-              <Text className="text-[13px] text-muted-foreground">
+            <View className="border-primary/30 bg-secondary/50 items-center gap-1.5 rounded-2xl border border-dashed px-4 py-5">
+              <Text className="text-muted-foreground text-[13px]">
                 {delivery ? 'Your delivery confirmation code' : 'Your pickup confirmation code'}
               </Text>
-              <Text className="text-[40px] leading-[48px] font-extrabold tracking-[10px] text-primary">
+              <Text className="text-primary text-[40px] leading-[48px] font-extrabold tracking-[10px]">
                 {order.collectionCode}
               </Text>
-              <Text className="text-center text-xs leading-4.5 text-muted-foreground">
+              <Text className="text-muted-foreground text-center text-xs leading-4.5">
                 {delivery
                   ? 'Give this to the rider only when your order arrives.'
                   : 'Share this code only when you have received your medicines.'}
@@ -249,16 +251,33 @@ export function OrderDetailSheet({
           ) : null}
 
           {order.deliveryStatus ? (
-            <View className="flex-row items-center gap-3 rounded-2xl border border-border p-3.5">
-              <Icon as={Truck} className="size-5 text-primary" />
+            <View className="border-border flex-row items-center gap-3 rounded-2xl border p-3.5">
+              <Icon as={Truck} className="text-primary size-5" />
               <View className="flex-1 gap-0.5">
                 <Text className="text-[13px] font-bold">Delivery</Text>
-                <Text className="text-xs text-muted-foreground">{order.deliveryStatus}</Text>
+                <Text className="text-muted-foreground text-xs">{order.deliveryStatus}</Text>
+                {order.etaText ? (
+                  <Text className="text-primary text-xs font-semibold">{order.etaText}</Text>
+                ) : null}
+                {order.rider?.name ? (
+                  <Text className="text-muted-foreground text-xs">
+                    {`Rider: ${[order.rider.name, order.rider.phone].filter(Boolean).join(' · ')}`}
+                  </Text>
+                ) : null}
               </View>
+              {order.trackingUrl ? (
+                <ActionButton
+                  size="md"
+                  variant="outline"
+                  icon={ExternalLink}
+                  label="Track"
+                  onPress={() => Linking.openURL(order.trackingUrl as string)}
+                />
+              ) : null}
             </View>
           ) : null}
 
-          <View className="gap-2.5 rounded-2xl border border-border bg-secondary/30 p-4">
+          <View className="border-border bg-secondary/30 gap-2.5 rounded-2xl border p-4">
             {order.items.map((item) => (
               <Row
                 key={item.id}
@@ -274,41 +293,37 @@ export function OrderDetailSheet({
                 {order.serviceFeeKobo > 0 ? (
                   <Row label="Service fee" value={formatNaira(order.serviceFeeKobo)} />
                 ) : null}
-                <View className="my-1 h-px bg-border" />
+                <View className="bg-border my-1 h-px" />
                 <Row
                   big
                   label={order.paid ? 'Paid total' : 'Total'}
                   value={formatNaira(order.totalKobo)}
                 />
-                {order.paid ? (
-                  <>
-                    <Row label="Referral coins" value="0 coins" />
-                    <Row label="Balance payment" value={formatNaira(order.totalKobo)} />
-                  </>
-                ) : null}
               </>
             ) : null}
           </View>
 
           <View className="gap-1.5">
-            <Text className="text-[13px] text-muted-foreground">
-              {`${order.contactName} · ${order.contactPhone}`}
-            </Text>
+            {order.contactName || order.contactPhone ? (
+              <Text className="text-muted-foreground text-[13px]">
+                {[order.contactName, order.contactPhone].filter(Boolean).join(' · ')}
+              </Text>
+            ) : null}
             <View className="flex-row items-start gap-2">
               <Icon
                 as={delivery ? Package : MapPin}
-                className="mt-0.5 size-4 text-muted-foreground"
+                className="text-muted-foreground mt-0.5 size-4"
               />
-              <Text className="flex-1 text-[13px] leading-5 text-muted-foreground">
+              <Text className="text-muted-foreground flex-1 text-[13px] leading-5">
                 {delivery
-                  ? `Delivery to ${order.deliveryArea ?? 'your address'}`
+                  ? `Delivery to ${order.deliveryAddress ?? order.deliveryArea ?? 'your address'}`
                   : `Pickup at ${[order.pharmacyAddress, order.pharmacyState].filter(Boolean).join(', ')}`}
               </Text>
             </View>
             {order.pharmacyPhone && order.paid ? (
               <View className="flex-row items-center gap-2">
-                <Icon as={Phone} className="size-4 text-primary" />
-                <Text className="text-[13px] font-semibold text-primary">
+                <Icon as={Phone} className="text-primary size-4" />
+                <Text className="text-primary text-[13px] font-semibold">
                   {order.pharmacyPhone}
                 </Text>
               </View>
@@ -316,13 +331,13 @@ export function OrderDetailSheet({
           </View>
 
           {closedOut ? (
-            <View className="gap-1 rounded-2xl bg-muted p-4">
+            <View className="bg-muted gap-1 rounded-2xl p-4">
               <Text className="text-[13px] font-bold">
                 {order.status === 'declined'
                   ? 'The pharmacy declined this order'
                   : 'You cancelled this request'}
               </Text>
-              <Text className="text-xs leading-4.5 text-muted-foreground">
+              <Text className="text-muted-foreground text-xs leading-4.5">
                 {order.status === 'declined'
                   ? (order.declineReason ?? 'No reason given.')
                   : 'No payment was taken.'}

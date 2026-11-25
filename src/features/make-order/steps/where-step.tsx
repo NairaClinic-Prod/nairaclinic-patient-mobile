@@ -52,7 +52,7 @@ function Choice({
       </View>
       <View className="gap-0.5">
         <Text className="text-[15px] font-bold">{option.title}</Text>
-        <Text className="text-xs leading-4 text-muted-foreground">{option.hint}</Text>
+        <Text className="text-muted-foreground text-xs leading-4">{option.hint}</Text>
       </View>
     </PressableScale>
   );
@@ -105,7 +105,7 @@ export function WhereStep({
 
       {withStreet ? <LocationMap value={location} onChange={onLocation} /> : null}
 
-      {problem ? <Text className="text-[13px] text-destructive">{problem}</Text> : null}
+      {problem ? <Text className="text-destructive text-[13px]">{problem}</Text> : null}
     </View>
   );
 }

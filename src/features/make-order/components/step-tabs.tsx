@@ -16,9 +16,9 @@ export function StepTabs({ labels, step }: { labels: string[]; step: number }) {
           />
         ))}
       </View>
-      <Text className="text-xs text-muted-foreground">
+      <Text className="text-muted-foreground text-xs">
         {`Step ${step} of ${labels.length} · `}
-        <Text className="text-xs font-semibold text-foreground">{labels[step - 1]}</Text>
+        <Text className="text-foreground text-xs font-semibold">{labels[step - 1]}</Text>
       </Text>
     </View>
   );

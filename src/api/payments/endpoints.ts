@@ -14,6 +14,9 @@ export const PAYMENT_ENDPOINTS = {
   pharmacyRequest: (requestId: string) => `/patient/me/pharmacy-requests/${id(requestId)}/pay`,
   pharmacyRequestWithWallet: (requestId: string) =>
     `/patient/me/pharmacy-requests/${id(requestId)}/pay-with-wallet`,
+  pharmacyOrder: (requestId: string) =>
+    `/patient/me/pharmacy-shopping-requests/${id(requestId)}/order`,
+  labBooking: (bookingId: string) => `/labs/bookings/${id(bookingId)}/pay`,
   doctorPlan: (planId: string) => `/doctor-plans/${id(planId)}/checkout`,
   doctorPlanWithWallet: (planId: string) => `/doctor-plans/${id(planId)}/checkout-with-wallet`,
   verify: '/billing/paystack/verify',

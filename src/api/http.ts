@@ -5,13 +5,16 @@ export class ApiError extends Error {
   code?: string;
   // The `data` the server sent with the error, such as the id of a seat approval request.
   data?: unknown;
+  // The whole reply the server sent, for the odd error that carries extra facts.
+  body?: unknown;
 
-  constructor(message: string, status: number, code?: string, data?: unknown) {
+  constructor(message: string, status: number, code?: string, data?: unknown, body?: unknown) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
     this.data = data;
+    this.body = body;
   }
 }
 
@@ -81,7 +84,7 @@ async function rawFetch(
 async function failure(response: Response) {
   const json = await response.json().catch(() => null);
   const code = json?.code ?? json?.message?.code;
-  return new ApiError(messageFrom(json, response.status), response.status, code, json?.data);
+  return new ApiError(messageFrom(json, response.status), response.status, code, json?.data, json);
 }
 
 // Resolves to the reply's `data` (or the body).
@@ -90,7 +93,7 @@ export async function send<T>(path: string, options: HttpOptions = {}): Promise<
   const json = await response.json().catch(() => null);
   if (!response.ok || json?.success === false) {
     const code = json?.code ?? json?.message?.code;
-    throw new ApiError(messageFrom(json, response.status), response.status, code, json?.data);
+    throw new ApiError(messageFrom(json, response.status), response.status, code, json?.data, json);
   }
   return (json?.data ?? json) as T;
 }

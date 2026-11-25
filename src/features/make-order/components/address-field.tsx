@@ -106,21 +106,21 @@ export function AddressField({ label, value, onChange }: AddressFieldProps) {
       />
 
       {typedEnough ? (
-        <View className="overflow-hidden rounded-2xl bg-muted">
+        <View className="bg-muted overflow-hidden rounded-2xl">
           {hits.map((hit, index) => (
             <PressableScale
               key={hit.id}
               scaleTo={0.99}
               role="button"
               onPress={() => choose(hit)}
-              className={`flex-row items-center gap-3 px-3.5 py-3 ${index ? 'border-t border-border/70' : ''}`}>
-              <Icon as={MapPin} className="size-4 text-primary" />
+              className={`flex-row items-center gap-3 px-3.5 py-3 ${index ? 'border-border/70 border-t' : ''}`}>
+              <Icon as={MapPin} className="text-primary size-4" />
               <View className="min-w-0 flex-1">
                 <Text className="text-[13px] font-semibold" numberOfLines={1}>
                   {hit.main}
                 </Text>
                 {hit.secondary ? (
-                  <Text className="text-xs text-muted-foreground" numberOfLines={1}>
+                  <Text className="text-muted-foreground text-xs" numberOfLines={1}>
                     {hit.secondary}
                   </Text>
                 ) : null}
@@ -128,7 +128,7 @@ export function AddressField({ label, value, onChange }: AddressFieldProps) {
             </PressableScale>
           ))}
           {searching ? (
-            <Text className="px-3.5 py-3 text-xs text-muted-foreground">Searching…</Text>
+            <Text className="text-muted-foreground px-3.5 py-3 text-xs">Searching…</Text>
           ) : (
             <PressableScale
               scaleTo={0.99}
@@ -137,8 +137,8 @@ export function AddressField({ label, value, onChange }: AddressFieldProps) {
                 setHits([]);
                 onChange({ ...value, typed: true });
               }}
-              className={`flex-row items-center gap-3 px-3.5 py-3 ${hits.length ? 'border-t border-border/70' : ''}`}>
-              <Icon as={PencilLine} className="size-4 text-muted-foreground" />
+              className={`flex-row items-center gap-3 px-3.5 py-3 ${hits.length ? 'border-border/70 border-t' : ''}`}>
+              <Icon as={PencilLine} className="text-muted-foreground size-4" />
               <Text className="flex-1 text-[13px]" numberOfLines={1}>
                 {`Use “${query}” as typed`}
               </Text>
@@ -147,7 +147,7 @@ export function AddressField({ label, value, onChange }: AddressFieldProps) {
         </View>
       ) : null}
 
-      {problem ? <Text className="text-xs leading-4.5 text-destructive">{problem}</Text> : null}
+      {problem ? <Text className="text-destructive text-xs leading-4.5">{problem}</Text> : null}
 
       <ActionButton
         size="md"

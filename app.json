@@ -7,15 +7,22 @@
     "icon": "./assets/images/logo.png",
     "scheme": "nairaclinic-patient-mobile",
     "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "NairaClinic uses your camera so your doctor can see you during a video consultation.",
         "NSMicrophoneUsageDescription": "NairaClinic uses your microphone so your doctor can hear you during a consultation.",
         "NSBluetoothAlwaysUsageDescription": "NairaClinic uses Bluetooth so you can use headphones during a consultation.",
-        "UIBackgroundModes": ["audio", "voip"]
-      }
+        "UIBackgroundModes": [
+          "audio",
+          "voip"
+        ]
+      },
+      "bundleIdentifier": "com.jay-tech.nairaclinic-patient-mobile",
+      "appleTeamId": "94324ZRMM3"
     },
     "android": {
       "adaptiveIcon": {
@@ -33,7 +40,8 @@
         "android.permission.FOREGROUND_SERVICE_CAMERA",
         "android.permission.FOREGROUND_SERVICE_MICROPHONE",
         "android.permission.WAKE_LOCK"
-      ]
+      ],
+      "package": "com.jaytech.nairaclinicpatientmobile"
     },
     "web": {
       "bundler": "metro",

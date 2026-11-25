@@ -39,8 +39,8 @@ export function OfferCard({ offer, items, lowest, picked, disabled, onToggle }: 
           <View className="flex-row flex-wrap items-center gap-x-2 gap-y-1">
             <Text className="text-[15px] font-bold">{offer.name}</Text>
             {offer.branch ? (
-              <View className="rounded-full border border-border px-2 py-0.5">
-                <Text className="text-[11px] font-medium text-muted-foreground">
+              <View className="border-border rounded-full border px-2 py-0.5">
+                <Text className="text-muted-foreground text-[11px] font-medium">
                   {`${offer.branch} branch`}
                 </Text>
               </View>
@@ -59,8 +59,8 @@ export function OfferCard({ offer, items, lowest, picked, disabled, onToggle }: 
           </View>
           {offer.distanceMeters !== null ? (
             <View className="flex-row items-center gap-1">
-              <Icon as={MapPin} className="size-3 text-muted-foreground" />
-              <Text className="text-xs text-muted-foreground">
+              <Icon as={MapPin} className="text-muted-foreground size-3" />
+              <Text className="text-muted-foreground text-xs">
                 {`${distanceLabel(offer.distanceMeters)} away${
                   offer.etaMinutes ? ` · about ${offer.etaMinutes} min` : ''
                 }`}
@@ -75,9 +75,9 @@ export function OfferCard({ offer, items, lowest, picked, disabled, onToggle }: 
             waiting && 'border-transparent'
           )}>
           {picked ? (
-            <Icon as={Check} strokeWidth={3} className="size-3.5 text-primary-foreground" />
+            <Icon as={Check} strokeWidth={3} className="text-primary-foreground size-3.5" />
           ) : waiting ? (
-            <Icon as={Clock} className="size-4 text-warning" />
+            <Icon as={Clock} className="text-warning size-4" />
           ) : null}
         </View>
       </View>
@@ -99,7 +99,7 @@ export function OfferCard({ offer, items, lowest, picked, disabled, onToggle }: 
                   {item.name}
                 </Text>
               </View>
-              <Text className="text-[13px] text-muted-foreground">
+              <Text className="text-muted-foreground text-[13px]">
                 {has && line?.unitPriceKobo
                   ? `${item.quantity} × ${formatNaira(line.unitPriceKobo)}`
                   : waiting
@@ -112,13 +112,13 @@ export function OfferCard({ offer, items, lowest, picked, disabled, onToggle }: 
       </View>
 
       {offer.estimatedTotalKobo > 0 ? (
-        <View className="gap-0.5 border-t border-border pt-2">
+        <View className="border-border gap-0.5 border-t pt-2">
           <View className="flex-row justify-between">
-            <Text className="text-[13px] text-muted-foreground">Total for what it has</Text>
+            <Text className="text-muted-foreground text-[13px]">Total for what it has</Text>
             <Text className="text-[13px] font-bold">{formatNaira(offer.estimatedTotalKobo)}</Text>
           </View>
           {offer.deliveryFeeKobo > 0 ? (
-            <Text className="text-xs text-muted-foreground">
+            <Text className="text-muted-foreground text-xs">
               {`Includes ${formatNaira(offer.deliveryFeeKobo)} delivery`}
             </Text>
           ) : null}

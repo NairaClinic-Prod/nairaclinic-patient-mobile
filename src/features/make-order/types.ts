@@ -24,6 +24,8 @@ export type OrderItem = { name: string; detail?: string };
 
 export type OrderSource = {
   id: string;
+  // The prescription to order from. Outside prescriptions have none; their own id is the source.
+  prescriptionId: string | null;
   title: string;
   meta: string;
   external: boolean;
@@ -66,19 +68,4 @@ export type PharmacyCombination = {
   totalKobo: number;
 };
 
-export type LabMatch = { requested: string; priceKobo: number | null };
-
-export type LabResult = {
-  id: string;
-  labName: string;
-  branchName: string;
-  address: string;
-  distanceKm: number;
-  labVisits: boolean;
-  homeCollection: boolean;
-  homeFeeKobo: number;
-  turnaroundHours: number;
-  matched: LabMatch[];
-  matchedCount: number;
-  subtotalKobo: number;
-};
+export type { LabOption as LabResult } from '@/api/labs';

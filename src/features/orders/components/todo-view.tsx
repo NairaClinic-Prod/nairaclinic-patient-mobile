@@ -51,7 +51,7 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
       <View className="flex-row items-start justify-between gap-4">
         <View className="min-w-0 flex-1 gap-0.5">
           <Text className="text-lg font-extrabold">What needs your attention</Text>
-          <Text className="text-xs leading-4.5 text-muted-foreground" numberOfLines={1}>
+          <Text className="text-muted-foreground text-xs leading-4.5" numberOfLines={1}>
             Tick off items as you finish them.
           </Text>
         </View>
@@ -59,10 +59,10 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
       </View>
 
       <View className="flex-row items-center justify-between gap-3">
-        <Text className="text-xs text-muted-foreground">
-          <Text className="text-xs font-bold text-foreground">{now.count}</Text>
+        <Text className="text-muted-foreground text-xs">
+          <Text className="text-foreground text-xs font-bold">{now.count}</Text>
           {' to do · '}
-          <Text className="text-xs font-bold text-foreground">{done.count}</Text>
+          <Text className="text-foreground text-xs font-bold">{done.count}</Text>
           {' completed'}
         </Text>
         <InlineSelect<TodoFilter>
@@ -88,11 +88,11 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
               <View className="bg-card/60 px-4 py-3">
                 <Text className="text-[15px] font-bold">
                   {'My to-dos '}
-                  <Text className="text-[15px] font-normal text-muted-foreground">
+                  <Text className="text-muted-foreground text-[15px] font-normal">
                     {shown.personal.length}
                   </Text>
                 </Text>
-                <Text className="text-xs text-muted-foreground">Things you added for yourself</Text>
+                <Text className="text-muted-foreground text-xs">Things you added for yourself</Text>
               </View>
               <View className="bg-card px-4">
                 {shown.personal.map((todo, index) => (
@@ -101,7 +101,7 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
                     layout={LIST_LAYOUT}
                     entering={ITEM_ENTER}
                     exiting={ITEM_EXIT}
-                    className={index ? 'border-t border-border/70' : ''}>
+                    className={index ? 'border-border/70 border-t' : ''}>
                     <RecordRow
                       trailingCenter
                       trailing={
@@ -127,7 +127,7 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
                 <Text className="text-[15px] font-bold">
                   {`${encounter.title} · ${formatDate(encounter.dateIso)}`}
                 </Text>
-                <Text className="text-xs text-muted-foreground">
+                <Text className="text-muted-foreground text-xs">
                   {encounter.external
                     ? encounter.clinic || 'External prescriber'
                     : encounter.doctor}
@@ -198,9 +198,9 @@ export function TodoView({ onAddExternal }: TodoViewProps) {
       ) : (
         <Animated.View
           entering={ITEM_ENTER}
-          className="items-center gap-2 rounded-2xl border border-dashed border-border py-12">
-          <Icon as={CheckCircle2} className="size-6 text-primary" />
-          <Text className="text-sm text-muted-foreground">{empty}</Text>
+          className="border-border items-center gap-2 rounded-2xl border border-dashed py-12">
+          <Icon as={CheckCircle2} className="text-primary size-6" />
+          <Text className="text-muted-foreground text-sm">{empty}</Text>
         </Animated.View>
       )}
 
