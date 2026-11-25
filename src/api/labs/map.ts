@@ -1,8 +1,24 @@
 import type {
+  BranchDetail,
+  LabBranchSummary,
   LabBooking,
+  LabCatalogueTest,
   LabOption,
+  LabPackageDetail,
+  LabPackageListItem,
+  LabPackageSummary,
+  LabPackageTest,
+  PackageLabOption,
   PriceRequest,
   RawBooking,
+  RawBranchDetail,
+  RawBranchSummary,
+  RawCatalogueTest,
+  RawLabPackageDetail,
+  RawLabPackageListItem,
+  RawPackageLab,
+  RawPackageTest,
+  RawPackageView,
   RawRequest,
   RawSearchResult,
 } from './type';
@@ -65,6 +81,102 @@ export function toBooking(raw: RawBooking): LabBooking {
       releasedAt: result.releasedAt,
       url: result.url,
     })),
+  };
+}
+
+function toBranchSummary(raw: RawBranchSummary): LabBranchSummary {
+  return {
+    id: raw.id,
+    labName: raw.labName,
+    name: raw.name,
+    area: raw.area,
+    address: raw.address,
+    phone: raw.phone,
+    labVisits: raw.labVisits,
+    homeCollection: raw.homeCollection,
+    homeFeeKobo: raw.homeFeeKobo,
+    homeAreas: raw.homeAreas ?? [],
+    hours: raw.hours ?? [],
+  };
+}
+
+function toPackageTest(raw: RawPackageTest): LabPackageTest {
+  return {
+    id: raw.id,
+    name: raw.name,
+    sample: raw.sample,
+    description: raw.description ?? '',
+    priceKobo: raw.priceKobo,
+    shareKobo: raw.shareKobo,
+    requiresPresence: raw.requiresPresence,
+    kind: raw.kind,
+    turnaroundHours: raw.turnaroundHours ?? null,
+  };
+}
+
+export function toPackageSummary(raw: RawPackageView): LabPackageSummary {
+  return {
+    id: raw.id,
+    branchId: raw.branchId,
+    name: raw.name,
+    description: raw.description ?? '',
+    imageUrl: raw.imageUrl,
+    priceKobo: raw.priceKobo,
+    individualTotalKobo: raw.individualTotalKobo,
+    savingsKobo: raw.savingsKobo,
+    kind: raw.kind,
+    bookable: raw.bookable,
+    tests: raw.tests.map(toPackageTest),
+  };
+}
+
+export function toLabPackageListItem(raw: RawLabPackageListItem): LabPackageListItem {
+  return {
+    ...toPackageSummary(raw),
+    lab: raw.lab,
+    distanceKm: raw.distanceKm,
+    inArea: raw.inArea,
+  };
+}
+
+export function toLabPackageDetail(raw: RawLabPackageDetail): LabPackageDetail {
+  return { package: toPackageSummary(raw.package), branch: toBranchSummary(raw.branch) };
+}
+
+export function toBranchDetail(raw: RawBranchDetail): BranchDetail {
+  return {
+    branch: toBranchSummary(raw.branch),
+    tests: raw.tests.map((test: RawCatalogueTest): LabCatalogueTest => ({
+      id: test.id,
+      name: test.name,
+      category: test.category ?? '',
+      sample: test.sample,
+      priceKobo: test.priceKobo,
+      turnaroundHours: test.turnaroundHours,
+      requiresPresence: test.requiresPresence,
+      kind: test.kind,
+      description: test.description ?? '',
+    })),
+    packages: raw.packages.map(toPackageSummary),
+  };
+}
+
+export function toPackageLabOption(raw: RawPackageLab): PackageLabOption {
+  const branch = toBranchSummary(raw.branch);
+  return {
+    id: branch.id,
+    labName: branch.labName,
+    branchName: branch.name,
+    area: branch.area,
+    address: branch.address,
+    labVisits: branch.labVisits,
+    homeCollection: branch.homeCollection,
+    homeFeeKobo: branch.homeFeeKobo,
+    homeAreas: branch.homeAreas,
+    hours: branch.hours,
+    inArea: raw.inArea,
+    distanceKm: raw.distanceKm,
+    turnaroundHours: raw.turnaroundHours,
   };
 }
 

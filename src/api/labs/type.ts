@@ -49,6 +49,10 @@ export type LabQuoteInput = {
   branchId: string;
   testIds?: string[];
   responseId?: string;
+  packageId?: string;
+  packageTestIds?: string[];
+  platformPackageId?: string;
+  consultationId?: string;
   collection?: LabCollection;
   resultDelivery?: ResultDelivery;
 };
@@ -86,8 +90,99 @@ export type NewPriceRequest = {
   collection: LabCollection;
   tests: string[];
   point?: LabPoint;
+  note?: string;
+  consultationId?: string;
   contactName: string;
   contactPhone: string;
+};
+
+// A test in a branch catalogue, as the branch page lists it.
+export type LabCatalogueTest = {
+  id: string;
+  name: string;
+  category: string;
+  sample: string;
+  priceKobo: number;
+  turnaroundHours: number | null;
+  requiresPresence: boolean | null;
+  kind: 'lab' | 'procedure';
+  description: string;
+};
+
+// A test inside a package, with its share of the package price.
+export type LabPackageTest = {
+  id: string;
+  name: string;
+  sample: string;
+  description: string;
+  priceKobo: number;
+  shareKobo: number;
+  requiresPresence: boolean | null;
+  kind: 'lab' | 'procedure';
+  turnaroundHours: number | null;
+};
+
+export type LabPackageSummary = {
+  id: string;
+  branchId: string;
+  name: string;
+  description: string;
+  imageUrl: string | null;
+  priceKobo: number;
+  individualTotalKobo: number;
+  savingsKobo: number;
+  kind: 'lab' | 'procedure' | 'mixed';
+  bookable: boolean;
+  tests: LabPackageTest[];
+};
+
+// A lab-made package in the browse list, with the branch it belongs to.
+export type LabPackageListItem = LabPackageSummary & {
+  lab: { name: string; branchName: string; area: string; address: string };
+  distanceKm: number | null;
+  inArea: boolean;
+};
+
+export type LabBranchSummary = {
+  id: string;
+  labName: string;
+  name: string;
+  area: string;
+  address: string;
+  phone: string | null;
+  labVisits: boolean;
+  homeCollection: boolean;
+  homeFeeKobo: number;
+  homeAreas: string[];
+  hours: LabHours[];
+};
+
+export type LabPackageDetail = {
+  package: LabPackageSummary;
+  branch: LabBranchSummary;
+};
+
+export type BranchDetail = {
+  branch: LabBranchSummary;
+  tests: LabCatalogueTest[];
+  packages: LabPackageSummary[];
+};
+
+// A branch that offers a platform package, as the package page lists it.
+export type PackageLabOption = {
+  id: string;
+  labName: string;
+  branchName: string;
+  area: string;
+  address: string;
+  labVisits: boolean;
+  homeCollection: boolean;
+  homeFeeKobo: number;
+  homeAreas: string[];
+  hours: LabHours[];
+  inArea: boolean;
+  distanceKm: number | null;
+  turnaroundHours: number;
 };
 
 // What the server sends for a search result and a booking. Only the fields the screens use.
@@ -153,6 +248,95 @@ export type RawBooking = {
     releasedAt: string | null;
     url: string | null;
   }[];
+};
+
+export type RawPlatformPackage = {
+  id: string;
+  name: string;
+  description: string;
+  kind: 'lab' | 'procedure' | 'mixed';
+  tests: string[];
+  priceKobo: number;
+  homeVisit: boolean;
+};
+
+export type RawPackageTest = {
+  id: string;
+  name: string;
+  sample: string;
+  description: string;
+  priceKobo: number;
+  shareKobo: number;
+  requiresPresence: boolean | null;
+  kind: 'lab' | 'procedure';
+  status: string;
+  turnaroundHours?: number | null;
+};
+
+export type RawPackageView = {
+  id: string;
+  branchId: string;
+  name: string;
+  description: string;
+  imageUrl: string | null;
+  priceKobo: number;
+  individualTotalKobo: number;
+  savingsKobo: number;
+  kind: 'lab' | 'procedure' | 'mixed';
+  status: string;
+  bookable: boolean;
+  tests: RawPackageTest[];
+};
+
+export type RawLabPackageListItem = RawPackageView & {
+  lab: { name: string; branchName: string; area: string; address: string };
+  distanceKm: number | null;
+  inArea: boolean;
+};
+
+export type RawBranchSummary = {
+  id: string;
+  labName: string;
+  name: string;
+  area: string;
+  address: string;
+  phone: string | null;
+  labVisits: boolean;
+  homeCollection: boolean;
+  homeFeeKobo: number;
+  homeAreas: string[];
+  hours: LabHours[];
+};
+
+export type RawLabPackageDetail = {
+  package: RawPackageView;
+  branch: RawBranchSummary;
+};
+
+export type RawCatalogueTest = {
+  id: string;
+  branchId: string;
+  name: string;
+  category: string;
+  sample: string;
+  priceKobo: number;
+  turnaroundHours: number | null;
+  requiresPresence: boolean | null;
+  kind: 'lab' | 'procedure';
+  description: string;
+};
+
+export type RawBranchDetail = {
+  branch: RawBranchSummary;
+  tests: RawCatalogueTest[];
+  packages: RawPackageView[];
+};
+
+export type RawPackageLab = {
+  branch: RawBranchSummary;
+  inArea: boolean;
+  distanceKm: number | null;
+  turnaroundHours: number;
 };
 
 export type RawRequest = {

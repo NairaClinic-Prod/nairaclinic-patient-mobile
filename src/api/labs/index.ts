@@ -5,25 +5,62 @@ import { request } from '../client';
 import { PAYMENT_ENDPOINTS, paymentCallback, refreshPayments, settlePayment } from '../payments';
 import type { PaymentReply, PayOutcome } from '../payments';
 import { labsApi } from './endpoint.api';
-import { toBooking, toLabOption, toPriceRequest } from './map';
-import type { LabBooking, LabCollection, LabPoint, LabQuoteInput, NewLabBooking, NewPriceRequest } from './type';
+import {
+  toBooking,
+  toBranchDetail,
+  toLabOption,
+  toLabPackageDetail,
+  toLabPackageListItem,
+  toPackageLabOption,
+  toPackageSummary,
+  toPriceRequest,
+} from './map';
+import type {
+  LabBooking,
+  LabCollection,
+  LabPoint,
+  LabQuoteInput,
+  NewLabBooking,
+  NewPriceRequest,
+} from './type';
 
 export * from './type';
 export { labsApi } from './endpoint.api';
 export { LAB_ENDPOINTS } from './endpoints';
-export { toBooking, toLabOption, toPriceRequest } from './map';
+export {
+  toBooking,
+  toBranchDetail,
+  toLabOption,
+  toLabPackageDetail,
+  toLabPackageListItem,
+  toPackageLabOption,
+  toPackageSummary,
+  toPriceRequest,
+} from './map';
 
 export const labKeys = {
   all: ['labs'] as const,
   bookings: ['labs', 'bookings'] as const,
+  booking: (id: string) => ['labs', 'booking', id] as const,
   requests: ['labs', 'requests'] as const,
   slots: (branchId: string, date: string, collection: string) =>
     ['labs', 'slots', branchId, date, collection] as const,
   quote: (key: string) => ['labs', 'quote', key] as const,
   search: (key: string) => ['labs', 'search', key] as const,
+  packages: ['labs', 'packages'] as const,
+  labPackages: (key: string) => ['labs', 'lab-packages', key] as const,
+  labPackage: (id: string) => ['labs', 'lab-package', id] as const,
+  packageLabs: (key: string) => ['labs', 'package-labs', key] as const,
+  branch: (id: string) => ['labs', 'branch', id] as const,
 };
 
-const OPEN_BOOKING = ['pending_payment', 'booked', 'collector_assigned', 'checked_in', 'in_progress'];
+const OPEN_BOOKING = [
+  'pending_payment',
+  'booked',
+  'collector_assigned',
+  'checked_in',
+  'in_progress',
+];
 
 export const useLabBookingsQuery = () =>
   useQuery({
@@ -68,6 +105,61 @@ export const useLabQuote = (input: LabQuoteInput | null) =>
     enabled: Boolean(input),
     retry: false,
     staleTime: 10_000,
+  });
+
+export const usePlatformPackages = () =>
+  useQuery({
+    queryKey: labKeys.packages,
+    queryFn: () => labsApi.platformPackages(),
+    staleTime: 60_000,
+  });
+
+export const useLabPackageList = (input: {
+  kind?: 'lab' | 'procedure';
+  area?: string;
+  point?: LabPoint | null;
+}) =>
+  useQuery({
+    queryKey: labKeys.labPackages(JSON.stringify(input)),
+    queryFn: async () => (await labsApi.labPackages(input)).map(toLabPackageListItem),
+    staleTime: 30_000,
+  });
+
+export const useLabPackage = (id: string | null) =>
+  useQuery({
+    queryKey: labKeys.labPackage(id ?? ''),
+    queryFn: () => labsApi.labPackage(id as string).then(toLabPackageDetail),
+    enabled: Boolean(id),
+    staleTime: 30_000,
+  });
+
+export const usePackageLabs = (
+  packageId: string | null,
+  input: { area?: string; collection?: LabCollection; point?: LabPoint | null }
+) =>
+  useQuery({
+    queryKey: labKeys.packageLabs(JSON.stringify({ packageId, ...input })),
+    queryFn: async () =>
+      (await labsApi.packageLabs(packageId as string, input)).map(toPackageLabOption),
+    enabled: Boolean(packageId),
+    staleTime: 30_000,
+  });
+
+export const useBranchDetail = (id: string | null) =>
+  useQuery({
+    queryKey: labKeys.branch(id ?? ''),
+    queryFn: () => labsApi.branch(id as string).then(toBranchDetail),
+    enabled: Boolean(id),
+    staleTime: 30_000,
+  });
+
+export const useLabBooking = (id: string | null) =>
+  useQuery({
+    queryKey: labKeys.booking(id ?? ''),
+    queryFn: () => labsApi.booking(id as string).then(toBooking),
+    enabled: Boolean(id),
+    refetchInterval: (query) =>
+      query.state.data && OPEN_BOOKING.includes(query.state.data.status) ? 60_000 : false,
   });
 
 export async function refreshLabs() {
