@@ -1,4 +1,4 @@
-import { PATIENT_APP_URL } from '@/constants/links';
+import { APP_LINK, PATIENT_APP_URL } from '@/constants/links';
 import { useQuery } from '@tanstack/react-query';
 import * as WebBrowser from 'expo-web-browser';
 import { queryClient } from '../query-client';
@@ -37,9 +37,15 @@ export const refreshPayments = () =>
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Opens Paystack's page, then checks the result a few times, because the confirmation can arrive a
-// moment after the browser closes.
+// moment after the browser closes. An auth session (not a plain browser) is used so the "Back to
+// the app" link on the callback page dismisses the browser and returns to the app: a plain in-app
+// browser swallows custom-scheme taps, which is why that button did nothing.
 async function checkout(url: string, reference: string): Promise<boolean> {
-  await WebBrowser.openBrowserAsync(url, { dismissButtonStyle: 'close' });
+  try {
+    await WebBrowser.openAuthSessionAsync(url, APP_LINK);
+  } catch {
+    await WebBrowser.openBrowserAsync(url, { dismissButtonStyle: 'close' });
+  }
   for (let attempt = 0; attempt < 4; attempt++) {
     const result = await paymentsApi.verify(reference).catch(() => null);
     if (result?.paid || result?.status === 'paid') return true;
@@ -61,7 +67,10 @@ export type PayRequest = {
 
 // Turns what a payment endpoint answered into a result: paid at once (wallet or saved card), or a
 // Paystack page to open and check.
-export async function settlePayment(reply: PaymentReply, unconfirmed?: string): Promise<PayOutcome> {
+export async function settlePayment(
+  reply: PaymentReply,
+  unconfirmed?: string
+): Promise<PayOutcome> {
   let paid: boolean;
   if (reply.paid || reply.status === 'paid') paid = true;
   else if (reply.authorizationUrl && reply.reference) {
