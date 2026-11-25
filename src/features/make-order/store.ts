@@ -17,7 +17,7 @@ const store = createStore<MakeOrderRequest>({
   names: null,
 });
 
-export const useMakeOrderRequest = store.use;
+export const useMakeOrderRequest = store.useValue;
 
 type OpenOptions = { kind?: OrderKind; sourceId?: string; names?: string[] };
 

@@ -21,7 +21,7 @@ export type HomeState = HomeData & {
 
 // Home, as the server last said it. Each part falls back to the saved copy until its own request lands.
 export function useHome(): HomeState {
-  const saved = savedHome.use();
+  const saved = savedHome.useValue();
   const dashboard = useDashboard();
   const profile = useHomeProfile();
   const referral = useReferralLink();

@@ -6,4 +6,4 @@ const store = createStore(
   { persist: 'transactions', scope: 'account' }
 );
 
-export const useTransactions = store.use;
+export const useTransactions = store.useValue;

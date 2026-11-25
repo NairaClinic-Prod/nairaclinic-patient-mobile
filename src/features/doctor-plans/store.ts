@@ -6,7 +6,7 @@ const store = createStore(
   { persist: 'doctor-plans', scope: 'account' }
 );
 
-export const useDoctorPlans = store.use;
+export const useDoctorPlans = store.useValue;
 
 export const turnOffAutoRenew = (id: string) =>
   store.set((state) => ({

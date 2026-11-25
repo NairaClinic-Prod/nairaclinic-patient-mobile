@@ -7,7 +7,7 @@ const store = createStore<{ current: CurrentPlan | null }>(
   { persist: 'membership', scope: 'account' }
 );
 
-export const useMembership = store.use;
+export const useMembership = store.useValue;
 
 export const cancelRenewal = () =>
   store.set((state) =>

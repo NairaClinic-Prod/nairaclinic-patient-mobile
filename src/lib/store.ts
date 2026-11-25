@@ -19,7 +19,9 @@ type StoreOptions<T> = {
 export type AppStore<T> = {
   get: () => T;
   set: (next: T | ((current: T) => T)) => void;
-  use: () => T;
+  // Named like a hook on purpose: React Compiler only treats `useSomething` as a hook, and would
+  // otherwise cache a plain `use()` call and skip it on later renders.
+  useValue: () => T;
   useSelect: <S>(select: (state: T) => S) => S;
   hydrated: () => Promise<void>;
   reset: () => Promise<void>;
@@ -77,7 +79,7 @@ export function createStore<T>(initial: T, options: StoreOptions<T> = {}): AppSt
       api.setState((state) => ({
         value: typeof next === 'function' ? (next as (current: T) => T)(state.value) : next,
       })),
-    use: () => useStore(api, (state) => state.value),
+    useValue: () => useStore(api, (state) => state.value),
     useSelect: (select) => useStore(api, (state) => select(state.value)),
     hydrated: () => hydration,
     reset: async () => {

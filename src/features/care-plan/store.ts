@@ -41,8 +41,8 @@ let loadingPages = false;
 
 // Pass false to read only the saved copy and skip the requests, for a sheet that is not open.
 export function useCarePlan(enabled = true): CarePlanState {
-  const saved = snapshot.use();
-  const { todos } = personal.use();
+  const saved = snapshot.useValue();
+  const { todos } = personal.useValue();
   const consultations = useConsultations(enabled);
   const referrals = useReferrals(enabled);
   const store = useCarePlanStore(enabled);

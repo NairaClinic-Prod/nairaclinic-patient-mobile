@@ -11,7 +11,7 @@ type State = {
 
 const store = createStore<State>({ sheet: null, encounterId: null, testId: null });
 
-export const useCarePlanUi = store.use;
+export const useCarePlanUi = store.useValue;
 
 export const openUploadResults = (encounterId: string, testId: string | null = null) =>
   store.set({ sheet: 'upload', encounterId, testId });

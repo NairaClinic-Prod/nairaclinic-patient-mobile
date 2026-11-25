@@ -14,7 +14,7 @@ const savedVitals = createStore<{ vitalsJson: unknown; savedAt: number }>(
 
 export function useVitals() {
   const query = useVitalsData();
-  const saved = savedVitals.use();
+  const saved = savedVitals.useValue();
 
   React.useEffect(() => {
     if (query.data !== undefined) savedVitals.set({ vitalsJson: query.data, savedAt: Date.now() });

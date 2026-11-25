@@ -35,7 +35,7 @@ let persisted = false;
 let refreshing: Promise<string> | null = null;
 let unlockWaiters: Array<() => void> = [];
 
-export const useSession = store.use;
+export const useSession = store.useValue;
 export const getSession = store.get;
 
 const toTokens = (value: SessionTokens): Tokens => ({

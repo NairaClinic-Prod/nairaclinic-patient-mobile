@@ -33,7 +33,7 @@ export async function connectCalendar() {
 }
 
 export function useCalendarPrompt() {
-  const state = store.use();
+  const state = store.useValue();
   const shouldAsk = state.ready && !state.connected && Date.now() >= state.snoozedUntil;
   return { connected: state.connected, shouldAsk, ready: state.ready };
 }

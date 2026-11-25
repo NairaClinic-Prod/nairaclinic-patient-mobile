@@ -23,7 +23,7 @@ const titleOf = (row: WalletEntryRow) => {
 };
 
 export function useWallet() {
-  const snapshot = saved.use();
+  const snapshot = saved.useValue();
   const wallet = useWalletQuery();
   const history = useWalletHistory();
   const dashboard = useDashboard();

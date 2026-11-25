@@ -6,9 +6,9 @@ const store = createStore(
   { persist: 'notifications', scope: 'account' }
 );
 
-export const useNotifications = store.use;
+export const useNotifications = store.useValue;
 
-export const useUnreadCount = () => store.use().rows.filter((row) => !row.isRead).length;
+export const useUnreadCount = () => store.useValue().rows.filter((row) => !row.isRead).length;
 
 export const markNotificationRead = (id: string) =>
   store.set((state) => ({

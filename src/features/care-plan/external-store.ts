@@ -74,7 +74,7 @@ const fresh = (kind: ExternalKind): ExternalForm => ({
 
 const store = createStore<ExternalForm>({ ...fresh('medication'), open: false });
 
-export const useExternalForm = store.use;
+export const useExternalForm = store.useValue;
 export const getExternalForm = store.get;
 
 export const openExternalRecord = (kind: ExternalKind) => store.set(fresh(kind));

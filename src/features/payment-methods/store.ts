@@ -11,7 +11,7 @@ const saved = createStore<{ cards: SavedCard[]; savedAt: number }>(
 );
 
 export function useCards() {
-  const snapshot = saved.use();
+  const snapshot = saved.useValue();
   const query = useMethodsQuery();
 
   React.useEffect(() => {

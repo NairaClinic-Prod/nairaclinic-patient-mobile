@@ -6,7 +6,7 @@ type Offer = { open: boolean; kind: BiometricKind };
 
 const store = createStore<Offer>({ open: false, kind: null });
 
-export const useBiometricsOffer = store.use;
+export const useBiometricsOffer = store.useValue;
 export const closeBiometricsOffer = () => store.set((state) => ({ ...state, open: false }));
 export { biometricLabel };
 

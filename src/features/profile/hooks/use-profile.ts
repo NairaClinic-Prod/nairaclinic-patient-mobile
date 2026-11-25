@@ -4,7 +4,7 @@ import type { ProfileData } from '../types';
 
 const store = createStore({ profile: DUMMY_PROFILE }, { persist: 'profile', scope: 'account' });
 
-export const useProfile = store.use;
+export const useProfile = store.useValue;
 
 export function saveProfile(profile: ProfileData) {
   store.set({ profile });

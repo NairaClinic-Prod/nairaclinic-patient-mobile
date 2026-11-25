@@ -27,7 +27,7 @@ const store = createStore<SettingsState>(
 
 store.hydrated().then(() => store.set((state) => ({ ...state, ready: true })));
 
-export const useSettings = store.use;
+export const useSettings = store.useValue;
 
 export function setTheme(theme: ThemeChoice) {
   Uniwind.setTheme(theme);
