@@ -38,10 +38,15 @@ export function DoctorBookingScreen() {
   const identity = useBookingIdentity();
   const earliest = useEarliestBooking();
 
-  const plan = plansQuery.data?.find(
+  // A patient can hold several plans with one doctor now: every usable
+  // subscription counts, and the visit is charged to the one that covers it.
+  const plans = (plansQuery.data ?? []).filter(
     (item) => item.status === 'active' || item.status === 'ending'
   );
-  const included = plan?.remaining.find((row) => row.type === 'video' && row.remaining > 0);
+  const plan = plans[0] ?? null;
+  const included = plans
+    .flatMap((item) => item.remaining)
+    .find((row) => row.type === 'video' && row.remaining > 0);
   const includedMins = included?.durationMins ?? 0;
 
   const [mode, setMode] = React.useState<Mode>('visit');
@@ -86,6 +91,19 @@ export function DoctorBookingScreen() {
   const day = days.find((item) => item.key === dayKey);
   const slot = day?.slots.find((item) => item.id === slotId);
 
+  // The subscription actually covering this visit: the first usable plan
+  // with a remaining video visit of the chosen length.
+  const coveringPlan =
+    rate && planMode
+      ? (plans.find((item) =>
+          item.remaining.some(
+            (row) =>
+              row.type === 'video' &&
+              row.durationMins === rate.durationMins &&
+              row.remaining > 0
+          )
+        ) ?? null)
+      : null;
   const covered = planMode;
   const total = rate && doctor ? totalOf(rate.amountNgn, doctor.serviceFeeNgn, covered) : 0;
   const payment = usePayment(covered ? 0 : total, picked);
@@ -116,7 +134,7 @@ export function DoctorBookingScreen() {
       const result = await payForBooking(id, {
         promoCode: !covered && promo ? promo : undefined,
         paymentMethodId: covered ? undefined : payment.paymentMethodId,
-        subscriptionId: covered && plan ? plan.id : undefined,
+        subscriptionId: covered ? (coveringPlan?.id ?? plan?.id) : undefined,
       });
       if (result.status === 'booked') {
         setBooked([
@@ -265,8 +283,10 @@ export function DoctorBookingScreen() {
                 />
                 <Text className="text-xs leading-4.5 text-muted-foreground">
                   {planMode
-                    ? `This visit uses your ${plan.terms.name} plan. ${included.remaining} of ${included.count} included visits left, no payment needed.`
-                    : `You have a plan with this doctor. Switch to "My subscription" to use an included visit.`}
+                    ? `This visit uses your ${(coveringPlan ?? plan)?.terms.name ?? 'plan'} plan. ${included.remaining} of ${included.count} included visits left, no payment needed.`
+                    : plans.length > 1
+                      ? `You have ${plans.length} plans with this doctor. Switch to "My subscription" to use an included visit.`
+                      : `You have a plan with this doctor. Switch to "My subscription" to use an included visit.`}
                 </Text>
               </View>
             ) : null}
