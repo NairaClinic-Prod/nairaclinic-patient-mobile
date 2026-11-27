@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@zoom/react-native-videosdk@2.6.11': 65b8bdaa10be678106fcc1bcf80376de1c55694ded8feb69710898bcc7f2002f
+
 importers:
 
   .:
@@ -103,7 +106,7 @@ importers:
         version: 5.108.4(@types/react@19.3.0)(react@19.3.0)
       '@zoom/react-native-videosdk':
         specifier: ^2.6.11
-        version: 2.6.11(react-native@0.88.1(@babel/core@7.29.13(supports-color@8.1.1))(@react-native/metro-config@0.88.1(@babel/core@7.29.13(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
+        version: 2.6.11(patch_hash=65b8bdaa10be678106fcc1bcf80376de1c55694ded8feb69710898bcc7f2002f)(react-native@0.88.1(@babel/core@7.29.13(supports-color@8.1.1))(@react-native/metro-config@0.88.1(@babel/core@7.29.13(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
@@ -6683,7 +6686,7 @@ snapshots:
 
   '@xmldom/xmldom@0.9.12': {}
 
-  '@zoom/react-native-videosdk@2.6.11(react-native@0.88.1(@babel/core@7.29.13(supports-color@8.1.1))(@react-native/metro-config@0.88.1(@babel/core@7.29.13(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)':
+  '@zoom/react-native-videosdk@2.6.11(patch_hash=65b8bdaa10be678106fcc1bcf80376de1c55694ded8feb69710898bcc7f2002f)(react-native@0.88.1(@babel/core@7.29.13(supports-color@8.1.1))(@react-native/metro-config@0.88.1(@babel/core@7.29.13(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)':
     dependencies:
       assert: 2.1.0
       react: 19.3.0

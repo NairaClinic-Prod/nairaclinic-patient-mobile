@@ -1,0 +1,189 @@
+diff --git a/android/src/main/java/com/reactnativezoom/videosdk/RNZoomVideoSdkModule.java b/android/src/main/java/com/reactnativezoom/videosdk/RNZoomVideoSdkModule.java
+index 7cc08272c8ba4e811034977def11c66c5899a322..bfb4f6ddec9f5158dcea73cd3aaa6fdc83698cd7 100644
+--- a/android/src/main/java/com/reactnativezoom/videosdk/RNZoomVideoSdkModule.java
++++ b/android/src/main/java/com/reactnativezoom/videosdk/RNZoomVideoSdkModule.java
+@@ -267,6 +267,14 @@ public class RNZoomVideoSdkModule extends ReactContextBaseJavaModule implements
+           String speakerFilePath = config.getString("speakerFilePath");
+           extendParams.speakerTestFilePath = speakerFilePath;
+         }
++        if (config.hasKey("preferVideoResolution")) {
++          String prefer = config.getString("preferVideoResolution");
++          if ("720P".equals(prefer)) {
++            extendParams.preferVideoResolution = us.zoom.sdk.ZoomVideoSDKPreferVideoResolution.ZoomVideoSDKPreferVideoResolution_720P;
++          } else if ("360P".equals(prefer)) {
++            extendParams.preferVideoResolution = us.zoom.sdk.ZoomVideoSDKPreferVideoResolution.ZoomVideoSDKPreferVideoResolution_360P;
++          }
++        }
+         extendParams.wrapperType = 2;
+         params.extendParam = extendParams;
+ 
+diff --git a/android/src/main/java/com/reactnativezoom/videosdk/RNZoomVideoSdkVideoHelperModule.java b/android/src/main/java/com/reactnativezoom/videosdk/RNZoomVideoSdkVideoHelperModule.java
+index 318bb32c2eae1cabfcd725a277b7f84ecd5a2bbe..186033d56f218d023d906650cc2002450e5f55a0 100644
+--- a/android/src/main/java/com/reactnativezoom/videosdk/RNZoomVideoSdkVideoHelperModule.java
++++ b/android/src/main/java/com/reactnativezoom/videosdk/RNZoomVideoSdkVideoHelperModule.java
+@@ -93,6 +93,24 @@ public class RNZoomVideoSdkVideoHelperModule extends ReactContextBaseJavaModule
+     });
+   }
+ 
++  @ReactMethod
++  public void setVideoQualityPreference(ReadableMap setting, Promise promise) {
++    if (Utils.checkRNActivity(reactContext, promise)) {
++      return;
++    }
++    reactContext.getCurrentActivity().runOnUiThread(new Runnable() {
++      @Override
++      public void run() {
++        ZoomVideoSDKVideoPreferenceSetting preference = new ZoomVideoSDKVideoPreferenceSetting();
++        ZoomVideoSDKVideoPreferenceMode mode = setting.hasKey("mode") ? RNZoomVideoSdkVideoPreferenceMode.valueOf(setting.getString("mode")) : null;
++        preference.mode = mode != null ? mode : ZoomVideoSDKVideoPreferenceMode.ZoomVideoSDKVideoPreferenceMode_Balance;
++        preference.minimumFrameRate = setting.hasKey("minimumFrameRate") ? setting.getInt("minimumFrameRate") : 0;
++        preference.maximumFrameRate = setting.hasKey("maximumFrameRate") ? setting.getInt("maximumFrameRate") : 0;
++        promise.resolve(RNZoomVideoSDKErrors.valueOf(getVideoHelper().setVideoQualityPreference(preference)));
++      }
++    });
++  }
++
+   @ReactMethod
+   public void stopVideo(Promise promise) {
+     if (Utils.checkRNActivity(reactContext, promise)) {
+diff --git a/ios/RNZoomVideoSdk.m b/ios/RNZoomVideoSdk.m
+index 0fb275f2ef42d09dbe39663eb7a1362a05e29bb2..38d3f00e565fb6d8330fe43e527d1283b4048745 100644
+--- a/ios/RNZoomVideoSdk.m
++++ b/ios/RNZoomVideoSdk.m
+@@ -128,6 +128,12 @@ - (dispatch_queue_t)methodQueue
+     if (speakerFilePath.length != 0) {
+         extendParams.speakerTestFilePath = speakerFilePath;
+     }
++    NSString *preferVideoResolution = [config valueForKey:@"preferVideoResolution"];
++    if ([preferVideoResolution isEqualToString:@"720P"]) {
++        extendParams.preferVideoResolution = ZoomVideoSDKPreferVideoResolution_720P;
++    } else if ([preferVideoResolution isEqualToString:@"360P"]) {
++        extendParams.preferVideoResolution = ZoomVideoSDKPreferVideoResolution_360P;
++    }
+     extendParams.wrapperType = 2;
+     initParams.extendParam = extendParams;
+ 
+diff --git a/ios/RNZoomVideoSdkVideoHelper.m b/ios/RNZoomVideoSdkVideoHelper.m
+index 75ba4f472eeb5c15068235d1a191caa83ea36207..1a2dcc18dd68806021c11876b9ded94b1dd4dfde 100644
+--- a/ios/RNZoomVideoSdkVideoHelper.m
++++ b/ios/RNZoomVideoSdkVideoHelper.m
+@@ -30,6 +30,20 @@ - (ZoomVideoSDKVideoHelper *)getVideoHelper
+     });
+ }
+ 
++RCT_EXPORT_METHOD(setVideoQualityPreference:(NSDictionary *)setting
++                  withResolve:(RCTPromiseResolveBlock)resolve
++                  withRejecter:(RCTPromiseRejectBlock)reject)
++{
++    dispatch_async(dispatch_get_main_queue(), ^{
++        ZoomVideoSDKVideoPreferenceSetting *preference = [[ZoomVideoSDKVideoPreferenceSetting alloc] init];
++        id mode = [setting objectForKey:@"mode"];
++        preference.mode = mode ? [RCTConvert ZoomVideoSDKVideoPreferenceMode:mode] : ZoomVideoSDKVideoPreferenceMode_Balance;
++        preference.minimumFrameRate = [[setting objectForKey:@"minimumFrameRate"] unsignedIntegerValue];
++        preference.maximumFrameRate = [[setting objectForKey:@"maximumFrameRate"] unsignedIntegerValue];
++        resolve([[RCTConvert ZoomVideoSDKErrorValuesReversed] objectForKey: @([[self getVideoHelper] setVideoQualityPreference:preference])]);
++    });
++}
++
+ RCT_EXPORT_METHOD(stopVideo:(RCTPromiseResolveBlock)resolve
+                   withRejecter:(RCTPromiseRejectBlock)reject)
+ {
+diff --git a/lib/commonjs/native/ZoomVideoSdkVideoHelper.js b/lib/commonjs/native/ZoomVideoSdkVideoHelper.js
+index 1d016a5403c1232eec4e026e844bc977d85dffbc..fd0739f299d259913bb7c18290e2b0cba53ca1b8 100644
+--- a/lib/commonjs/native/ZoomVideoSdkVideoHelper.js
++++ b/lib/commonjs/native/ZoomVideoSdkVideoHelper.js
+@@ -25,6 +25,9 @@ class ZoomVideoSdkVideoHelper {
+   async stopVideo() {
+     return await RNZoomVideoSdkVideoHelper.stopVideo();
+   }
++  async setVideoQualityPreference(setting) {
++    return await RNZoomVideoSdkVideoHelper.setVideoQualityPreference(setting);
++  }
+   async switchCamera(deviceId) {
+     return await RNZoomVideoSdkVideoHelper.switchCamera(deviceId);
+   }
+diff --git a/lib/module/native/ZoomVideoSdkVideoHelper.js b/lib/module/native/ZoomVideoSdkVideoHelper.js
+index 583e0e23505fef3a2a7a9c6de5579d454c5b2f6c..13711479f5c2a45a6a333b1fdb91e325637a4bf0 100644
+--- a/lib/module/native/ZoomVideoSdkVideoHelper.js
++++ b/lib/module/native/ZoomVideoSdkVideoHelper.js
+@@ -21,6 +21,9 @@ export class ZoomVideoSdkVideoHelper {
+   async stopVideo() {
+     return await RNZoomVideoSdkVideoHelper.stopVideo();
+   }
++  async setVideoQualityPreference(setting) {
++    return await RNZoomVideoSdkVideoHelper.setVideoQualityPreference(setting);
++  }
+   async switchCamera(deviceId) {
+     return await RNZoomVideoSdkVideoHelper.switchCamera(deviceId);
+   }
+diff --git a/lib/typescript/native/ZoomVideoSdk.d.ts b/lib/typescript/native/ZoomVideoSdk.d.ts
+index f2471f93c573d174f5da08ea07833861a9c22333..57401a891aaf466dfa8412e546d16b79edf552ac 100644
+--- a/lib/typescript/native/ZoomVideoSdk.d.ts
++++ b/lib/typescript/native/ZoomVideoSdk.d.ts
+@@ -368,6 +368,7 @@ export declare type InitConfig = {
+     shareRawDataMemoryMode?: RawDataMemoryMode;
+     speakerFilePath?: string;
+     enableCallKit?: boolean;
++    preferVideoResolution?: '360P' | '720P';
+ };
+ export declare type ShareActionType = {
+     shareSourceId: number;
+diff --git a/lib/typescript/native/ZoomVideoSdkVideoHelper.d.ts b/lib/typescript/native/ZoomVideoSdkVideoHelper.d.ts
+index b38da8bf1691c0d8924185b2ab7496319caace4c..585a490d83bb66f74d273a4b73afcdeb6813fc86 100644
+--- a/lib/typescript/native/ZoomVideoSdkVideoHelper.d.ts
++++ b/lib/typescript/native/ZoomVideoSdkVideoHelper.d.ts
+@@ -27,6 +27,7 @@ export declare type ZoomVideoSdkVideoHelperType = {
+      * Call this method to stop sending local video data from the camera.
+      */
+     stopVideo: () => Promise<Errors>;
++    setVideoQualityPreference: (setting: VideoPreferenceSetting) => Promise<Errors>;
+     /**
+      * Switch to the next available camera.
+      */
+@@ -75,6 +76,7 @@ export declare type ZoomVideoSdkVideoHelperType = {
+ export declare class ZoomVideoSdkVideoHelper implements ZoomVideoSdkVideoHelperType {
+     startVideo(): Promise<any>;
+     stopVideo(): Promise<any>;
++    setVideoQualityPreference(setting: VideoPreferenceSetting): Promise<any>;
+     switchCamera(deviceId?: string): Promise<any>;
+     rotateMyVideo(rotation: number): Promise<any>;
+     getCameraList(): Promise<ZoomVideoSdkCameraDeviceType[]>;
+diff --git a/src/native/ZoomVideoSdk.ts b/src/native/ZoomVideoSdk.ts
+index c09f8a9cea8104e8e675dd7854d52cea575f7af1..1aed1f91c4af7ed8179336bfa699f9ac1ec03172 100644
+--- a/src/native/ZoomVideoSdk.ts
++++ b/src/native/ZoomVideoSdk.ts
+@@ -408,6 +408,7 @@ export type InitConfig = {
+   shareRawDataMemoryMode?: RawDataMemoryMode;
+   speakerFilePath?: string;
+   enableCallKit?: boolean;
++  preferVideoResolution?: '360P' | '720P';
+ };
+ 
+ export type ShareActionType = {
+diff --git a/src/native/ZoomVideoSdkVideoHelper.ts b/src/native/ZoomVideoSdkVideoHelper.ts
+index d646719f5ab556fee5ba521e85847b899b9e79bc..b5fd3617d10c764dfdcb44e224da806e9c1b04e8 100644
+--- a/src/native/ZoomVideoSdkVideoHelper.ts
++++ b/src/native/ZoomVideoSdkVideoHelper.ts
+@@ -36,6 +36,11 @@ export type ZoomVideoSdkVideoHelperType = {
+    */
+   stopVideo: () => Promise<Errors>;
+ 
++  /**
++   * Prefer a sharp or a smooth picture, and the frame rate range the sender should aim for.
++   */
++  setVideoQualityPreference: (setting: VideoPreferenceSetting) => Promise<Errors>;
++
+   /**
+    * Switch to the next available camera.
+    */
+@@ -101,6 +106,10 @@ export class ZoomVideoSdkVideoHelper implements ZoomVideoSdkVideoHelperType {
+     return await RNZoomVideoSdkVideoHelper.stopVideo();
+   }
+ 
++  async setVideoQualityPreference(setting: VideoPreferenceSetting) {
++    return await RNZoomVideoSdkVideoHelper.setVideoQualityPreference(setting);
++  }
++
+   async switchCamera(deviceId?: string) {
+     return await RNZoomVideoSdkVideoHelper.switchCamera(deviceId);
+   }

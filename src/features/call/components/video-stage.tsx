@@ -3,15 +3,14 @@ import { Text } from '@/components/ui/text';
 import { drName, initials } from '@/features/home/utils';
 import { VideoAspect, VideoResolution, ZoomView } from '@zoom/react-native-videosdk';
 import { VideoOff } from 'lucide-react-native';
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import type { CallState } from '../hooks';
 
-// What the picture costs. A weak line or a slow phone connection gets a light stream; a good one gets
-// a sharp one. Zoom adapts the bitrate on its own; this decides how much picture we ask for.
+// asks zoom for the picture size the measured download can carry
 function resolutionFor(call: CallState) {
-  if (call.downlink === 'poor' || call.slow || !call.online) return VideoResolution.Resolution180P;
-  if (call.downlink === 'good') return VideoResolution.Resolution720P;
-  return VideoResolution.Resolution360P;
+  if (!call.online || call.recvTier === 'low') return VideoResolution.Resolution180P;
+  if (call.recvTier === 'sd') return VideoResolution.Resolution360P;
+  return VideoResolution.Resolution720P;
 }
 
 // The other person fills the screen; you are a small picture in the corner.
@@ -23,7 +22,7 @@ export function VideoStage({ call, name }: { call: CallState; name: string | nul
 
   return (
     <View style={StyleSheet.absoluteFill} className="bg-black">
-      {featured?.videoOn ? (
+      {featured?.videoOn && call.recvTier !== 'audio' ? (
         <ZoomView
           style={StyleSheet.absoluteFill}
           userId={featured.userId}
@@ -45,7 +44,7 @@ export function VideoStage({ call, name }: { call: CallState; name: string | nul
               <View className="flex-row items-center gap-1.5">
                 <Icon as={VideoOff} className="size-3.5 text-white/60" />
                 <Text className="text-[13px] text-white/60">
-                  {call.audioOnly || call.downlink === 'poor'
+                  {call.recvTier === 'audio' || call.audioOnly
                     ? 'Audio only to keep the call clear'
                     : 'Camera is off'}
                 </Text>
@@ -71,6 +70,27 @@ export function SelfView({ call, top }: { call: CallState; top: number }) {
         videoAspect={VideoAspect.PanAndScan}
         videoResolution={VideoResolution.Resolution180P}
       />
+    </View>
+  );
+}
+
+// a calm cover while the call finds its way back, so a drop never looks like the end
+export function Reconnecting({ call }: { call: CallState }) {
+  if (call.phase !== 'reconnecting') return null;
+  return (
+    <View
+      pointerEvents="none"
+      style={StyleSheet.absoluteFill}
+      className="items-center justify-center bg-black/55">
+      <View className="items-center gap-3 rounded-3xl bg-neutral-900/90 px-6 py-5">
+        <ActivityIndicator color="#ffffff" />
+        <Text className="text-[16px] font-semibold text-white">Reconnecting…</Text>
+        <Text className="text-center text-[13px] text-white/65">
+          {call.online
+            ? 'Hold on, the call will continue by itself.'
+            : "You're offline. We'll rejoin when you're back."}
+        </Text>
+      </View>
     </View>
   );
 }

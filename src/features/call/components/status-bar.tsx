@@ -36,9 +36,12 @@ export function CallStatus({ call, title }: { call: CallState; title: string }) 
       ? 'Reconnecting…'
       : quality === 'poor'
         ? 'Weak connection'
-        : quality === 'fair'
-          ? 'Fair connection'
-          : 'Connected';
+        : call.remoteWeak
+          ? "Doctor's connection is weak"
+          : quality === 'fair'
+            ? 'Fair connection'
+            : 'Connected';
+  const hd = call.receivingP >= 700;
   return (
     <View className="items-center gap-1">
       <Text className="text-[17px] font-semibold text-white">{title}</Text>
@@ -56,6 +59,11 @@ export function CallStatus({ call, title }: { call: CallState; title: string }) 
         <Text className="text-[13px] text-white/75">
           {elapsed ? `${elapsed} · ${label}` : label}
         </Text>
+        {hd ? (
+          <View className="rounded bg-white/20 px-1.5 py-px">
+            <Text className="text-[10px] font-bold tracking-wide text-white">HD</Text>
+          </View>
+        ) : null}
       </View>
     </View>
   );

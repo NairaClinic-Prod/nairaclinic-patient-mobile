@@ -13,10 +13,10 @@ import { ActivityIndicator, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CallControls } from '../components/call-controls';
 import { CallStatus, Notices } from '../components/status-bar';
-import { SelfView, VideoStage } from '../components/video-stage';
+import { Reconnecting, SelfView, VideoStage } from '../components/video-stage';
 import { useCall, type CallState } from '../hooks';
 
-const SDK_CONFIG = { domain: 'zoom.us', enableLog: false };
+const SDK_CONFIG = { domain: 'zoom.us', enableLog: false, preferVideoResolution: '720P' as const };
 
 function Page({ children }: { children: React.ReactNode }) {
   const insets = useSafeAreaInsets();
@@ -166,6 +166,7 @@ function InCall({ call }: { call: CallState }) {
   return (
     <View className="flex-1 bg-black">
       <VideoStage call={call} name={call.doctorName} />
+      <Reconnecting call={call} />
       <View style={{ paddingTop: insets.top + 12 }} className="gap-3 px-4">
         <CallStatus
           call={call}

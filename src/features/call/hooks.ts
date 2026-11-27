@@ -6,21 +6,26 @@ import { accessToken } from '@/lib/auth/session';
 import {
   EventType,
   SessionLeaveReason,
+  VideoPreferenceMode,
   ZoomVideoSDKDataType,
   useZoom,
   type ZoomVideoSdkUser,
 } from '@zoom/react-native-videosdk';
 import * as React from 'react';
-import { PermissionsAndroid, Platform, type Permission } from 'react-native';
+import { AppState, PermissionsAndroid, Platform, type Permission } from 'react-native';
 import { io } from 'socket.io-client';
+import { qualityOf, useDeviceNetwork, useOnReconnect, type LinkQuality } from './network';
 import {
-  GOOD_BEFORE_VIDEO_BACK,
-  POOR_BEFORE_AUDIO_ONLY,
-  qualityOf,
-  useDeviceNetwork,
-  useOnReconnect,
-  type LinkQuality,
-} from './network';
+  SAMPLE_MS,
+  VIDEO_PREFERENCE,
+  climb,
+  firstTier,
+  judge,
+  startLadder,
+  type Ladder,
+  type Tier,
+  type Verdict,
+} from './quality';
 import { SEAT_MOVED, deviceLabel, seatId } from './seat';
 
 export type CallPhase =
@@ -49,7 +54,20 @@ const HANDOVER_POLL_MS = 3_000;
 const PENDING_POLL_MS = 4_000;
 const WAITING_POLL_MS = 3_000;
 const NOTICE_MS = 7_000;
-const MAX_AUTO_REJOINS = 3;
+const REJOIN_DELAYS_MS = [1_000, 2_000, 4_000, 8_000, 10_000];
+const REJOIN_FOR_MS = 120_000;
+
+type Stats = Record<string, number | undefined> | null | undefined;
+const num = (stats: Stats, key: string) => {
+  const value = stats?.[key];
+  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+};
+const shortSide = (stats: Stats, prefix: 'send' | 'recv') => {
+  const width = num(stats, `${prefix}FrameWidth`);
+  const height = num(stats, `${prefix}FrameHeight`);
+  return width && height ? Math.min(width, height) : 0;
+};
+const linkOf = (verdict: Verdict): LinkQuality => verdict;
 
 async function askPermissions(): Promise<string | null> {
   if (Platform.OS !== 'android') return null;
@@ -94,6 +112,11 @@ export function useCall(consultationId: string, displayName?: string) {
   const [uplink, setUplink] = React.useState<LinkQuality>('unknown');
   const [downlink, setDownlink] = React.useState<LinkQuality>('unknown');
   const [audioOnly, setAudioOnly] = React.useState(false);
+  const [sendTier, setSendTier] = React.useState<Tier>('hd');
+  const [recvTier, setRecvTier] = React.useState<Tier>('hd');
+  const [receivingP, setReceivingP] = React.useState(0);
+  const [sendingP, setSendingP] = React.useState(0);
+  const [remoteWeak, setRemoteWeak] = React.useState(false);
   const [connectedAt, setConnectedAt] = React.useState<number | null>(null);
   const [notices, setNotices] = React.useState<Notice[]>([]);
   const [handover, setHandover] = React.useState<HandoverRequest | null>(null);
@@ -107,19 +130,31 @@ export function useCall(consultationId: string, displayName?: string) {
     leftByUser: false,
     wantsVideo: true,
     audioOnly: false,
-    poor: 0,
-    good: 0,
+    videoOn: false,
+    send: startLadder('hd', 0),
+    recv: startLadder('hd', 0),
+    selfNet: 'unknown' as LinkQuality,
     approved: null as string | null,
     selfId: null as string | null,
     customId: '',
     rejoins: 0,
+    droppedAt: null as number | null,
+    rejoinTimer: null as ReturnType<typeof setTimeout> | null,
+    backgrounded: false,
+    resumeVideo: false,
+    online: true,
     noticeId: 0,
     seatTaken: false,
+    startTier: 'hd' as Tier,
   });
+  refs.current.online = network.online;
   const latest = React.useRef({
-    join: () => Promise.resolve(),
+    join: (_quiet?: boolean) => Promise.resolve(),
     yieldSeat: () => Promise.resolve(),
+    scheduleRejoin: () => undefined as void,
   });
+  const isAudioOnRef = React.useRef(true);
+  isAudioOnRef.current = isAudioOn;
 
   const notify = React.useCallback((text: string, tone: Notice['tone'] = 'info') => {
     const id = ++refs.current.noticeId;
@@ -134,7 +169,9 @@ export function useCall(consultationId: string, displayName?: string) {
       refs.current.customId = me.customUserId ?? '';
       setSelfId(me.userId);
       const mine = me as unknown as ZoomVideoSdkUser;
-      setIsVideoOn(await mine.videoStatus.isOn());
+      const videoOn = await mine.videoStatus.isOn();
+      refs.current.videoOn = videoOn;
+      setIsVideoOn(videoOn);
       setIsAudioOn(!(await mine.audioStatus.isMuted()));
       const others = await zoom.session.getRemoteUsers();
       const mapped = await Promise.all(
@@ -158,6 +195,9 @@ export function useCall(consultationId: string, displayName?: string) {
     async (end = false) => {
       refs.current.leaving = true;
       refs.current.connected = false;
+      if (refs.current.rejoinTimer) clearTimeout(refs.current.rejoinTimer);
+      refs.current.rejoinTimer = null;
+      refs.current.droppedAt = null;
       try {
         await zoom.leaveSession(end);
       } catch {
@@ -200,57 +240,168 @@ export function useCall(consultationId: string, displayName?: string) {
     [consultationId, handover, notify, sessionId, yieldSeat]
   );
 
-  // --- joining --------------------------------------------------------------------------------
+  // --- picture quality ------------------------------------------------------------------------
 
-  const join = React.useCallback(async () => {
-    const state = refs.current;
-    if (state.joining || state.connected) return;
-    state.joining = true;
-    state.leaving = false;
-    state.leftByUser = false;
-    setError(null);
-    setPhase('joining');
-    try {
-      const denied = await askPermissions();
-      if (denied) throw new Error(denied);
-      const session = await callApi.token(consultationId, {
-        sessionId,
-        device: deviceLabel(),
-        ...(displayName ? { displayName } : {}),
-        ...(state.approved ? { requestId: state.approved } : {}),
-      });
-      state.seatTaken = Boolean(session.seatTakenOver);
-      state.approved = null;
-      await zoom.joinSession({
-        sessionName: session.topic,
-        token: session.token,
-        userName: session.userName,
-        // Audio first. On a slow phone connection the camera starts off and comes on when it's safe.
-        audioOptions: { connect: true, mute: false },
-        videoOptions: { localVideoOn: state.wantsVideo && !network.slow },
-        sessionIdleTimeoutMins: 40,
-      });
-    } catch (failure) {
-      if (
-        failure instanceof ApiError &&
-        failure.status === 409 &&
-        failure.code === 'SEAT_APPROVAL_NEEDED'
-      ) {
-        const requestId = (failure.data as { requestId?: string } | undefined)?.requestId;
-        if (requestId) {
-          setWaitingRequest(requestId);
-          setPhase('awaiting-approval');
-          state.joining = false;
-          return;
+  const setVideo = React.useCallback(
+    async (on: boolean) => {
+      refs.current.videoOn = on;
+      setIsVideoOn(on);
+      if (on) await zoom.videoHelper.startVideo().catch(() => undefined);
+      else await zoom.videoHelper.stopVideo().catch(() => undefined);
+    },
+    [zoom]
+  );
+
+  // tells zoom how much picture to send for this tier, or pauses the camera to save the audio
+  const applySendTier = React.useCallback(
+    async (tier: Tier, previous: Tier) => {
+      const state = refs.current;
+      setSendTier(tier);
+      if (tier === 'audio') {
+        state.audioOnly = true;
+        setAudioOnly(true);
+        if (state.videoOn) {
+          await setVideo(false);
+          notify('Weak connection: your video is paused so your voice stays clear.', 'warning');
+        }
+        return;
+      }
+      const { min, max } = VIDEO_PREFERENCE[tier];
+      await zoom.videoHelper
+        .setVideoQualityPreference({
+          mode: VideoPreferenceMode.Custom,
+          minimumFrameRate: min,
+          maximumFrameRate: max,
+        })
+        .catch(() => undefined);
+      if (previous === 'audio') {
+        state.audioOnly = false;
+        setAudioOnly(false);
+        if (state.wantsVideo && !state.backgrounded && !state.videoOn) {
+          await setVideo(true);
+          notify('Connection is better. Your video is back on.');
         }
       }
-      setError(describe(failure));
+    },
+    [notify, setVideo, zoom]
+  );
+
+  const applyRecvTier = React.useCallback(
+    (tier: Tier, previous: Tier) => {
+      setRecvTier(tier);
+      if (tier === 'audio')
+        notify("Weak connection: the doctor's video is paused so you can hear clearly.", 'warning');
+      else if (previous === 'audio') notify("Connection is better. The doctor's video is back.");
+    },
+    [notify]
+  );
+
+  const resetLadders = React.useCallback(
+    (tier: Tier) => {
+      const now = Date.now();
+      const state = refs.current;
+      const sendBefore = state.send.tier;
+      const recvBefore = state.recv.tier;
+      state.send = startLadder(tier, now);
+      state.recv = startLadder(tier, now);
+      void applySendTier(tier, sendBefore);
+      if (recvBefore !== tier) applyRecvTier(tier, recvBefore);
+    },
+    [applyRecvTier, applySendTier]
+  );
+
+  // --- joining --------------------------------------------------------------------------------
+
+  // after a drop, keep trying to get back in for two minutes, waiting a little longer each time
+  const scheduleRejoin = React.useCallback(() => {
+    const state = refs.current;
+    if (state.leftByUser) return;
+    if (state.rejoinTimer) clearTimeout(state.rejoinTimer);
+    state.droppedAt ??= Date.now();
+    if (Date.now() - state.droppedAt > REJOIN_FOR_MS) {
+      state.droppedAt = null;
+      setError("We couldn't get you back into the call. Check your connection and tap Rejoin.");
       setPhase('failed');
-    } finally {
-      state.joining = false;
+      return;
     }
-  }, [consultationId, displayName, network.slow, sessionId, zoom]);
+    const delay = REJOIN_DELAYS_MS[Math.min(state.rejoins, REJOIN_DELAYS_MS.length - 1)]!;
+    state.rejoins += 1;
+    setPhase('reconnecting');
+    state.rejoinTimer = setTimeout(() => {
+      state.rejoinTimer = null;
+      if (state.online) void latest.current.join(true);
+      else latest.current.scheduleRejoin();
+    }, delay);
+  }, []);
+
+  const join = React.useCallback(
+    async (quiet = false) => {
+      const state = refs.current;
+      if (state.joining || state.connected) return;
+      state.joining = true;
+      state.leaving = false;
+      state.leftByUser = false;
+      setError(null);
+      if (!quiet) {
+        state.droppedAt = null;
+        state.rejoins = 0;
+        setPhase('joining');
+      }
+      try {
+        const denied = await askPermissions();
+        if (denied) throw new Error(denied);
+        const session = await callApi.token(consultationId, {
+          sessionId,
+          device: deviceLabel(),
+          ...(displayName ? { displayName } : {}),
+          ...(state.approved ? { requestId: state.approved } : {}),
+        });
+        state.seatTaken = Boolean(session.seatTakenOver);
+        state.approved = null;
+        const start = quiet ? state.send.tier : firstTier(network);
+        state.startTier = start;
+        await zoom.joinSession({
+          sessionName: session.topic,
+          token: session.token,
+          userName: session.userName,
+          // Audio first. On a slow phone connection the camera starts off and comes on when it's safe.
+          audioOptions: {
+            connect: true,
+            mute: !isAudioOnRef.current,
+            autoAdjustSpeakerVolume: true,
+          },
+          videoOptions: { localVideoOn: state.wantsVideo && start !== 'audio' && !network.slow },
+          sessionIdleTimeoutMins: 40,
+        });
+      } catch (failure) {
+        if (quiet && !(failure instanceof ApiError && failure.status === 409)) {
+          state.joining = false;
+          scheduleRejoin();
+          return;
+        }
+        if (
+          failure instanceof ApiError &&
+          failure.status === 409 &&
+          failure.code === 'SEAT_APPROVAL_NEEDED'
+        ) {
+          const requestId = (failure.data as { requestId?: string } | undefined)?.requestId;
+          if (requestId) {
+            setWaitingRequest(requestId);
+            setPhase('awaiting-approval');
+            state.joining = false;
+            return;
+          }
+        }
+        setError(describe(failure));
+        setPhase('failed');
+      } finally {
+        state.joining = false;
+      }
+    },
+    [consultationId, displayName, network, scheduleRejoin, sessionId, zoom]
+  );
   latest.current.join = join;
+  latest.current.scheduleRejoin = scheduleRejoin;
 
   const leave = React.useCallback(async () => {
     refs.current.leftByUser = true;
@@ -270,22 +421,27 @@ export function useCall(consultationId: string, displayName?: string) {
   }, [isAudioOn, zoom]);
 
   const toggleVideo = React.useCallback(async () => {
+    const state = refs.current;
     if (isVideoOn) {
-      refs.current.wantsVideo = false;
-      await zoom.videoHelper.stopVideo();
-      setIsVideoOn(false);
-    } else {
-      refs.current.wantsVideo = true;
-      refs.current.audioOnly = false;
-      setAudioOnly(false);
-      await zoom.videoHelper.startVideo();
-      setIsVideoOn(true);
+      state.wantsVideo = false;
+      await setVideo(false);
+      return;
     }
-  }, [isVideoOn, zoom]);
+    state.wantsVideo = true;
+    if (state.send.tier === 'audio') {
+      const before = state.send.tier;
+      state.send = startLadder('low', Date.now());
+      await applySendTier('low', before);
+    }
+    await setVideo(true);
+  }, [applySendTier, isVideoOn, setVideo]);
 
   const flipCamera = React.useCallback(async () => {
     await zoom.videoHelper.switchCamera();
   }, [zoom]);
+
+  const speakerOnRef = React.useRef(speakerOn);
+  speakerOnRef.current = speakerOn;
 
   const toggleSpeaker = React.useCallback(async () => {
     await zoom.audioHelper.setSpeaker(!speakerOn);
@@ -298,13 +454,23 @@ export function useCall(consultationId: string, displayName?: string) {
     const subs = [
       addListener(EventType.onSessionJoin, async () => {
         const state = refs.current;
+        const rejoined = state.droppedAt !== null;
         state.connected = true;
         state.rejoins = 0;
-        setConnectedAt(Date.now());
+        state.droppedAt = null;
+        if (state.rejoinTimer) clearTimeout(state.rejoinTimer);
+        state.rejoinTimer = null;
+        setConnectedAt((since) => (rejoined && since ? since : Date.now()));
         setPhase('connected');
         setError(null);
+        if (rejoined) notify("You're back in the call.");
+        // keep zoom's noise and echo removal on, and let it level the mic
+        zoom.audioSettingHelper.enableMicOriginalInput(false).catch(() => undefined);
+        zoom.audioSettingHelper.enableAutoAdjustMicVolume(true).catch(() => undefined);
         await refreshUsers();
-        zoom.audioHelper.setSpeaker(true).catch(() => undefined);
+        if (rejoined) void applySendTier(state.send.tier, state.send.tier);
+        else resetLadders(state.startTier);
+        zoom.audioHelper.setSpeaker(speakerOnRef.current).catch(() => undefined);
         callApi.presence(consultationId, 'joined', sessionId).catch(() => undefined);
         if (state.seatTaken) {
           const message = JSON.stringify({ t: SEAT_MOVED, sid: sessionId });
@@ -318,10 +484,10 @@ export function useCall(consultationId: string, displayName?: string) {
         setRemotes([]);
         setConnectedAt(null);
         if (reason === SessionLeaveReason.EndByHost) setPhase('ended');
-        else {
-          setError('You dropped out of the call. Rejoining as soon as your connection is back.');
+        else if (reason === SessionLeaveReason.KickByHost) {
+          setError('The doctor removed you from the call.');
           setPhase('failed');
-        }
+        } else latest.current.scheduleRejoin();
       }),
       addListener(EventType.onUserJoin, async ({ remoteUsers }) => {
         await refreshUsers();
@@ -340,35 +506,16 @@ export function useCall(consultationId: string, displayName?: string) {
       addListener(EventType.onUserNetworkStatusChanged, ({ type, status, user }) => {
         if (type === ZoomVideoSDKDataType.Share) return;
         const level = qualityOf(status);
-        const state = refs.current;
-        if (user.userId !== state.selfId) {
-          if (type === ZoomVideoSDKDataType.Video) setDownlink(level);
+        if (user.userId === refs.current.selfId) refs.current.selfNet = level;
+        else setRemoteWeak(level === 'poor');
+      }),
+      addListener(EventType.onUserFailoverStatusChanged, ({ user, isInFailover }) => {
+        if (user && user.userId !== refs.current.selfId) {
+          refreshUsers();
           return;
         }
-        setUplink(level);
-        if (level === 'poor') {
-          state.poor += 1;
-          state.good = 0;
-          if (state.poor >= POOR_BEFORE_AUDIO_ONLY && !state.audioOnly) {
-            state.audioOnly = true;
-            setAudioOnly(true);
-            zoom.videoHelper.stopVideo().catch(() => undefined);
-            setIsVideoOn(false);
-            notify('Weak connection: your video is paused so the audio stays clear.', 'warning');
-          }
-        } else if (level === 'good') {
-          state.good += 1;
-          state.poor = 0;
-          if (state.good >= GOOD_BEFORE_VIDEO_BACK && state.audioOnly) {
-            state.audioOnly = false;
-            setAudioOnly(false);
-            if (state.wantsVideo) {
-              zoom.videoHelper.startVideo().catch(() => undefined);
-              setIsVideoOn(true);
-              notify('Connection is back. Your video is on again.');
-            }
-          }
-        }
+        if (!refs.current.connected) return;
+        setPhase(isInFailover ? 'reconnecting' : 'connected');
       }),
       addListener(EventType.onCommandReceived, async ({ sender, command }) => {
         let message: { t?: string; sid?: string } | null = null;
@@ -392,7 +539,16 @@ export function useCall(consultationId: string, displayName?: string) {
       }),
     ];
     return () => subs.forEach((subscription) => subscription.remove());
-  }, [addListener, consultationId, notify, refreshUsers, sessionId, zoom]);
+  }, [
+    addListener,
+    applySendTier,
+    consultationId,
+    notify,
+    refreshUsers,
+    resetLadders,
+    sessionId,
+    zoom,
+  ]);
 
   // --- the doctor's room ----------------------------------------------------------------------
 
@@ -564,26 +720,101 @@ export function useCall(consultationId: string, displayName?: string) {
     };
   }, [consultationId, settle, waitingRequest]);
 
+  // --- measuring the line ---------------------------------------------------------------------
+
+  // every two seconds read loss, delay and jitter from zoom and move each direction up or down
+  React.useEffect(() => {
+    if (phase !== 'connected') return;
+    let stopped = false;
+    const sample = async () => {
+      try {
+        const [audio, video] = (await Promise.all([
+          zoom.session.getAudioStatisticsInfo(),
+          zoom.session.getVideoStatisticsInfo(),
+        ])) as [Stats, Stats];
+        if (stopped || !refs.current.connected) return;
+        const state = refs.current;
+        const now = Date.now();
+        const sendVerdict = judge({
+          lossPct: Math.max(
+            num(audio, 'sendPacketLossAvg'),
+            state.videoOn ? num(video, 'sendPacketLossAvg') : 0
+          ),
+          latencyMs: Math.max(num(audio, 'sendLatency'), num(video, 'sendLatency')),
+          jitterMs: Math.max(num(audio, 'sendJitter'), num(video, 'sendJitter')),
+          zoom: state.selfNet,
+        });
+        const recvVerdict = judge({
+          lossPct: Math.max(num(audio, 'recvPacketLossAvg'), num(video, 'recvPacketLossAvg')),
+          latencyMs: Math.max(num(audio, 'recvLatency'), num(video, 'recvLatency')),
+          jitterMs: Math.max(num(audio, 'recvJitter'), num(video, 'recvJitter')),
+          zoom: 'unknown',
+        });
+        setUplink(linkOf(sendVerdict));
+        setDownlink(linkOf(recvVerdict));
+        setSendingP(shortSide(video, 'send'));
+        setReceivingP(shortSide(video, 'recv'));
+        const send: Ladder = climb(state.send, sendVerdict, now);
+        if (send.tier !== state.send.tier) void applySendTier(send.tier, state.send.tier);
+        state.send = send;
+        const recv: Ladder = climb(state.recv, recvVerdict, now);
+        if (recv.tier !== state.recv.tier) applyRecvTier(recv.tier, state.recv.tier);
+        state.recv = recv;
+      } catch {
+        // the next sample tries again
+      }
+    };
+    const timer = setInterval(sample, SAMPLE_MS);
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+    };
+  }, [applyRecvTier, applySendTier, phase, zoom]);
+
+  // the camera rests while the app is in the background; the call audio keeps going
+  React.useEffect(() => {
+    const subscription = AppState.addEventListener('change', (next) => {
+      const state = refs.current;
+      if (!state.connected) return;
+      if (next === 'background' && !state.backgrounded) {
+        state.backgrounded = true;
+        state.resumeVideo = state.videoOn;
+        if (state.videoOn) void setVideo(false);
+      } else if (next === 'active' && state.backgrounded) {
+        state.backgrounded = false;
+        if (state.resumeVideo && state.wantsVideo && state.send.tier !== 'audio')
+          void setVideo(true);
+        state.resumeVideo = false;
+      }
+    });
+    return () => subscription.remove();
+  }, [setVideo]);
+
   // --- the phone's own connection -------------------------------------------------------------
 
-  // Offline is shown straight away; coming back rejoins by itself, a few times, if the call dropped.
   React.useEffect(() => {
     if (!network.online && refs.current.connected) setPhase('reconnecting');
     else if (network.online && phase === 'reconnecting' && refs.current.connected)
       setPhase('connected');
   }, [network.online, phase]);
 
+  // back online: try again straight away instead of waiting for the next timer
   useOnReconnect(() => {
-    if (phase === 'failed' && !refs.current.leftByUser && refs.current.rejoins < MAX_AUTO_REJOINS) {
-      refs.current.rejoins += 1;
-      void latest.current.join();
-    }
+    const state = refs.current;
+    if (state.leftByUser || state.connected || state.joining) return;
+    if (phase !== 'reconnecting' && phase !== 'failed') return;
+    if (state.rejoinTimer) clearTimeout(state.rejoinTimer);
+    state.rejoinTimer = null;
+    if (phase === 'failed') state.droppedAt = Date.now();
+    setPhase('reconnecting');
+    void latest.current.join(true);
   });
 
   // Never leave the call running if the screen goes away.
   React.useEffect(
     () => () => {
-      if (refs.current.connected || refs.current.joining) {
+      if (refs.current.rejoinTimer) clearTimeout(refs.current.rejoinTimer);
+      if (refs.current.connected || refs.current.joining || refs.current.droppedAt) {
         refs.current.leftByUser = true;
         zoom.leaveSession(false);
         callApi.presence(consultationId, 'left', sessionId).catch(() => undefined);
@@ -605,13 +836,18 @@ export function useCall(consultationId: string, displayName?: string) {
     uplink,
     downlink,
     audioOnly,
+    sendTier,
+    recvTier,
+    receivingP,
+    sendingP,
+    remoteWeak,
     connectedAt,
     notices,
     handover,
     doctorName,
     online: network.online,
     slow: network.slow,
-    join,
+    join: () => join(),
     leave,
     toggleAudio,
     toggleVideo,

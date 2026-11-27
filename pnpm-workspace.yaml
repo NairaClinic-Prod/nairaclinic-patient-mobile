@@ -1,2 +1,4 @@
 allowBuilds:
   yarn: true
+patchedDependencies:
+  '@zoom/react-native-videosdk@2.6.11': patches/@zoom__react-native-videosdk@2.6.11.patch
