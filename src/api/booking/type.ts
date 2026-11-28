@@ -117,4 +117,12 @@ export type DoctorBooking = BookingRequest & {
   inPerson: boolean;
 };
 
-export type SmartBooking = BookingRequest & { scheduledAtUtc: string };
+export type SmartCategory = 'general' | 'specialist';
+
+export type SpecialtyOption = { slug: string; name: string };
+
+export type SmartBooking = BookingRequest & {
+  scheduledAtUtc: string;
+  category: SmartCategory;
+  specialty: string | null;
+};

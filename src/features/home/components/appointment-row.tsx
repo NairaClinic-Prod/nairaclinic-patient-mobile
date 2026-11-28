@@ -3,6 +3,7 @@ import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import { Building2, ChevronRight, Video } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
+import { kindLabel } from '@/features/booking/kind-label';
 import type { DashboardAppointment } from '../types';
 import { dateParts, drName, formatWhen, relativeDay } from '../utils';
 
@@ -19,7 +20,7 @@ export function AppointmentRow({ appointment, ready, last, onPress }: Appointmen
   const parts = dateParts(appointment.scheduledAtUtc);
   const inPerson = appointment.isInPerson;
   const chip = ready ? 'Join now' : relativeDay(appointment.scheduledAtUtc);
-  const detail = `${inPerson ? 'In person' : 'Video call'} · ${formatWhen(appointment.scheduledAtUtc)}${
+  const detail = `${inPerson ? 'In person' : kindLabel(appointment, 'Video call')} · ${formatWhen(appointment.scheduledAtUtc)}${
     appointment.durationMins ? ` · ${appointment.durationMins} min` : ''
   }`;
 

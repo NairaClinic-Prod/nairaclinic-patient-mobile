@@ -36,6 +36,13 @@ export const useDoctorSearch = (query: string, enabled: boolean) =>
     staleTime: 30_000,
   });
 
+export const useSpecialties = () =>
+  useQuery({
+    queryKey: ['booking', 'specialties'] as const,
+    queryFn: bookingApi.specialties,
+    staleTime: 10 * 60_000,
+  });
+
 export const useBookingTiming = () =>
   useQuery({
     queryKey: ['booking', 'timing'] as const,

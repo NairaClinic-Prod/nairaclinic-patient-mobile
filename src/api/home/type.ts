@@ -8,6 +8,8 @@ export type DashboardAppointment = {
   doctorName: string;
   isSmartRequest: boolean;
   isInPerson: boolean;
+  category?: 'general' | 'specialist' | null;
+  specialty?: string | null;
   channelName?: string | null;
   reason?: string | null;
   rescheduleReason?: string | null;

@@ -148,8 +148,8 @@ export function ProfileScreen() {
                   },
                   {
                     key: 'doctor-plans',
-                    title: 'My doctor plans',
-                    text: 'Monthly plans and visits left',
+                    title: '',
+                    text: '',
                     icon: Stethoscope,
                     onPress: () => open('/doctor-plans'),
                   },

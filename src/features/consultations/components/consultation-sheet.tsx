@@ -25,6 +25,7 @@ import * as Haptics from 'expo-haptics';
 import { CalendarClock, MapPin, Video } from 'lucide-react-native';
 import * as React from 'react';
 import { ActivityIndicator, Linking, View } from 'react-native';
+import { kindLabel } from '@/features/booking/kind-label';
 import { closeConsultation, useConsultationSheet } from '../ui-store';
 import { joinWindow, statusLabel } from '../utils';
 
@@ -313,7 +314,12 @@ export function ConsultationSheet() {
             <Row
               label="Type"
               value={
-                inPerson ? 'In person' : consultation.type === 'audio' ? 'Audio call' : 'Video call'
+                inPerson
+                  ? 'In person'
+                  : kindLabel(
+                      { ...consultation.metaJson },
+                      consultation.type === 'audio' ? 'Audio call' : 'Video call'
+                    )
               }
             />
             {consultation.reason ? (

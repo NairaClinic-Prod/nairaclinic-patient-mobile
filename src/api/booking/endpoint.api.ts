@@ -12,6 +12,7 @@ import type {
   RawSlot,
   SmartBooking,
   BookingRequest,
+  SpecialtyOption,
 } from './type';
 
 const DEFAULT_RATES: DoctorRate[] = [
@@ -112,6 +113,11 @@ export const bookingApi = {
       `/doctors/search?page=1&limit=${SEARCH_PAGE_SIZE}&match=name&q=${encodeURIComponent(query.slice(0, 100))}`
     ),
 
+  specialties: () =>
+    request<{ specialties: SpecialtyOption[] }>('/doctors/specialties', { auth: 'none' }).then(
+      (reply) => reply.specialties
+    ),
+
   // The admin's minimum notice before a booking, and the step it is rounded up to.
   timing: () => request<BookingTiming>('/consultations/booking-timing', { auth: 'none' }),
 
@@ -142,6 +148,10 @@ export const bookingApi = {
     request<CreatedConsultation>('/consultations/smart-request', {
       form: bookingForm(booking, {
         scheduledAtUtc: booking.scheduledAtUtc,
+        category: booking.category,
+        ...(booking.category === 'specialist' && booking.specialty
+          ? { specialty: booking.specialty }
+          : {}),
         timezone: (() => {
           try {
             return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';

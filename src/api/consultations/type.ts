@@ -14,6 +14,8 @@ export type ConsultationDetail = {
     rescheduleCount?: number | null;
     metaJson?: {
       source?: { kind?: string } | null;
+      category?: 'general' | 'specialist' | null;
+      specialty?: string | null;
       latestRescheduleReason?: string | null;
       presence?: {
         doctorJoinedAtUtc?: string | null;

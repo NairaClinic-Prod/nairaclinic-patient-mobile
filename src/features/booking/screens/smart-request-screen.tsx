@@ -4,25 +4,43 @@ import { SubScreen } from '@/components/shared/sub-screen';
 import { Text } from '@/components/ui/text';
 import * as Haptics from 'expo-haptics';
 import * as React from 'react';
+import { HeartPulse, Stethoscope } from 'lucide-react-native';
 import { View } from 'react-native';
+import { useSpecialties, type SmartCategory } from '@/api/booking';
 import { bookingMessage, payForBooking, sendSmartRequest, toPhotos } from '../book';
 import { BookingSuccess } from '../components/booking-success';
 import { DetailsCard } from '../components/details-card';
-import { AUDIO_OPTION, KindPicker, VIDEO_OPTION } from '../components/kind-picker';
+import { KindPicker, type KindOption } from '../components/kind-picker';
 import { PaymentOptions, usePayment } from '../components/payment-options';
 import { ScheduleSteps } from '../components/schedule-steps';
+import { SpecialtyField, specialtyName } from '../components/specialty-field';
 import { SMART_DURATION_MINS } from '../constants';
 import { useEarliestBooking } from '../earliest';
 import { useBookingIdentity } from '../identity';
 import type { PayChoice } from '../types';
 import { clock, longDay, requestDays } from '../utils';
 
-type SmartKind = 'video' | 'audio';
+const CATEGORY_OPTIONS: KindOption<SmartCategory>[] = [
+  {
+    value: 'general',
+    title: 'General',
+    text: 'See an available doctor. No need to pick a specialist.',
+    icon: Stethoscope,
+  },
+  {
+    value: 'specialist',
+    title: 'Specialist',
+    text: 'Choose the kind of specialist you need.',
+    icon: HeartPulse,
+  },
+];
 
 export function SmartRequestScreen() {
   const identity = useBookingIdentity();
   const earliest = useEarliestBooking();
-  const [kind, setKind] = React.useState<SmartKind>('video');
+  const [category, setCategory] = React.useState<SmartCategory>('general');
+  const [specialty, setSpecialty] = React.useState<string | null>(null);
+  const specialties = useSpecialties();
   const [dayKey, setDayKey] = React.useState<string | null>(null);
   const [slotId, setSlotId] = React.useState<string | null>(null);
   const [reason, setReason] = React.useState('');
@@ -39,18 +57,25 @@ export function SmartRequestScreen() {
   const slot = day?.slots.find((item) => item.id === slotId);
   // The price is set by NairaClinic when the request is sent, so no total is shown up front.
   const payment = usePayment(null, picked);
-  const missing = [...(!slot ? ['A time'] : []), ...(slot && !reason ? ['Reason for visit'] : [])];
+  const needsSpecialty = category === 'specialist' && !specialty;
+  const missing = [
+    ...(needsSpecialty ? ['Specialist'] : []),
+    ...(!slot ? ['A time'] : []),
+    ...(slot && !reason ? ['Reason for visit'] : []),
+  ];
 
   async function send() {
     if (!slot) return;
     setBusy(true);
     setError(null);
-    const key = `${slot.id}|${kind}`;
+    const key = `${slot.id}|${category}|${specialty ?? ''}`;
     try {
       let id = created?.key === key ? created.id : null;
       if (!id) {
         const reply = await sendSmartRequest({
-          type: kind,
+          type: 'video',
+          category,
+          specialty: category === 'specialist' ? specialty : null,
           durationMins: SMART_DURATION_MINS,
           scheduledAtUtc: slot.startsAt,
           reason,
@@ -65,7 +90,12 @@ export function SmartRequestScreen() {
       if (result.status === 'booked') {
         setSent([
           ['Doctor', 'Next available'],
-          ['Type', kind === 'video' ? 'Video call' : 'Audio call'],
+          [
+            'Type',
+            category === 'specialist'
+              ? `Specialist · ${specialtyName(specialty, specialties.data)}`
+              : 'General consultation',
+          ],
           ['Date', longDay(new Date(slot.startsAt))],
           ['Time', `${clock(slot.startsAt)} – ${clock(slot.endsAt)}`],
         ]);
@@ -94,7 +124,9 @@ export function SmartRequestScreen() {
     );
   }
 
-  const retrying = Boolean(slot && created?.key === `${slot.id}|${kind}` && error);
+  const retrying = Boolean(
+    slot && created?.key === `${slot.id}|${category}|${specialty ?? ''}` && error
+  );
   const footer = (
     <View className="gap-2 rounded-3xl bg-card p-3">
       {error ? (
@@ -129,15 +161,18 @@ export function SmartRequestScreen() {
       footer={footer}>
       <View className="gap-4">
         <View className="gap-3 rounded-2xl bg-card p-4">
-          <Text className="text-[15px] font-bold">Consultation type</Text>
-          <KindPicker<SmartKind>
-            options={[
-              { ...VIDEO_OPTION, text: 'Meet an available doctor online.' },
-              { ...AUDIO_OPTION, text: 'Speak with an available doctor.' },
-            ]}
-            value={kind}
-            onChange={setKind}
+          <Text className="text-[15px] font-bold">What kind of consultation?</Text>
+          <KindPicker<SmartCategory>
+            options={CATEGORY_OPTIONS}
+            value={category}
+            onChange={(next) => {
+              setCategory(next);
+              if (next === 'general') setSpecialty(null);
+            }}
           />
+          {category === 'specialist' ? (
+            <SpecialtyField value={specialty} onChange={setSpecialty} />
+          ) : null}
         </View>
 
         <ScheduleSteps
