@@ -26,3 +26,15 @@ export type PresenceReply = {
 export type HandoverStatus = { status?: 'pending' | 'accepted' | 'rejected' | 'expired' | 'unknown' };
 
 export type HandoverDecision = 'accept' | 'reject';
+
+export type ChatMessage = {
+  id: string;
+  senderRole: 'doctor' | 'patient' | 'system';
+  senderName: string;
+  text?: string | null;
+  fileUrl?: string | null;
+  fileName?: string | null;
+  createdAt: string;
+  // Only on this phone: the message could not be sent.
+  failed?: boolean;
+};

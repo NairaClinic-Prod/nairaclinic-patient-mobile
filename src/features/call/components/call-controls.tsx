@@ -3,6 +3,7 @@ import { Icon } from '@/components/ui/icon';
 import { cn } from '@/lib/utils';
 import * as Haptics from 'expo-haptics';
 import {
+  MessageCircle,
   Mic,
   MicOff,
   PhoneOff,
@@ -13,7 +14,9 @@ import {
   VolumeX,
 } from 'lucide-react-native';
 import { View } from 'react-native';
+import type { ChatState } from '../chat';
 import type { CallState } from '../hooks';
+import { Text } from '@/components/ui/text';
 
 function Round({
   label,
@@ -38,7 +41,7 @@ function Round({
         onPress();
       }}
       className={cn(
-        'size-14 items-center justify-center rounded-full',
+        'size-12 items-center justify-center rounded-full',
         danger ? 'bg-destructive' : on ? 'bg-white/20' : 'bg-white'
       )}>
       {children}
@@ -47,16 +50,16 @@ function Round({
 }
 
 // Five round buttons under the video: the things people reach for in a call, and nothing else.
-export function CallControls({ call }: { call: CallState }) {
+export function CallControls({ call, chat }: { call: CallState; chat: ChatState }) {
   return (
-    <View className="flex-row items-center justify-center gap-3.5">
+    <View className="flex-row items-center justify-center gap-2.5">
       <Round
         label={call.isAudioOn ? 'Mute' : 'Unmute'}
         on={call.isAudioOn}
         onPress={call.toggleAudio}>
         <Icon
           as={call.isAudioOn ? Mic : MicOff}
-          className={cn('size-6', call.isAudioOn ? 'text-white' : 'text-black')}
+          className={cn('size-5', call.isAudioOn ? 'text-white' : 'text-black')}
         />
       </Round>
       <Round
@@ -65,12 +68,24 @@ export function CallControls({ call }: { call: CallState }) {
         onPress={call.toggleVideo}>
         <Icon
           as={call.isVideoOn ? Video : VideoOff}
-          className={cn('size-6', call.isVideoOn ? 'text-white' : 'text-black')}
+          className={cn('size-5', call.isVideoOn ? 'text-white' : 'text-black')}
         />
       </Round>
+      <View>
+        <Round label="Open chat" onPress={() => chat.setOpen(true)}>
+          <Icon as={MessageCircle} className="size-5 text-white" />
+        </Round>
+        {chat.unread > 0 ? (
+          <View className="absolute -top-1 -right-1 min-w-5 items-center rounded-full bg-destructive px-1.5 py-0.5">
+            <Text className="text-[11px] font-semibold text-white">
+              {chat.unread > 9 ? '9+' : chat.unread}
+            </Text>
+          </View>
+        ) : null}
+      </View>
       {call.isVideoOn ? (
         <Round label="Switch camera" onPress={call.flipCamera}>
-          <Icon as={SwitchCamera} className="size-6 text-white" />
+          <Icon as={SwitchCamera} className="size-5 text-white" />
         </Round>
       ) : null}
       <Round
@@ -79,11 +94,11 @@ export function CallControls({ call }: { call: CallState }) {
         onPress={call.toggleSpeaker}>
         <Icon
           as={call.speakerOn ? Volume2 : VolumeX}
-          className={cn('size-6', call.speakerOn ? 'text-white' : 'text-black')}
+          className={cn('size-5', call.speakerOn ? 'text-white' : 'text-black')}
         />
       </Round>
       <Round label="Leave the call" danger onPress={call.leave}>
-        <Icon as={PhoneOff} className="size-6 text-white" />
+        <Icon as={PhoneOff} className="size-5 text-white" />
       </Round>
     </View>
   );

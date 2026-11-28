@@ -11,7 +11,9 @@ import { Star } from 'lucide-react-native';
 import * as React from 'react';
 import { ActivityIndicator, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useCallChat, type ChatState } from '../chat';
 import { CallControls } from '../components/call-controls';
+import { ChatSheet } from '../components/chat-sheet';
 import { CallStatus, Notices } from '../components/status-bar';
 import { Reconnecting, SelfView, VideoStage } from '../components/video-stage';
 import { useCall, type CallState } from '../hooks';
@@ -161,7 +163,7 @@ function SeatPrompt({ call }: { call: CallState }) {
   );
 }
 
-function InCall({ call }: { call: CallState }) {
+function InCall({ call, chat }: { call: CallState; chat: ChatState }) {
   const insets = useSafeAreaInsets();
   return (
     <View className="flex-1 bg-black">
@@ -177,9 +179,10 @@ function InCall({ call }: { call: CallState }) {
       <SelfView call={call} top={insets.top + 88} />
       <View className="flex-1" />
       <View style={{ paddingBottom: Math.max(insets.bottom, 16) + 8 }} className="px-4">
-        <CallControls call={call} />
+        <CallControls call={call} chat={chat} />
       </View>
       <SeatPrompt call={call} />
+      <ChatSheet chat={chat} doctorName={call.doctorName ? drName(call.doctorName) : 'Your doctor'} />
     </View>
   );
 }
@@ -187,6 +190,7 @@ function InCall({ call }: { call: CallState }) {
 function CallBody({ id }: { id: string }) {
   useKeepAwake();
   const call = useCall(id);
+  const chat = useCallChat(id, call.phase === 'connected' || call.phase === 'reconnecting');
 
   switch (call.phase) {
     case 'waiting':
@@ -241,7 +245,7 @@ function CallBody({ id }: { id: string }) {
     case 'ended':
       return <Rating id={id} />;
     default:
-      return <InCall call={call} />;
+      return <InCall call={call} chat={chat} />;
   }
 }
 

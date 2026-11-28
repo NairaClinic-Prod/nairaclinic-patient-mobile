@@ -152,7 +152,10 @@ export function useCall(consultationId: string, displayName?: string) {
     join: (_quiet?: boolean) => Promise.resolve(),
     yieldSeat: () => Promise.resolve(),
     scheduleRejoin: () => undefined as void,
+    settle: (_requestId: string, _decision: string) => undefined as void,
+    waiting: null as string | null,
   });
+  const socketRef = React.useRef<ReturnType<typeof io> | null>(null);
   const isAudioOnRef = React.useRef(true);
   isAudioOnRef.current = isAudioOn;
 
@@ -588,6 +591,10 @@ export function useCall(consultationId: string, displayName?: string) {
   const inCall = phase === 'connected' || phase === 'reconnecting';
 
   React.useEffect(() => {
+    if (phase === 'connected') socketRef.current?.emit('call:enter', { consultationId, sessionId });
+  }, [consultationId, phase, sessionId]);
+
+  React.useEffect(() => {
     if (!inCall) return;
     const ping = async () => {
       try {
@@ -638,6 +645,7 @@ export function useCall(consultationId: string, displayName?: string) {
   // Live seat events from the server, so a takeover request shows up at once.
   React.useEffect(() => {
     let socket: ReturnType<typeof io> | null = null;
+    let beat: ReturnType<typeof setInterval> | null = null;
     let stopped = false;
     (async () => {
       try {
@@ -647,6 +655,16 @@ export function useCall(consultationId: string, displayName?: string) {
           auth: { token },
           transports: ['websocket', 'polling'],
         });
+        const seat = { consultationId, sessionId };
+        // tells the server this phone is in the call, so killing the app or losing signal frees the seat within seconds
+        const enter = () => {
+          if (refs.current.connected) socket?.emit('call:enter', seat);
+        };
+        socketRef.current = socket;
+        socket.on('connect', enter);
+        beat = setInterval(() => {
+          if (refs.current.connected && socket?.connected) socket.emit('call:beat', seat);
+        }, 10_000);
         socket.on(
           'call-seat',
           (event: {
@@ -665,7 +683,17 @@ export function useCall(consultationId: string, displayName?: string) {
             ) {
               setHandover({ requestId: event.requestId, device: event.device || 'another device' });
             }
-            if (event.type === 'handover-decided') settle(event.requestId, event.decision ?? '');
+            if (event.type === 'handover-decided')
+              latest.current.settle(event.requestId, event.decision ?? '');
+          }
+        );
+        // the server frees a seat the moment its device disappears, so a waiting device can take it at once
+        socket.on(
+          'call-seat',
+          (event: { type?: string; consultationId?: string; sessionId?: string }) => {
+            if (event.type !== 'seat-released' || event.consultationId !== consultationId) return;
+            if (event.sessionId === sessionId || !latest.current.waiting) return;
+            latest.current.settle(latest.current.waiting, 'accepted');
           }
         );
       } catch {
@@ -674,6 +702,8 @@ export function useCall(consultationId: string, displayName?: string) {
     })();
     return () => {
       stopped = true;
+      if (beat) clearInterval(beat);
+      socketRef.current = null;
       socket?.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -699,6 +729,8 @@ export function useCall(consultationId: string, displayName?: string) {
     },
     [waitingRequest]
   );
+  latest.current.settle = settle;
+  latest.current.waiting = waitingRequest;
 
   React.useEffect(() => {
     if (!waitingRequest) return;

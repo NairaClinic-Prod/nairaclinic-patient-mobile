@@ -1,4 +1,4 @@
-import { API_URL, REQUEST_TIMEOUT_MS } from './config';
+import { API_URL, MOBILE_APP_KEY, REQUEST_TIMEOUT_MS } from './config';
 
 export class ApiError extends Error {
   status: number;
@@ -64,6 +64,7 @@ async function rawFetch(
       method,
       headers: {
         Accept: accept,
+        ...(MOBILE_APP_KEY ? { 'x-nc-app-key': MOBILE_APP_KEY } : {}),
         ...(body !== undefined && !form ? { 'Content-Type': 'application/json' } : {}),
         ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
       },

@@ -1,6 +1,7 @@
 import { request } from '../client';
 import type {
   CallToken,
+  ChatMessage,
   HandoverDecision,
   HandoverStatus,
   PresenceEvent,
@@ -41,6 +42,14 @@ export const callApi = {
     request<unknown>(`/consultations/${id(consultationId)}/seat-handover/${id(requestId)}`, {
       body: { decision, sessionId },
     }),
+
+  // The messages already sent in this consultation, oldest first.
+  chatMessages: (consultationId: string) =>
+    request<ChatMessage[]>(`/consultations/${id(consultationId)}/chat/messages`),
+
+  // Sends a chat message over plain HTTP, for when the live connection is down.
+  sendChat: (consultationId: string, text: string) =>
+    request<ChatMessage>(`/consultations/${id(consultationId)}/chat/messages`, { body: { text } }),
 
   rate: (consultationId: string, body: { rating: number; review?: string }) =>
     request<unknown>(`/consultations/${id(consultationId)}/rating`, { body }),
